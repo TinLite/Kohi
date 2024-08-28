@@ -1,9 +1,9 @@
-import { Bookmark, MessageCircle, Repeat, Repeat2, Send, Share2, ThumbsUp } from "lucide-react";
+import { Bookmark, MessageCircle, Repeat, Send, ThumbsUp } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
-import { Separator } from "./ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { Separator } from "./ui/separator";
 
 export default function UserPost() {
   return (

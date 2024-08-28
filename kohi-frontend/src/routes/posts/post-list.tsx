@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import UserPost from "@/components/user-post";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
