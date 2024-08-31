@@ -1,0 +1,27 @@
+meta {
+  name: createUser
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/v1/api/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "Thinh",
+    "password": "12356",
+    "email": "",
+    "createdAt": "2024-08-29T10:30:00Z",
+    "updatedAt": "2024-08-29T12:00:00Z",
+    "avatar": "",
+    "wall": "",
+    "following": [
+    ],
+    "bookmarks": [
+    ]
+  }
+}

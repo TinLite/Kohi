@@ -8,8 +8,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto):Promise<void> {
+    await this.usersService.create(createUserDto);
   }
 
   @Get()
@@ -19,16 +19,17 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.findOne(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  deleteOne(@Param('id') id: string) {
+    return this.usersService.deleteOne(id);
   }
+
+  @Post('update/:id')
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    await this.usersService.updateUser(id, updateUserDto);
+  }
+
 }

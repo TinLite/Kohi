@@ -1,31 +1,32 @@
-import { Prop } from "@nestjs/mongoose";
-
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import {Schema as MongooseSchema} from 'mongoose';
+@Schema()
 export class User {
-    @Prop()
-    username: string;
-    
-    @Prop()
-    password: string;
+  @Prop()
+  username: string;
 
-    @Prop()
-    email: string;
+  @Prop()
+  password: string;
 
-    @Prop()
-    createdAt: Date;
+  @Prop()
+  email: string;
 
-    @Prop()
-    updatedAt: Date;
+  @Prop({default: Date.now})
+  createdAt: Date;
 
-    @Prop()
-    avatar: string;
+  @Prop({default: Date.now})
+  updatedAt: Date;
 
-    @Prop()
-    wall: string;
+  @Prop()
+  avatar: string;
 
-    @Prop()
-    following: string[];
+  @Prop()
+  wall: string;
 
-    @Prop()
-    bookmarks: string[];
-
+  @Prop()
+  following: String[];
+  
+  @Prop()
+  bookmarks: string[];
 }
+export const UserSchema = SchemaFactory.createForClass(User);
