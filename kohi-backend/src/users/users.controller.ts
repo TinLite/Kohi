@@ -3,12 +3,14 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import mongoose from 'mongoose';
+import { Public } from 'src/auth/authmeta';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @Public()
   async create(@Body() createUserDto: CreateUserDto) {
     await this.usersService.create(createUserDto);
   }

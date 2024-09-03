@@ -7,16 +7,29 @@ import { join } from 'path';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
+import { UtilsModule } from './utils/utils.module';
+import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/kohi'), // MongoDB
-    ConfigModule.forRoot(), // Config
+    ConfigModule.forRoot(
+      {
+        isGlobal: true,
+      }
+    ), // Config
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'kohi-frontend', 'dist') // Serving build file
+      rootPath: join(__dirname, '..', '..', 'kohi-frontend', 'dist'), // Serving build file
     }),
-    PostsModule, UsersModule
+    PostsModule,
+    UsersModule,
+    AuthModule,
+    UtilsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,{
+    provide: 'APP_GUARD',
+    useClass: JwtAuthGuard,
+  }],
 })
 export class AppModule {}
