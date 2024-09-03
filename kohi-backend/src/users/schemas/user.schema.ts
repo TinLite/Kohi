@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import {Schema as MongooseSchema} from 'mongoose';
+import { IsEmail } from 'class-validator';
+
 @Schema()
 export class User {
   @Prop()
@@ -8,8 +9,11 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop()
+ @Prop()
   email: string;
+
+  @Prop({default:"User" })
+  role:string;
 
   @Prop({default: Date.now})
   createdAt: Date;
@@ -17,10 +21,10 @@ export class User {
   @Prop({default: Date.now})
   updatedAt: Date;
 
-  @Prop()
+  @Prop({default:"Null" })
   avatar: string;
 
-  @Prop()
+  @Prop({default:"Null" })
   wall: string;
 
   @Prop()

@@ -1,14 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import mongoose from 'mongoose';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto):Promise<void> {
+  async create(@Body() createUserDto: CreateUserDto) {
     await this.usersService.create(createUserDto);
   }
 
@@ -23,11 +24,15 @@ export class UsersController {
   }
 
   @Delete(':id')
-  deleteOne(@Param('id') id: string) {
-    return this.usersService.deleteOne(id);
+  async deleteOne(@Param('id') id: string) {
+    if(mongoose.isValidObjectId(id)){
+      return this.usersService.deleteOne(id);
+    }else{
+      throw new BadRequestException('Id Not Found');
+    }
   }
 
-  @Post('update/:id')
+  @Patch('update/:id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     await this.usersService.updateUser(id, updateUserDto);
   }
