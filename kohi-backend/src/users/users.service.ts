@@ -55,11 +55,21 @@ export class UsersService {
     this.userModel.findByIdAndDelete(id).exec();
   }
 
-  //CH LÀM
+  //Update 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
     const updateUser = await this.userModel
       .updateOne({ _id: id }, updateUserDto)
       .exec();
     return updateUser;
+  }
+  //search User
+  async searchUser(query: string) {
+    const users = await this.userModel.find({
+      $or:[
+      {username:{$regex: query, $options: 'i'}},
+      {email:{$regex: query, $options: 'i'}},
+    ]
+    });
+    return users;
   }
 }
