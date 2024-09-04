@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsEmail } from 'class-validator';
 
+
 @Schema()
 export class User {
   @Prop()
@@ -13,7 +14,7 @@ export class User {
   email: string;
 
   @Prop({default:"User" })
-  role:string;
+  roles:String[];
 
   @Prop({default: Date.now})
   createdAt: Date;

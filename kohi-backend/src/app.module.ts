@@ -10,6 +10,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UtilsModule } from './utils/utils.module';
 import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
+import { RolesGuard } from './auth/passport/role.guard';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/kohi'), // MongoDB
@@ -28,10 +29,14 @@ import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
   ],
   controllers: [AppController],
   providers: [AppService,
-  //   {
-  //   provide: 'APP_GUARD',
-  //   useClass: JwtAuthGuard,
-  // }
+    {
+    provide: 'APP_GUARD',
+    useClass: JwtAuthGuard,
+  },
+    {
+    provide: 'APP_GUARD',
+    useClass: RolesGuard
+  }
 ],
 })
 export class AppModule {}

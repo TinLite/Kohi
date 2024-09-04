@@ -16,6 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   //giải mã token
   async validate(payload: any) {
-    return { _id: payload.sub, username: payload.username };
+    console.log('Payload:', payload);
+    return { _id: payload.sub, username: payload.username,roles:payload.roles };
   }
 }

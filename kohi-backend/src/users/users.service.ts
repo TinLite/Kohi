@@ -72,4 +72,9 @@ export class UsersService {
     });
     return users;
   }
+  //lay role
+  async getUserRoles(userId: string) {
+    const user = await this.userModel.findById(userId).exec();
+    return user.roles;
+  }
 }
