@@ -15,8 +15,7 @@ export class AuthService {
   //validate with Guard
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(username);
-    const isCheckPass = await this.utilsService.comparePassword(pass, user.password)
-    if(!user || !isCheckPass) {
+    if (!user || !await this.utilsService.comparePassword(pass, user.password)) {
       return null
     }
     return user;
@@ -35,7 +34,7 @@ export class AuthService {
   //     access_token: await this.jwtService.signAsync(payload),
   //   };
   // }
-  
+
   // login with Guard
   async login(user: any) {
     const payload = { sub: user._id, username: user.email, roles: user.roles };
