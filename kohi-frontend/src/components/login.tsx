@@ -1,34 +1,41 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 
-const LoginSheet = () => {
+const LoginSheet = ({ children }: { children?: any }) => {
   return (
     <Sheet>
-      <SheetTrigger >
-        <Button variant="ghost" className=" text-md font-bold pl-1">Login</Button>
+      <SheetTrigger asChild>
+        {children}
       </SheetTrigger>
       <SheetContent className="w-full mx-auto justify-center items-center">
-        <div className="w-full max-w-sm mt-6">
-          <h2 className="text-xl font-semibold mb-4  text-center">Login</h2>
-          <form action="" className="space-y-4 ">
-            <div>
-              <Label htmlFor="username">Tài khoản:</Label>
+        <SheetHeader>
+          <SheetTitle>Đăng nhập</SheetTitle>
+          <SheetDescription>Đăng nhập để bày tỏ ý kiến của bạn</SheetDescription>
+        </SheetHeader>
+        <div className="w-full max-w-sm grid gap-4 py-4">
+          <div>
+            <Label>
+              Tài khoản:
               <Input type="text" id="username" placeholder="Nhập tài khoản" />
-            </div>
-            <div>
-              <Label htmlFor="password">Mật khẩu:</Label>
+            </Label>
+          </div>
+          <div>
+            <Label>
+              Mật khẩu:
               <Input
                 type="password"
                 id="password"
                 placeholder="Nhập mật khẩu"
               />
-            </div>
-            <div className="flex items-center justify-between">
-              <Button type="submit">Đăng nhập</Button>
-            </div>
-          </form>
+            </Label>
+          </div>
+        </div>
+        <SheetFooter>
+          <Button type="submit">Đăng nhập</Button>
+        </SheetFooter>
+        <div className="flex items-center justify-between">
         </div>
       </SheetContent>
     </Sheet>

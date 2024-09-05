@@ -76,10 +76,12 @@ export default function SideNav() {
             Profile
           </a>
         ) : (
-          <div className="flex h-9 items-center gap-2 pl-3 pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground">
-            <LogIn />
-            <LoginSheet />
-          </div>
+          <LoginSheet>
+            <button className="flex h-9 items-center gap-2 pl-3 pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground">
+              <LogIn />
+              Login
+            </button>
+          </LoginSheet>
         )}
       </nav>
       <div className="flex justify-around gap-2">
