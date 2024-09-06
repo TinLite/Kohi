@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import mongoose from 'mongoose';
 import { Public } from '../auth/authmeta';
 import { Roles } from 'src/auth/role.decorator';
+import { Role } from './schemas/user.schema';
 
 @Controller('users')
 export class UsersController {
@@ -17,7 +18,7 @@ export class UsersController {
   }
 
   @Get('list')
-  @Roles('User')
+  @Roles(Role.USER)
   findAll() {
     return this.usersService.findAll();
     

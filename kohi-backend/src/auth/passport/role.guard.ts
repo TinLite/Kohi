@@ -23,17 +23,17 @@ export class RolesGuard extends AuthGuard('jwt') implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user || !user.id) {
+    if (!user || !user._id) {
       throw new ForbiddenException('User not authenticated'); // Người dùng chưa xác thực
     }
 
-    const userRoles = await this.usersService.getUserRoles(user.id);
+    const userRoles = await this.usersService.getUserRoles(user._id);
 
     // Kiểm tra nếu bất kỳ role nào của người dùng trùng với yêu cầu
     const hasRole = requiredRoles.some((role) => userRoles.includes(role));
 
     if (!hasRole) {
-    console.log('User Roles:', userRoles);
+      console.log('User Roles:', userRoles);
       throw new ForbiddenException('Access Denied');
     }
 
