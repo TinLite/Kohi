@@ -1,22 +1,41 @@
-import { Prop } from "@nestjs/mongoose";
-import { ObjectId } from "mongoose";
+import { Prop, SchemaFactory, Schema } from "@nestjs/mongoose";
+import mongoose from "mongoose";
+import { User } from "src/users/schemas/user.schema";
 
+export enum PostFlags {
+  HIDDEN = 'hidden',
+}
+
+@Schema()
 export class Post {
   @Prop()
   content: string;
 
-  @Prop()
-  author: ObjectId;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  })
+  author: User;
 
-  @Prop()
+  @Prop({
+    default: Date.now(),
+  })
   createdAt: Date;
 
-  @Prop()
+  @Prop({
+    default: Date.now(),
+  })
   updatedAt: Date;
 
   @Prop()
   media: string[];
 
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  })
+  likes: User[];
+
   @Prop()
-  likes: ObjectId[];
+  flags: PostFlags[];
 }
+export const PostSchema = SchemaFactory.createForClass(Post);

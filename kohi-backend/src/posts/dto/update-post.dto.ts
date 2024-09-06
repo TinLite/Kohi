@@ -4,5 +4,5 @@ import { CreatePostDto } from './create-post.dto';
 export class UpdatePostDto extends PartialType(CreatePostDto) {
     content: string;
     media: string[];
-    likes: string[];
+    flags: string[];
 }

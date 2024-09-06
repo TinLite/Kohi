@@ -1,0 +1,21 @@
+meta {
+  name: post delete
+  type: http
+  seq: 3
+}
+
+delete {
+  url: http://localhost:3000/v1/api/posts/detail/{{postId}}/delete
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:json {
+  {
+    "content": "Hello anh em 2"
+  }
+}
