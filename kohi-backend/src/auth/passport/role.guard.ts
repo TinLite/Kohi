@@ -33,7 +33,7 @@ export class RolesGuard extends AuthGuard('jwt') implements CanActivate {
     const hasRole = requiredRoles.some((role) => userRoles.includes(role));
 
     if (!hasRole) {
-      console.log('User Roles:', userRoles);
+      // console.log('User Roles:', userRoles);
       throw new ForbiddenException('Access Denied');
     }
 

@@ -11,6 +11,8 @@ import { AuthModule } from './auth/auth.module';
 import { UtilsModule } from './utils/utils.module';
 import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
 import { RolesGuard } from './auth/passport/role.guard';
+import { FollowsModule } from './follows/follows.module';
+import { CommentsModule } from './comments/comments.module';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/kohi'), // MongoDB
@@ -26,6 +28,8 @@ import { RolesGuard } from './auth/passport/role.guard';
     UsersModule,
     AuthModule,
     UtilsModule,
+    FollowsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService,

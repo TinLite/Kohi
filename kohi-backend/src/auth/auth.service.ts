@@ -39,7 +39,7 @@ export class AuthService {
   // login with Guard
   async login(user: any) {
     const payload = { sub: user._id, username: user.email, roles: user.roles };
-    console.log('Login Payload:', payload);
+    // console.log('Login Payload:', payload);
     return {
       access_token: await this.jwtService.signAsync(payload),
     };

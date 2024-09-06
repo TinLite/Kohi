@@ -47,8 +47,12 @@ export class UsersService {
     return await this.userModel.findOne({ email }).exec();
   }
   //GET ONE user
-  async findOne(id: string): Promise<User | null> {
-    return this.userModel.findById(id, { password: 0 }).exec();
+  async findOne(id: string): Promise<User> {
+     return await this.userModel.findById(id, { password: 0 }).exec();
+  }
+  //findByIdAndUpdate
+  async findByIdAndUpdate(id: string, updateUserDto: UpdateUserDto) {
+      
   }
   //DELETE ONE USER
   async deleteOne(id: string) {
