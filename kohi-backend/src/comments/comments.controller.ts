@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -7,28 +7,22 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(createCommentDto);
+  @Post('create')
+  async createComment(@Body() createCommentDto: CreateCommentDto,@Req() req) {
+    const authorId = req.user._id;
+     await this.commentsService.createComment(createCommentDto,authorId)
   }
-
-  @Get()
-  findAll() {
-    return this.commentsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentsService.remove(+id);
+  // Cần phải xong post mới làm đc 
+  // @Delete('delete/:id')
+  // async deleteComment(@Param('id') commentId: string,@Req() req) {
+  //   const author = req.user._id
+  //   return this.commentsService.deleteComment(commentId,author);
+  // }
+  
+  // Update bình luận
+  @Patch('update/:id')
+  async updateComment(@Param('id') commentId: string,@Body() updateCommentDto: UpdateCommentDto,@Req() req) {
+    const author = req.user._id
+    return this.commentsService.updateComment(commentId,updateCommentDto,author);
   }
 }
