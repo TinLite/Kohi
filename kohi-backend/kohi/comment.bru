@@ -5,7 +5,19 @@ meta {
 }
 
 post {
-  url: 
-  body: none
+  url: http://localhost:3000/v1/api/comments/create
+  body: json
   auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmRhODE1MzM5ZWI2YzQyM2E4NDI0MzIiLCJ1c2VybmFtZSI6InRpZW5AZ21haWwuY29tIiwicm9sZXMiOlsidXNlciJdLCJpYXQiOjE3MjU2MDQxMzksImV4cCI6MTcyNTY5MDUzOX0.o-_LD6DI9VeP22VYtYxQnzR8s1A_QTMZeYbYJzC5qwU
+}
+
+body:json {
+  {
+    "content": "This is a comment",
+    "postId": "60d5f8f57f0b9b001f4a0a3b",
+    "replyTo": ""
+  }
 }

@@ -5,7 +5,17 @@ meta {
 }
 
 patch {
-  url: 
-  body: none
+  url: http://localhost:3000/v1/api/comments/update/66daa4bf95eaf6f11f0ce438
+  body: json
   auth: none
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmRhNmU5NmM2YTMzZmIwMWJhOGUyMGUiLCJ1c2VybmFtZSI6InRlb0BnbWFpbC5jb20iLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcyNTYwNjYyMSwiZXhwIjoxNzI1NjkzMDIxfQ.5PbGoIonuCYTpSjYHdIxo2v9WGrDGNWzNJFtjFntoFs
+}
+
+body:json {
+  {
+    "content": "bài này xuất sắc"
+  }
 }

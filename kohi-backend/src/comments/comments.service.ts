@@ -52,4 +52,26 @@ export class CommentsService {
       throw new Error('You are not authorized to update this comment');
     }
   }
+  //reply bình luận
+  async replyComment(
+    commentId: string,
+    replyCommentDto: CreateCommentDto,
+    author: string,
+  ) {
+    const { content } = replyCommentDto;
+    const comment = await this.commentModel.findByIdAndUpdate(
+      commentId,
+      { 
+        $push: { replies: { content, author } },
+      },
+      { new: true },
+    );
+    if (!comment) {
+      throw new Error('Comment not found');
+    }
+    if (comment.author.toString() !== author) {
+      throw new Error('You are not authorized to reply this comment');
+    }
+  }
+  
 }
