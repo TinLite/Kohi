@@ -1,0 +1,15 @@
+meta {
+  name: Remove Like Comment
+  type: http
+  seq: 15
+}
+
+post {
+  url: http://localhost:3000/v1/api/comments/unlike/66daa56254f368364dfd4f34
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

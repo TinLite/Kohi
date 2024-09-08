@@ -11,17 +11,11 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
-  //check tồn tại email
-  emailExist = async (email: string) => {
-    const user = await this.userModel.exists({ email: email });
-    if (user) return true;
-    return false;
-  };
   //CREATE USER
   async create(createUserDto: CreateUserDto) {
     const { username, password, email } = createUserDto;
     //check tồn tại email
-    const isExist = await this.emailExist(email);
+    const isExist = await this.userModel.exists({ email: email });
     if (isExist) {
       throw new BadRequestException('Email already exists');
     }

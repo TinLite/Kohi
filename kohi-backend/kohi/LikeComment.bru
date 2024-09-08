@@ -1,0 +1,15 @@
+meta {
+  name: LikeComment
+  type: http
+  seq: 14
+}
+
+post {
+  url: http://localhost:3000/v1/api/comments/like/66daa56254f368364dfd4f34
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

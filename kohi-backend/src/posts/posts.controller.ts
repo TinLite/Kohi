@@ -3,6 +3,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import mongoose from 'mongoose';
+import { Public } from 'src/auth/authmeta';
 
 @Controller('posts')
 export class PostsController {
@@ -25,7 +26,9 @@ export class PostsController {
     return this.postsService.findAll();
   }
 
+  
   @Get('detail/:id')
+  @Public()
   findOne(@Param('id') id: string) {
     if (!mongoose.isValidObjectId(id)) {
       throw new NotFoundException('Post not found');
@@ -63,7 +66,7 @@ export class PostsController {
     this.postsService.remove(id);
   }
 
-  @Put('detail/:id/like')
+  @Post('detail/:id/like')
   async addLike(@Param('id') id: string, @Request() request) {
     const post = await this.postsService.findOne(id);
     if (!post) {
@@ -73,10 +76,10 @@ export class PostsController {
     if (post.likes.includes(requestUserId)) {
       throw new UnauthorizedException('You already liked this post');
     }
-    return this.postsService.addLike(id);
+    return this.postsService.addLike(id, requestUserId);
   }
 
-  @Delete('detail/:id/like')
+  @Delete('detail/:id/unlike')
   async removeLike(@Param('id') id: string, @Request() request) {
     const post = await this.postsService.findOne(id);
     if (!post) {
@@ -86,6 +89,7 @@ export class PostsController {
     if (!post.likes.includes(requestUserId)) {
       throw new UnauthorizedException('You have not liked this post yet');
     }
-    return this.postsService.removeLike(id);
+    return this.postsService.removeLike(id,requestUserId);
   }
+
 }

@@ -14,27 +14,31 @@ export class User {
   @Prop()
   password: string;
 
- @Prop()
+  @Prop()
   email: string;
 
-  @Prop({default:[Role.USER] })
-  roles:String[];
+  @Prop({ default: [Role.USER] })
+  roles: String[];
 
-  @Prop({default: Date.now})
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({default: Date.now})
+  @Prop({ default: Date.now })
   updatedAt: Date;
 
-  @Prop({default:"Null" })
+  @Prop()
   avatar: string;
 
-  @Prop({default:"Null" })
+  @Prop()
   wall: string;
 
+  // Tạo hai trường nhằm tránh Full Database Scan
   @Prop()
   following: String[];
-  
+
+  @Prop()
+  followers: String[];
+
   @Prop()
   bookmarks: string[];
 }

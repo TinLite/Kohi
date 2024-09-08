@@ -1,0 +1,11 @@
+meta {
+  name: post detail
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:3000/v1/api/posts/detail/{{postId}}
+  body: none
+  auth: bearer
+}

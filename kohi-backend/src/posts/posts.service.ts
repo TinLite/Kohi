@@ -37,17 +37,25 @@ export class PostsService {
     return this.postModel.findByIdAndDelete(id).exec();
   }
 
-  addLike(id: string) {
-    // TODO
-    return `This action adds a like to a #${id} post`;
+  async addLike(id: string,author: string) {
+    await this.postModel.findByIdAndUpdate(id, {
+      $push: { likes: author }
+    }, {
+      new: true
+    }
+    ).exec();
   }
 
-  removeLike(id: string) {
-    // TODO
-    return `This action removes a like from a #${id} post`;
+  async removeLike(id: string, author) {
+  await this.postModel.findByIdAndUpdate(id, {
+    $pull: { likes: author }
+  },{
+    new: true
   }
-
+  ).exec();
+  }
   async exists(id: string) {
     return this.postModel.exists({ _id: id }).exec();
   }
+
 }

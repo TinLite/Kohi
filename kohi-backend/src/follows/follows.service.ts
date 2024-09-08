@@ -12,11 +12,9 @@ export class FollowsService {
   ) {}
   async followUser(currentUserId: string, followUserId: string) {
     const userToFollow = await this.usersService.findOne(followUserId);
-
     if (!userToFollow) {
       throw new NotFoundException('User to follow not found');
     }
-
     const currentUser = await this.userModel.findById(currentUserId);
     if (!currentUser) {
       throw new NotFoundException('User not found');
@@ -45,4 +43,6 @@ export class FollowsService {
     });
     // return user;
   }
+  // Get ALL follower
+
 }
