@@ -20,3 +20,7 @@ body:json {
 vars:post-response {
   jwtToken: res.body.access_token
 }
+
+assert {
+  res.body.access_token: isDefined
+}

@@ -24,12 +24,12 @@ export class UsersController {
     
   }
 
-  @Get('detail/:id')
+  @Get('profile/:id/detail')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
-  @Delete('delete/:id')
+  @Delete('profile/:id/delete')
   async deleteOne(@Param('id') id: string) {
     if(mongoose.isValidObjectId(id)){
       return this.usersService.deleteOne(id);
@@ -38,7 +38,7 @@ export class UsersController {
     }
   }
 
-  @Patch('update/:id')
+  @Patch('profile/:id/update')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     await this.usersService.updateUser(id, updateUserDto);
   }
