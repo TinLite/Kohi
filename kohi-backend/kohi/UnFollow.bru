@@ -5,11 +5,11 @@ meta {
 }
 
 post {
-  url: http://localhost:3000/v1/api/follows/unfollow/66da6e96c6a33fb01ba8e20e
+  url: http://localhost:3000/v1/api/users/follows/unfollow/66da6e96c6a33fb01ba8e20e
   body: none
-  auth: none
+  auth: bearer
 }
 
-headers {
-  Authorization: Bearer 
+auth:bearer {
+  token: {{jwtToken}}
 }

@@ -33,10 +33,10 @@ export class User {
   wall: string;
 
   // Tạo hai trường nhằm tránh Full Database Scan
-  @Prop()
+  @Prop({ref: 'User'})
   following: String[];
 
-  @Prop()
+  @Prop({ref: 'User'})
   followers: String[];
 
   @Prop()
