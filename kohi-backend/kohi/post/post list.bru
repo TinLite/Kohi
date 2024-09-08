@@ -1,0 +1,25 @@
+meta {
+  name: post list
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:3000/v1/api/posts/list
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:json {
+  {
+    "content": "Hello anh em!"
+  }
+}
+
+vars:post-response {
+  postId: res.body._id
+}

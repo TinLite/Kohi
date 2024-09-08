@@ -4,23 +4,24 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Separator } from "./ui/separator";
+import { Post } from "@/types/PostType";
 
-export default function UserPost() {
+export default function UserPost({post} : {post: Post}) {
   return (
     <Card>
       <div className="flex px-6 py-4 flex-row gap-4 items-center">
         <Avatar className="w-8 h-8">
-          <AvatarImage src="https://github.com/tinlite.png" className="rounded-full" alt="@shadcn" />
-          <AvatarFallback>V</AvatarFallback>
+          <AvatarImage src={post.author.avatar} className="rounded-full" alt="@shadcn" />
+          <AvatarFallback>{post.author.username[0]}</AvatarFallback>
         </Avatar>
         <div>
-          <div className="font-bold">Vinh</div>
-          <div className="text-muted-foreground text-sm">@TinLite - October 1, 2023</div>
+          <div className="font-bold">{post.author.displayName ?? post.author.username}</div>
+          <div className="text-muted-foreground text-sm">@{post.author.username} - {post.createdAt.toLocaleString()}</div>
         </div>
       </div>
       <div className="px-6 mb-4">
         <p>
-          Checkout this cute cat! #CatIsLife
+          {post.content}
         </p>
       </div>
       {/* <img src="https://cataas.com/cat" alt="cat" className="mt-4 mx-auto max-w-xl max-h-[36rem] object-contain"/> */}

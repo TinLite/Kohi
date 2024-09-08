@@ -14,7 +14,7 @@ const LoginSheet = ({ children }: { children?: any }) => {
           <SheetTitle>Đăng nhập</SheetTitle>
           <SheetDescription>Đăng nhập để bày tỏ ý kiến của bạn</SheetDescription>
         </SheetHeader>
-        <div className="w-full max-w-sm grid gap-4 py-4">
+        <div className="w-full grid gap-4 py-4">
           <div>
             <Label>
               Tài khoản:

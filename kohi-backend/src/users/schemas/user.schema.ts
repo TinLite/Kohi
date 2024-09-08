@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { IsEmail } from 'class-validator';
 
 export enum Role {
   USER = 'user',
@@ -11,19 +10,26 @@ export class User {
   @Prop()
   username: string;
 
-  @Prop()
+  @Prop({
+    select: false,
+  })
   password: string;
 
   @Prop()
+  displayName: string;
+
+  @Prop({
+    select: false,
+  })
   email: string;
 
-  @Prop({ default: [Role.USER] })
+  @Prop({ default: [Role.USER], select: false })
   roles: String[];
 
-  @Prop({ default: Date.now })
+  @Prop({ default: Date.now, select: false })
   createdAt: Date;
 
-  @Prop({ default: Date.now })
+  @Prop({ default: Date.now, select: false })
   updatedAt: Date;
 
   @Prop()

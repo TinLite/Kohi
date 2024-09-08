@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import UserPost from "@/components/user-post";
+import { getGlobalLatestPosts } from "@/repository/PostsRepository";
+import { Post } from "@/types/PostType";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function PostCreate() {
   const [submittable, setSubmittable] = useState(false);
@@ -43,13 +45,18 @@ function PostCreate() {
 }
 
 export default function PostList() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  useEffect(() => {
+    getGlobalLatestPosts().then(setPosts)
+  }, []);
   return (
     <div className="flex flex-col gap-6 max-w-xl mx-auto py-6">
       <PostCreate />
-      <UserPost />
-      <UserPost />
-      <UserPost />
-      <UserPost />
+      {
+        posts.map((post) => (
+          <UserPost post={post} key={post._id} />
+        ))
+      }
     </div>
   )
 }

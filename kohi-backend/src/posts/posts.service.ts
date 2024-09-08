@@ -19,7 +19,7 @@ export class PostsService {
   }
 
   findAll() {
-    return this.postModel.find().exec();
+    return this.postModel.find().populate('author').exec();
   }
 
   async findOne(id: string) {

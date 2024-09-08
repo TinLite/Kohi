@@ -14,7 +14,7 @@ export class AuthService {
   }
   //validate with Guard
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findByEmail(username);
+    const user = await this.usersService.findByEmailWithPassword(username);
     if (!user || !await this.utilsService.comparePassword(pass, user.password)) {
       return null
     }

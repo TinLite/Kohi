@@ -34,16 +34,24 @@ export class UsersService {
   }
   // GET ALL USER
   async findAll(): Promise<User[]> {
-    return this.userModel.find({}, { password: 0 }).exec();
+    return this.userModel.find().exec();
   }
-  //GET Email user
   async findByEmail(email: string){
     return await this.userModel.findOne({ email }).exec();
   }
+  //GET Email user
+  async findByEmailWithPassword(email: string){
+    return await this.userModel.findOne({ email }).select("+password").exec();
+  }
   //GET ONE user
   async findOne(id: string): Promise<User> {
-     return await this.userModel.findById(id, { password: 0 }).exec();
+     return await this.userModel.findById(id).exec();
   }
+  
+  async findAllById(id: string[]) {
+    return await this.userModel.find({ _id: { $in: id } }).exec();
+ }
+
   //findByIdAndUpdate
   async findByIdAndUpdate(id: string, updateUserDto: UpdateUserDto) {
       
@@ -72,7 +80,7 @@ export class UsersService {
   }
   //lay role
   async getUserRoles(userId: string) {
-    const user = await this.userModel.findById(userId).exec();
+    const user = await this.userModel.findById(userId).select('+roles').exec();
     return user.roles;
   }
 }

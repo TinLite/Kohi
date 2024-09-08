@@ -22,6 +22,7 @@ export class PostsController {
   }
 
   @Get('list')
+  @Public()
   findAll() {
     return this.postsService.findAll();
   }
