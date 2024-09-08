@@ -5,7 +5,11 @@ meta {
 }
 
 delete {
-  url: 
+  url: http://localhost:3000/v1/api/posts/detail/66dd44c2402e01115d6cb340/unlike
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
 }

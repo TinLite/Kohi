@@ -5,19 +5,18 @@ meta {
 }
 
 post {
-  url: http://localhost:3000/v1/api/comments/create
+  url: http://localhost:3000/v1/api/comments/create/66dd44c2402e01115d6cb340
   body: json
-  auth: none
+  auth: bearer
 }
 
-headers {
-  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NmRhODE1MzM5ZWI2YzQyM2E4NDI0MzIiLCJ1c2VybmFtZSI6InRpZW5AZ21haWwuY29tIiwicm9sZXMiOlsidXNlciJdLCJpYXQiOjE3MjU2MDQxMzksImV4cCI6MTcyNTY5MDUzOX0.o-_LD6DI9VeP22VYtYxQnzR8s1A_QTMZeYbYJzC5qwU
+auth:bearer {
+  token: {{jwtToken}}
 }
 
 body:json {
   {
-    "content": "This is a comment",
-    "postId": "60d5f8f57f0b9b001f4a0a3b",
+    "content": "Mới biết bạn quê Kiên Giang luôn",
     "replyTo": ""
   }
 }

@@ -10,38 +10,31 @@ export class FollowsService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly usersService: UsersService,
   ) {}
-  async followUser(currentUserId: string, followUserId: string) {
-    const userToFollow = await this.usersService.findOne(followUserId);
-    if (!userToFollow) {
-      throw new NotFoundException('User to follow not found');
-    }
-    const currentUser = await this.userModel.findById(currentUserId);
-    if (!currentUser) {
-      throw new NotFoundException('User not found');
-    }
-    if (!currentUser.following) {
-      currentUser.following = [];
-    }
-    if (currentUser.following.includes(followUserId)) {
-      throw new NotFoundException('User already followed');
-    }
-    const user = await this.userModel.findByIdAndUpdate(
-      currentUserId,
-      { $addToSet: { following: followUserId } },
-      { new: true },
-    );
-    // return user;
-  }
-  async unFollowUser(currentUserId: string, followUserId: string) {
-    const userToFollow = await this.usersService.findOne(followUserId);
-    if (!userToFollow) {
-      throw new NotFoundException('User to follow not found');
-    }
+  
 
-    const user = await this.userModel.findByIdAndUpdate(currentUserId, {
+  //Follow người dùng
+  async followByUser(author: string, followUserId: string) {
+    await this.userModel.findByIdAndUpdate(author, {
+      $addToSet: { following: followUserId },
+    },
+    {
+      new: true,}
+    );
+    await this.userModel.findByIdAndUpdate(followUserId, {
+      $addToSet: { followers: author },
+    },{
+      new: true,
+    }
+  )
+  }
+  // UnFollow người dùng
+  async unFollowByUser(author: string, followUserId: string) {
+    await this.userModel.findByIdAndUpdate(author, {
       $pull: { following: followUserId },
     });
-    // return user;
+    await this.userModel.findByIdAndUpdate(followUserId, {
+      $pull: { followers: author },
+    });
   }
   // Get ALL follower
 
