@@ -3,6 +3,7 @@ import { PostsService } from './posts.service';
 import { PostsController } from './posts.controller';
 import { Post, PostSchema } from './schemas/post.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Mongoose } from 'mongoose';
 
 @Module({
   imports: [

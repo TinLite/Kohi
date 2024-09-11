@@ -57,5 +57,4 @@ export class PostsService {
   async exists(id: string) {
     return this.postModel.exists({ _id: id }).exec();
   }
-
 }
