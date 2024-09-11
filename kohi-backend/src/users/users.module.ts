@@ -15,7 +15,7 @@ import { PostsModule } from 'src/posts/posts.module';
     PostsModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService,FollowsService,BookmarkService,PostsService],
+  providers: [UsersService,FollowsService,BookmarkService],
   exports: [UsersService,FollowsService],
 })
 export class UsersModule {}
