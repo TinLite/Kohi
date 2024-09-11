@@ -1,0 +1,15 @@
+meta {
+  name: bookmark remove
+  type: http
+  seq: 21
+}
+
+post {
+  url: http://localhost:3000/v1/api/users/profile/bookmark/remove/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
