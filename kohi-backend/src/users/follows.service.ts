@@ -52,6 +52,7 @@ export class FollowsService {
     const totalPage = Math.ceil(totalUser / limit);
     const followers = await this.userModel
       .findById(userId)
+      .skip(skip)
       .populate('followers', 'username displayName')
       .select('followers')
       .exec();
