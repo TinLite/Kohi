@@ -42,13 +42,56 @@ export class FollowsService {
     });
   }
   // Get ALL follower
-  async getFollowers(userId: string) {
-    return this.userModel
+  async getFollowers(userId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const userFollower = await this.userModel
       .findById(userId)
-      .populate({
-        path: 'followers', // Trường chứa userId của follower
-        select: 'username', // Chỉ lấy field 'username'
-      })
+      .select('followers')
       .exec();
+    const totalUser = userFollower.followers.length;
+    const totalPage = Math.ceil(totalUser / limit);
+    const followers = await this.userModel
+      .findById(userId)
+      .populate('followers', 'username displayName')
+      .select('followers')
+      .exec();
+    return {
+      data: followers,
+      pagination: {
+        currentPage: page,
+        totalPage: totalPage,
+        totalElement: totalUser,
+        limit: limit,
+      },
+    };
+  }
+  async getFollowing(userId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const userFollowing = await this.userModel
+      .findById(userId)
+      .select('following')
+      .exec();
+
+    const totalUser = userFollowing.following.length;
+
+    const totalPage = Math.ceil(totalUser / limit);
+
+    const following = await this.userModel
+      .findById(userId)
+      .populate('following', 'username displayName')
+      .select('following')
+      .skip(skip)
+      .limit(limit)
+      .exec();
+    return {
+      data: following,
+      pagination: {
+        currentPage: page,
+        totalPage: totalPage,
+        totalElement: totalUser,
+        limit: limit,
+      },
+    };
   }
 }

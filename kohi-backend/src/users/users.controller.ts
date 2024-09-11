@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, Query, NotFoundException, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  BadRequestException,
+  Query,
+  NotFoundException,
+  Req,
+  ForbiddenException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,8 +23,9 @@ import { FollowsService } from './follows.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService,
-    private readonly followsService: FollowsService
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly followsService: FollowsService,
   ) {}
 
   @Post('create')
@@ -24,7 +38,6 @@ export class UsersController {
   @Roles(Role.ADMIN)
   findAll() {
     return this.usersService.findAll();
-    
   }
 
   @Get('profile/:id/detail')
@@ -34,9 +47,9 @@ export class UsersController {
 
   @Delete('profile/:id/delete')
   async deleteOne(@Param('id') id: string) {
-    if(mongoose.isValidObjectId(id)){
+    if (mongoose.isValidObjectId(id)) {
       return this.usersService.deleteOne(id);
-    }else{
+    } else {
       throw new BadRequestException('Id Not Found');
     }
   }
@@ -84,9 +97,44 @@ export class UsersController {
     return this.followsService.unFollowByUser(author, followUserId);
   }
 
-  @Get('follow/followers')
-  async getFollowers(@Req() req) {
-    const userId = req.user._id;
-    return this.followsService.getFollowers(userId);
+  @Get('follows/followers')
+  async getFollowers(
+    @Req() req,
+    @Query() { id }: { id?: string },
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const userId = id ?? req.user._id;
+    const currentPage = page ? Number(page) : 1;
+    const currentLimit = limit ? Number(limit) : 10;
+    if (
+      !Number.isInteger(currentPage) ||
+      !Number.isInteger(currentLimit) ||
+      currentPage <= 0 ||
+      currentLimit <= 0
+    ) {
+      throw new NotFoundException('Page or limit not found');
+    }
+    return this.followsService.getFollowers(userId, currentPage, currentLimit);
+  }
+  @Get('follows/following')
+  async getFollowing(
+    @Req() req,
+    @Query() { id }: { id?: string },
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const userId = id ?? req.user._id;
+    const currentPage = page ? Number(page) : 1;
+    const currentLimit = limit ? Number(limit) : 10;
+    if (
+      !Number.isInteger(currentPage) ||
+      !Number.isInteger(currentLimit) ||
+      currentPage <= 0 ||
+      currentLimit <= 0
+    ) {
+      throw new NotFoundException('Page or limit not found');
+    }
+    return this.followsService.getFollowing(userId, currentPage, currentLimit);
   }
 }

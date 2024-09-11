@@ -1,0 +1,19 @@
+meta {
+  name: Get Followers
+  type: http
+  seq: 18
+}
+
+get {
+  url: http://localhost:3000/v1/api/users/follows/followers?id=66da6e96c6a33fb01ba8e20e
+  body: none
+  auth: bearer
+}
+
+query {
+  id: 66da6e96c6a33fb01ba8e20e
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
