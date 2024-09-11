@@ -1,4 +1,4 @@
-import { User } from "./UserType";
+import { User } from "./user-type";
 
 export class Post {
     _id: string;

@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import {
   Bell,
   Bookmark,
@@ -5,93 +6,110 @@ import {
   LogIn,
   MessageSquareMore,
   Search,
-  Settings,
+  Settings
 } from "lucide-react";
-import { ModeToggle } from "./mode-toggle";
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import LoginSheet from "./login";
-import { useState } from "react";
+import { ModeToggle } from "./mode-toggle";
 
 export default function SideNav() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
-    <aside className="fixed md:sticky flex min-h-screen flex-col justify-between gap-4 px-2 py-4 bg-background border-r shadow">
-      <a
-        href="#"
-        className="flex items-center md:justify-start px-4 justify-center rounded-lg"
-      >
-        コー
-        <br />
-        ヒー
-      </a>
-      <nav className="grid gap-4">
+    <aside className="fixed z-10 md:sticky max-md:w-full bg-background border-r shadow overflow-y-scroll bottom-0 max-md:py-4">
+      <div className="md:min-h-screen flex flex-col md:justify-between gap-4 px-2 md:py-4">
         <a
           href="#"
-          className="flex h-9 items-center gap-2 pl-4 pr-12 rounded-lg font-bold transition-colors hover:text-foreground text-accent-foreground"
+          className="hidden md:flex items-end px-4 gap-2 font-bold"
         >
-          <House />
-          Home
+          <div>
+            コー
+            <br />
+            ヒー
+          </div>
         </a>
-        <a
-          href="#"
-          className="flex h-9 items-center gap-2 pl-4 pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-        >
-          <Search />
-          Search
-        </a>
-        <a
-          href="#"
-          className="flex h-9 items-center gap-2 pl-4 pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-        >
-          <MessageSquareMore />
-          Message
-        </a>
-        <a
-          href="#"
-          className="flex h-9 items-center gap-2 pl-4 pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-        >
-          <Bell />
-          Notification
-        </a>
-        <a
-          href="#"
-          className="flex h-9 items-center gap-2 pl-4 pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-        >
-          <Bookmark />
-          Bookmark
-        </a>
-        {isLoggedIn ? (
+        <nav className="grid gap-4 max-md:grid-cols-6">
           <a
             href="#"
-            className="flex h-9 px-4 items-center gap-2 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+            className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground text-accent-foreground"
           >
-            <Avatar className="w-6 h-6">
-              <AvatarImage
-                src="https://github.com/shadcn.png"
-                className="rounded-full"
-                alt="@shadcn"
-              />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            Profile
+            <House />
+            <span className="hidden md:block">
+              Home
+            </span>
           </a>
-        ) : (
-          <LoginSheet>
-            <button className="flex h-9 items-center gap-2 pl-3 pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground">
-              <LogIn />
-              Login
-            </button>
-          </LoginSheet>
-        )}
-      </nav>
-      <div className="flex justify-around gap-2">
-        <ModeToggle />
-        <a
-          href="#"
-          className="flex h-9 w-9 justify-center items-center gap-2 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-        >
-          <Settings />
-        </a>
+          <a
+            href="#"
+            className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+          >
+            <Search />
+            <span className="hidden md:block">
+              Search
+            </span>
+          </a>
+          <a
+            href="#"
+            className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+          >
+            <MessageSquareMore />
+
+            <span className="hidden md:block">
+              Message
+            </span>
+          </a>
+          <a
+            href="#"
+            className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+          >
+            <Bell />
+
+            <span className="hidden md:block">
+              Notification
+            </span>
+          </a>
+          <a
+            href="#"
+            className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+          >
+            <Bookmark />
+            <span className="hidden md:block">
+              Bookmark
+            </span>
+          </a>
+          {false ? (
+            <a
+              href="#"
+              className="flex h-9 px-4 items-center max-md:mx-auto gap-2 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+            >
+              <Avatar className="w-6 h-6">
+                <AvatarImage
+                  src="https://github.com/shadcn.png"
+                  className="rounded-full"
+                  alt="@shadcn"
+                />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
+              <span className="hidden md:block">
+                Profile
+              </span>
+            </a>
+          ) : (
+            <LoginSheet>
+              <button className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground">
+                <LogIn />
+                <span className="hidden md:block">
+                  Login
+                </span>
+              </button>
+            </LoginSheet>
+          )}
+        </nav>
+        <div className="hidden md:flex justify-around gap-2">
+          <ModeToggle />
+          <a
+            href="#"
+            className="flex h-9 w-9 justify-center items-center gap-2 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+          >
+            <Settings />
+          </a>
+        </div>
       </div>
     </aside>
   );

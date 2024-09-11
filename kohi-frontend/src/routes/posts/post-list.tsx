@@ -1,9 +1,10 @@
+import { ButtonScrollToTop } from "@/components/button-scroll-to-top";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import UserPost from "@/components/user-post";
 import { getGlobalLatestPosts } from "@/repository/PostsRepository";
-import { Post } from "@/types/PostType";
+import { Post } from "@/types/post-type";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import { useEffect, useState } from "react";
 
@@ -28,8 +29,8 @@ function PostCreate() {
               setSubmittable(test);
           }}
           onFocus={() => {
-          if (!clicked)
-            setClicked(true);
+            if (!clicked)
+              setClicked(true);
           }}
         >
         </Textarea>
@@ -50,13 +51,16 @@ export default function PostList() {
     getGlobalLatestPosts().then(setPosts)
   }, []);
   return (
-    <div className="flex flex-col gap-6 max-w-xl mx-auto py-6">
-      <PostCreate />
-      {
-        posts.map((post) => (
-          <UserPost post={post} key={post._id} />
-        ))
-      }
-    </div>
+    <>
+      <div className="flex flex-col gap-6 max-w-xl mx-auto py-6">
+        <PostCreate />
+        {
+          posts.map((post) => (
+            <UserPost post={post} key={post._id} />
+          ))
+        }
+      </div>
+      <ButtonScrollToTop />
+    </>
   )
 }
