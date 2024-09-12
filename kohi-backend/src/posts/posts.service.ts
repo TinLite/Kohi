@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { Post } from './schemas/post.schema';
+import { Post, PostFlags } from './schemas/post.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, mongo } from 'mongoose';
 
@@ -19,26 +19,45 @@ export class PostsService {
   }
 
   findAll() {
-    return this.postModel.find().populate('author').exec();
+    return this.postModel.find(
+      {
+        flags: { $nin: [PostFlags.HIDDEN] }
+      }
+    ).populate('author').exec();
   }
 
   async findOne(id: string) {
+    this.postModel.findOne({
+      _id: id,
+      flags: { $nin: [PostFlags.HIDDEN] }
+    })
     return this.postModel.findById(id).exec();
   }
 
   update(id: string, updatePostDto: UpdatePostDto) {
-    console.log(id, updatePostDto);
-    return this.postModel.findByIdAndUpdate(id, updatePostDto).exec();
+    return this.postModel.findOneAndUpdate({
+      _id: id,
+      flags: { $nin: [PostFlags.HIDDEN] }
+    }, updatePostDto).exec();
   }
 
   remove(id: string) {
-    // TODO: delete comments
-    // TODO: soft delete?
-    return this.postModel.findByIdAndDelete(id).exec();
+    // return this.postModel.findByIdAndDelete(id).exec();
+    this.postModel.findOneAndUpdate({
+      _id: id,
+      flags: { $nin: [PostFlags.HIDDEN] }
+    }, {
+      $push: {
+        flags: PostFlags.HIDDEN
+      }
+    })
   }
 
-  async addLike(id: string,author: string) {
-    await this.postModel.findByIdAndUpdate(id, {
+  async addLike(id: string, author: string) {
+    await this.postModel.findOneAndUpdate({
+      _id: id,
+      flags: { $nin: [PostFlags.HIDDEN] }
+    }, {
       $push: { likes: author }
     }, {
       new: true
@@ -47,14 +66,22 @@ export class PostsService {
   }
 
   async removeLike(id: string, author) {
-  await this.postModel.findByIdAndUpdate(id, {
-    $pull: { likes: author }
-  },{
-    new: true
-  }
-  ).exec();
+    await this.postModel.findOneAndUpdate({
+      _id: id,
+      flags: { $nin: [PostFlags.HIDDEN] }
+    }, {
+      $pull: { likes: author }
+    }, {
+      new: true
+    }
+    ).exec();
   }
   async exists(id: string) {
-    return this.postModel.exists({ _id: id }).exec();
+    return this.postModel.exists(
+      {
+        _id: id,
+        flags: { $nin: [PostFlags.HIDDEN] }
+      },
+    ).exec();
   }
 }

@@ -4,10 +4,13 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import mongoose from 'mongoose';
 import { Public } from 'src/auth/authmeta';
+import { CommentsService } from 'src/comments/comments.service';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) { }
+  constructor(
+    private readonly postsService: PostsService,
+  ) { }
 
   @Post('create')
   async create(@Request() request, @Body() createPostDto: CreatePostDto) {
