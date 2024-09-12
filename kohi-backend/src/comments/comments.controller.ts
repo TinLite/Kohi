@@ -9,11 +9,15 @@ import {
   Req,
   NotFoundException,
   ForbiddenException,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PostsService } from 'src/posts/posts.service';
+import { Role } from 'src/users/schemas/user.schema';
+import { Roles } from 'src/auth/role.decorator';
 
 @Controller('comments')
 export class CommentsController {
@@ -56,7 +60,27 @@ export class CommentsController {
       author,
     );
   }
+  //reply bình luận
+  @Post('reply/:id')
+  async replyComment(
+    @Param('id') commentId: string,
+    @Body() replyCommentDto: CreateCommentDto,
+    @Req() req,
+  ){
+    const author = req.user._id;
+    const commentOld = await this.commentsService.getOneComment(commentId);
+    if (!commentOld) {
+      throw new NotFoundException('Comment not found');
+    }
+    const postId = commentOld.postId;
+    return this.commentsService.replyComment(
+      postId,
+      commentId,
+      author,
+      replyCommentDto
+    )
 
+  }
   //Like bình luận
   @Post('like/:id')
   async likeComment(@Param('id') commentId: string, @Req() req) {
@@ -98,6 +122,44 @@ export class CommentsController {
     }
     
     return this.commentsService.deleteComment(commentId, author);
+  }
+  @Roles(Role.ADMIN)
+  @Get('list/:id')
+  async getCommentByPostId(@Param('id') postId: string,@Query('page') page?: string, @Query('limit') limit?: string) {
+    const post = await this.postsService.findOne(postId);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    const currentPage = page ? Number(page) : 1;
+    const currentLimit = limit ? Number(limit) : 10;
+    if (
+      !Number.isInteger(currentPage) ||
+      !Number.isInteger(currentLimit) ||
+      currentPage <= 0 ||
+      currentLimit <= 0
+    ) {
+      throw new BadRequestException('Malfunctioned page or limit');
+    }
+    return this.commentsService.getCommentByPostId(postId,currentPage,currentLimit);
+  }
+  // get bình luận theo replyTo
+  @Get('list/reply/:id')
+  async getCommentByReplyTo(@Param('id') commentId: string,@Query('page') page?: string, @Query('limit') limit?: string) {
+    const comment = await this.commentsService.getOneComment(commentId);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    const currentPage = page ? Number(page) : 1;
+    const currentLimit = limit ? Number(limit) : 10;
+    if (
+      !Number.isInteger(currentPage) ||
+      !Number.isInteger(currentLimit) ||
+      currentPage <= 0 ||
+      currentLimit <= 0
+    ) {
+      throw new BadRequestException('Malfunctioned page or limit');
+    }
+    return this.commentsService.getCommentByReplyTo(commentId,currentPage,currentLimit);
   }
   
 }

@@ -1,10 +1,13 @@
-import { IsOptional, IsString } from "class-validator";
-import { Schema } from "mongoose";
+import { IsOptional, IsString } from 'class-validator';
+import { Schema } from 'mongoose';
 
 export class CreatePostDto {
-    @IsOptional()
-    author: Schema.Types.ObjectId;
+  @IsOptional()
+  author: Schema.Types.ObjectId;
 
-    @IsString()
-    content: string;
+  @IsString()
+  content: string;
+
+  @IsOptional()
+  postShare: Schema.Types.ObjectId;
 }

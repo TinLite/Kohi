@@ -1,6 +1,6 @@
-import { Prop, SchemaFactory, Schema } from "@nestjs/mongoose";
-import mongoose from "mongoose";
-import { User } from "src/users/schemas/user.schema";
+import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
+import { User } from 'src/users/schemas/user.schema';
 
 export enum PostFlags {
   HIDDEN = 'hidden',
@@ -37,5 +37,11 @@ export class Post {
 
   @Prop()
   flags: PostFlags[];
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Post',
+  })
+  postShare: Post;
 }
 export const PostSchema = SchemaFactory.createForClass(Post);

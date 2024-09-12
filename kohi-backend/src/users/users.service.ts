@@ -33,8 +33,20 @@ export class UsersService {
     };
   }
   // GET ALL USER
-  async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+  async findAllUser(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const User = await this.userModel.find().exec();
+    const totalUser = User.length;
+    const totalPage = Math.ceil(totalUser / limit);
+    return {
+      data:User,
+      pagination: {
+        currentPage: page,
+        totalElement:totalUser,
+        totalPage: totalPage,
+        limit: limit,
+      },
+    }
   }
   async findByEmail(email: string){
     return await this.userModel.findOne({ email }).exec();

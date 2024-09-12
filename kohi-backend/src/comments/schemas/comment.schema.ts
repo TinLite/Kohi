@@ -1,4 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
+import { User } from 'src/users/schemas/user.schema';
 
 @Schema()
 export class Comment {
@@ -8,12 +10,14 @@ export class Comment {
   content: string;
   @Prop()
   postId: string;
-  @Prop({ default: null })
-  replyTo?: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' })
+  replyTo?: Comment;
   @Prop({ default: Date.now() })
   timeStamp: Date;
-  @Prop({ default: [] })
-  likes: string[];
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
+  likes: User[];
+  @Prop()
+  hasReply?: boolean;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

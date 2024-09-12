@@ -40,8 +40,21 @@ export class UsersController {
 
   @Get('list')
   @Roles(Role.ADMIN)
-  findAll() {
-    return this.usersService.findAll();
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const currentPage = page ? Number(page) : 1;
+    const currentLimit = limit ? Number(limit) : 10;
+    if (
+      !Number.isInteger(currentPage) ||
+      !Number.isInteger(currentLimit) ||
+      currentPage <= 0 ||
+      currentLimit <= 0
+    ) {
+      throw new NotFoundException('Page or limit not found');
+    }
+    return this.usersService.findAllUser(currentPage, currentLimit);
   }
 
   @Get('profile/:id/detail')

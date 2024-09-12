@@ -4,26 +4,48 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostFlags } from './schemas/post.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, mongo } from 'mongoose';
+import { throws } from 'assert';
 
 @Injectable()
 export class PostsService {
   constructor(
-    @InjectModel(Post.name) private readonly postModel: Model<Post>
-  ) { }
+    @InjectModel(Post.name) private readonly postModel: Model<Post>,
+  ) {}
   async create(createPostDto: CreatePostDto) {
     console.log(createPostDto);
     const data = await this.postModel.create(createPostDto);
     return {
       _id: data._id,
-    }
+    };
   }
-
-  findAll() {
-    return this.postModel.find(
-      {
-        flags: { $nin: [PostFlags.HIDDEN] }
+  async findAll() {
+    return this.postModel.find({ flags: { $nin: [PostFlags.HIDDEN] } }).populate('author').exec();
+  }
+  //admin
+  async findAllByAuthor(
+    author: string,
+    limit: number,
+    page: number,
+  ){
+    const skip = (page - 1) * limit;
+    const data = await this.postModel.find({
+      author,
+      flags: { $nin: [PostFlags.HIDDEN] }
+    }).populate('author').exec();
+    const totalPost = await this.postModel.countDocuments({
+      author,
+      flags: { $nin: [PostFlags.HIDDEN] }
+    }).exec();
+    const totalPage = Math.ceil(totalPost / limit);
+    return {
+      data: data,
+      pagination: {
+        currentPage: page,
+        totalElement: totalPost,
+        totalPage: totalPage,
+        limit: limit
       }
-    ).populate('author').exec();
+    }
   }
 
   async findOne(id: string) {
@@ -84,4 +106,20 @@ export class PostsService {
       },
     ).exec();
   }
+  async sharePost(
+    authorId: string,
+    postId: string,
+    createPostDto: CreatePostDto,
+  ) {
+    const { author, content, postShare } = createPostDto;
+    const sharedPost = await this.postModel.create({
+      postShare: postId,
+      author: authorId,
+      content,
+    });
+    return {
+      _id: sharedPost._id,
+    };
+  }
+  
 }

@@ -1,8 +1,13 @@
 import { Comment } from './schemas/comment.schema';
-import { Injectable, Controller, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Controller,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PostsService } from 'src/posts/posts.service';
 
@@ -11,7 +16,6 @@ export class CommentsService {
   constructor(
     @InjectModel(Comment.name) private readonly commentModel: Model<Comment>,
     private readonly postsService: PostsService,
-    
   ) {}
 
   //Create Bình luận
@@ -20,7 +24,7 @@ export class CommentsService {
     authorId: string,
     postId: string,
   ) {
-    console.log(postId);
+    // console.log(postId);
     const { content, replyTo } = createCommentDto;
     await this.commentModel.create({
       author: authorId,
@@ -41,25 +45,34 @@ export class CommentsService {
       updateCommentDto,
       { new: true },
     );
-
   }
   //reply bình luận
   async replyComment(
+    postId: string,
     commentId: string,
-    replyCommentDto: CreateCommentDto,
     author: string,
+    createCommentDto: CreateCommentDto,
   ) {
-    const { content } = replyCommentDto;
-    const comment = await this.commentModel.findByIdAndUpdate(
+    const { content, replyTo } = createCommentDto;
+    await this.commentModel.findByIdAndUpdate(
       commentId,
       {
-        $push: { replies: { content, author } },
-      },
-      {
-        new: true,
+        $set: {
+          hasReply: true,
+        },
       }
-    );
+    )
+    const comment = await this.commentModel.create({
+      author: author,
+      content,
+      postId: postId,
+      replyTo: commentId,
+    });
+    return {
+      _id: comment._id,
+    };
   }
+
   //Like comments
   async likeComment(commentId: string, author: string) {
     await this.commentModel.findByIdAndUpdate(
@@ -74,14 +87,60 @@ export class CommentsService {
       commentId,
       { $pull: { likes: author } },
       { new: true },
-    )
+    );
   }
   //Delete bình luận
   async deleteComment(commentId: string, author: string) {
     await this.commentModel.findByIdAndDelete(commentId);
   }
-  //Get bình luận
+  //Get 1 bình luận
   async getOneComment(commentId: string) {
     return this.commentModel.findById(commentId).exec();
   }
+  //Get all bình luận theo bài viết
+  async getCommentByPostId(postId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const comment = await this.commentModel
+      .find({
+        postId: postId,
+        replyTo: null,
+      })
+      .exec();
+    const totalComment = await this.commentModel
+      .countDocuments({ postId })
+      .exec();
+    const totalPage = Math.ceil(totalComment / limit);
+    return {
+      data: comment,
+      pagination: {
+        currentPage: page,
+        totalElement: totalComment,
+        totalPage: totalPage,
+        limit: limit,
+      },
+    };
+  }
+  //get all bình luận theo id bình luận cha
+  async getCommentByReplyTo(replyTo: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const comment = await this.commentModel
+      .find({
+        replyTo: new mongoose.Types.ObjectId(replyTo),
+      })
+      .exec();
+    const totalComment = await this.commentModel
+      .countDocuments({ replyTo })
+      .exec();
+    const totalPage = Math.ceil(totalComment / limit);
+    return {
+      data: comment,
+      pagination: {
+        currentPage: page,
+        totalElement: totalComment,
+        totalPage: totalPage,
+        limit: limit,
+      },
+    };
+  }
+  
 }
