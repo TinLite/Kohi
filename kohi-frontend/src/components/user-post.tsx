@@ -1,22 +1,68 @@
-import { Bookmark, MessageCircle, Repeat, Send, ThumbsUp } from "lucide-react";
+import { Bookmark, MessageCircle, MessagesSquare, Repeat, Send, ThumbsUp, UserRoundPlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Separator } from "./ui/separator";
 import { Post } from "@/types/post-type";
+import { User } from "@/types/user-type";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 
-export default function UserPost({post} : {post: Post}) {
+function UserHoverCard({ children, user }: { children?: React.ReactNode, user: User }) {
+  return (
+    <HoverCard>
+      <HoverCardTrigger>
+        {children}
+      </HoverCardTrigger>
+      <HoverCardContent className="w-80 max-w-full">
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <Avatar className="w-16 h-16">
+              <AvatarImage src={user.avatar} className="rounded-full" alt={user.username} />
+              <AvatarFallback>{user.username[0]}</AvatarFallback>
+            </Avatar>
+            <div>
+              <div>
+                <span className="font-bold">{user.displayName ?? user.username}</span>
+                <span className="pl-2 text-muted-foreground text-sm">@{user.username}</span>
+              </div>
+              <div className="text-sm">{user.bio ?? "Một người dùng Ko-Hi"}</div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Button>
+              <UserRoundPlus className="w-4 h-4 mr-2" />
+              Add friend
+            </Button>
+            <Button variant="secondary">
+              <MessagesSquare className="w-4 h-4 mr-2" />
+              Message
+            </Button>
+          </div>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  )
+}
+
+export default function UserPost({ post }: { post: Post }) {
   return (
     <Card>
       <div className="flex px-6 py-4 flex-row gap-4 items-center">
-        <Avatar className="w-8 h-8">
-          <AvatarImage src={post.author.avatar} className="rounded-full" alt="@shadcn" />
-          <AvatarFallback>{post.author.username[0]}</AvatarFallback>
-        </Avatar>
+        <UserHoverCard user={post.author}>
+          <Avatar className="w-8 h-8">
+            <AvatarImage src={post.author.avatar} className="rounded-full" alt="@shadcn" />
+            <AvatarFallback>{post.author.username[0]}</AvatarFallback>
+          </Avatar>
+        </UserHoverCard>
         <div>
-          <div className="font-bold">{post.author.displayName ?? post.author.username}</div>
-          <div className="text-muted-foreground text-sm">@{post.author.username} - {post.createdAt.toLocaleString()}</div>
+          <UserHoverCard user={post.author}>
+            <div className="font-bold">{post.author.displayName ?? post.author.username}</div>
+          </UserHoverCard>
+          <div className="text-muted-foreground text-sm">
+            <UserHoverCard user={post.author}>
+              @{post.author.username}
+            </UserHoverCard> - {post.createdAt.toLocaleString()}</div>
         </div>
       </div>
       <div className="px-6 mb-4">
