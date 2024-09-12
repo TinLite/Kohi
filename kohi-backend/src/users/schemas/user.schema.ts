@@ -9,6 +9,11 @@ export enum Role {
 export class User {
   @Prop()
   username: string;
+  
+  @Prop({
+    select: false,
+  })
+  bio:string;
 
   @Prop({
     select: false,

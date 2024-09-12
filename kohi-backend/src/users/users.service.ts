@@ -57,7 +57,7 @@ export class UsersService {
   }
   //GET ONE user
   async findOne(id: string): Promise<User> {
-     return await this.userModel.findById(id).exec();
+     return await this.userModel.findById(id).select('+bio').exec();
   }
   
   async findAllById(id: string[]) {

@@ -5,7 +5,18 @@ meta {
 }
 
 post {
-  url: 
-  body: none
-  auth: none
+  url: http://localhost:3000/v1/api/comments/reply/66e268fd7ee85d145e6b51ef
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:json {
+  
+  {
+    "content":"me"
+  }
 }

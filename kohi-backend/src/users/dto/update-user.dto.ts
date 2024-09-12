@@ -1,9 +1,12 @@
-import { IsAlphanumeric, IsOptional } from "class-validator";
+import { IsAlphanumeric, IsOptional, IsString } from "class-validator";
 
 export class UpdateUserDto {
 @IsOptional() 
   @IsAlphanumeric()
   username: string;
+  
+  @IsOptional()
+  bio:string;
 
   @IsOptional()
   displayName: string;
