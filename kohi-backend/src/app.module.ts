@@ -12,6 +12,7 @@ import { UtilsModule } from './utils/utils.module';
 import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
 import { RolesGuard } from './auth/passport/role.guard';
 import { CommentsModule } from './comments/comments.module';
+import { ChatModule } from './chat/chat.module';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/kohi'), // MongoDB
@@ -28,6 +29,7 @@ import { CommentsModule } from './comments/comments.module';
     AuthModule,
     UtilsModule,
     CommentsModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService,

@@ -1,10 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import { ThemeProvider } from './components/theme-provider.tsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import PostList from './routes/posts/post-list.tsx'
+import { ThemeProvider } from './components/theme-provider.tsx'
+import './index.css'
 import MainLayout from './layout/main-layout.tsx'
+import { getUserId } from './repository/authentication-repository.ts'
+import PostList from './routes/posts/post-list.tsx'
 
 const router = createBrowserRouter([
   {
@@ -19,10 +20,16 @@ const router = createBrowserRouter([
   }
 ])
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <RouterProvider router={router} />
-    </ThemeProvider>
-  </StrictMode>,
-)
+getUserId().then((id) => {
+  localStorage.user_id = id;
+}).finally(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </StrictMode>,
+  )
+})
+
+

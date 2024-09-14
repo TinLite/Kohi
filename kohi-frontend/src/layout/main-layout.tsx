@@ -7,7 +7,6 @@ export default function MainLayout() {
     <div className="bg-muted dark:bg-muted/10">
       <div className="flex items-start min-h-screen mx-auto">
         <SideNav />
-
         <div className="flex-grow relative">
           <ScrollArea className="h-screen">
             <Outlet />
