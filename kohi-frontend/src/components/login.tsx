@@ -2,9 +2,26 @@ import { useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 import { login } from "@/repository/authentication-repository";
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader } from "./ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+} from "./ui/alert-dialog";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { TabsContent } from "@radix-ui/react-tabs";
 
 const LoginSheet = ({ children }: { children: React.ReactNode }) => {
   const [submitting, setSubmitting] = useState(false);
@@ -33,62 +50,133 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
       // setErrorMessage("Đăng nhập thành công");
       // setOpenAlert(true);
     } catch (e) {
-      setErrorMessage("Đăng nhập thất bại. Hãy kiểm tra lại tài khoản và mật khẩu.");
+      setErrorMessage(
+        "Đăng nhập thất bại. Hãy kiểm tra lại tài khoản và mật khẩu."
+      );
       setOpenAlert(true);
       console.error(e);
     } finally {
       setSubmitting(false);
     }
-  }
+  };
   return (
     <>
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>Không thể đăng nhập</AlertDialogHeader>
-          <AlertDialogDescription>
-            {errorMessage}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           <AlertDialogFooter>
-            <AlertDialogAction>
-              OK
-            </AlertDialogAction>
+            <AlertDialogAction>OK</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
       <Sheet>
-        <SheetTrigger asChild>
-          {children}
-        </SheetTrigger>
+        <SheetTrigger asChild>{children}</SheetTrigger>
         <SheetContent className="w-full mx-auto justify-center items-center">
-          <SheetHeader>
-            <SheetTitle>Đăng nhập</SheetTitle>
-            <SheetDescription>Đăng nhập để bày tỏ ý kiến của bạn</SheetDescription>
-          </SheetHeader>
-          <div className="w-full grid gap-4 py-4">
-            <div>
-              <Label>
-                Tài khoản:
-                <Input
-                  ref={accountRef}
-                  type="text"
-                  placeholder="Nhập tài khoản"
-                />
-              </Label>
-            </div>
-            <div>
-              <Label>
-                Mật khẩu:
-                <Input
-                  ref={passwordRef}
-                  type="password"
-                  placeholder="Nhập mật khẩu"
-                />
-              </Label>
-            </div>
-          </div>
-          <SheetFooter>
-            <Button type="submit" onClick={submitHandler} disabled={submitting}>Đăng nhập</Button>
-          </SheetFooter>
+          <Tabs defaultValue="login" className="pt-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Đăng nhập</TabsTrigger>
+              <TabsTrigger value="signup">Đăng ký</TabsTrigger>
+            </TabsList>
+            <TabsContent value="login">
+              <SheetHeader className="mt-4">
+                <SheetTitle>Đăng nhập</SheetTitle>
+                <SheetDescription>
+                  Đăng nhập để bày tỏ ý kiến của bạn
+                </SheetDescription>
+              </SheetHeader>
+              <div className="w-full grid gap-4 py-4">
+                <div>
+                  <Label>
+                    Tài khoản:
+                    <Input
+                      ref={accountRef}
+                      type="text"
+                      placeholder="Nhập tài khoản"
+                    />
+                  </Label>
+                </div>
+                <div>
+                  <Label>
+                    Mật khẩu:
+                    <Input
+                      ref={passwordRef}
+                      type="password"
+                      placeholder="Nhập mật khẩu"
+                    />
+                  </Label>
+                </div>
+              </div>
+              <SheetFooter>
+                <Button
+                  type="submit"
+                  onClick={submitHandler}
+                  disabled={submitting}
+                >
+                  Đăng nhập
+                </Button>
+              </SheetFooter>
+            </TabsContent>
+            <TabsContent value="signup">
+              <SheetHeader className="mt-4">
+                <SheetTitle>Đăng ký</SheetTitle>
+                <SheetDescription>
+                  Đăng ký tài khoản nếu bạn chưa có
+                </SheetDescription>
+              </SheetHeader>
+              <div className="w-full grid gap-4 py-4">
+                <div>
+                  <Label>
+                    Họ và tên:
+                    <Input
+                      ref={accountRef}
+                      type="text"
+                      placeholder="Nhập họ và tên "
+                    />
+                  </Label>
+                </div>
+                <div>
+                  <Label>
+                    Nhập email:
+                    <Input
+                      ref={accountRef}
+                      type="text"
+                      placeholder="Nhập email dùng để đăng nhập"
+                    />
+                  </Label>
+                </div>
+                <div>
+                  <Label>
+                    Mật khẩu:
+                    <Input
+                      ref={passwordRef}
+                      type="password"
+                      placeholder="Nhập mật khẩu"
+                    />
+                  </Label>
+                </div>
+                <div>
+                  <Label>
+                    Xác nhận mật khẩu:
+                    <Input
+                      ref={passwordRef}
+                      type="password"
+                      placeholder="Nhập mật khẩu xác nhận"
+                    />
+                  </Label>
+                </div>
+              </div>
+              <SheetFooter>
+                <Button
+                  type="submit"
+                  onClick={submitHandler}
+                  disabled={submitting}
+                >
+                  Đăng ký
+                </Button>
+              </SheetFooter>
+            </TabsContent>
+          </Tabs>
         </SheetContent>
       </Sheet>
     </>

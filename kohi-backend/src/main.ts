@@ -8,9 +8,12 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-    })
-  )
-  app.setGlobalPrefix("/v1/api")
+    }),
+  );
+  app.setGlobalPrefix('/v1/api');
+  app.enableCors({
+    origin: '*',
+  });
   await app.listen(3000);
 }
 bootstrap();

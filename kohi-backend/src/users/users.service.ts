@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import { UtilsService } from '../utils/utils.service';
+import { query } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -39,41 +40,39 @@ export class UsersService {
     const totalUser = User.length;
     const totalPage = Math.ceil(totalUser / limit);
     return {
-      data:User,
+      data: User,
       pagination: {
         currentPage: page,
-        totalElement:totalUser,
+        totalElement: totalUser,
         totalPage: totalPage,
         limit: limit,
       },
-    }
+    };
   }
-  async findByEmail(email: string){
+  async findByEmail(email: string) {
     return await this.userModel.findOne({ email }).exec();
   }
   //GET Email user
-  async findByEmailWithPassword(email: string){
-    return await this.userModel.findOne({ email }).select("+password").exec();
+  async findByEmailWithPassword(email: string) {
+    return await this.userModel.findOne({ email }).select('+password').exec();
   }
   //GET ONE user
   async findOne(id: string): Promise<User> {
-     return await this.userModel.findById(id).select('+bio').exec();
+    return await this.userModel.findById(id).select('+bio').exec();
   }
-  
+
   async findAllById(id: string[]) {
     return await this.userModel.find({ _id: { $in: id } }).exec();
- }
+  }
 
   //findByIdAndUpdate
-  async findByIdAndUpdate(id: string, updateUserDto: UpdateUserDto) {
-      
-  }
+  async findByIdAndUpdate(id: string, updateUserDto: UpdateUserDto) {}
   //DELETE ONE USER
   async deleteOne(id: string) {
     this.userModel.findByIdAndDelete(id).exec();
   }
 
-  //Update 
+  //Update
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
     const updateUser = await this.userModel
       .updateOne({ _id: id }, updateUserDto)
@@ -83,10 +82,10 @@ export class UsersService {
   //search User
   async searchUser(query: string) {
     const users = await this.userModel.find({
-      $or:[
-      {username:{$regex: query, $options: 'i'}},
-      {email:{$regex: query, $options: 'i'}},
-    ]
+      $or: [
+        { username: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } },
+      ],
     });
     return users;
   }
@@ -94,5 +93,14 @@ export class UsersService {
   async getUserRoles(userId: string) {
     const user = await this.userModel.findById(userId).select('+roles').exec();
     return user.roles;
+  }
+
+  async findByName(query: string) {
+    return this.userModel
+      .find({
+        username: { $regex: query.toLowerCase(), $options: 'i' },
+      })
+      .select('_id username')
+      .exec();
   }
 }

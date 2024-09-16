@@ -5,16 +5,18 @@ meta {
 }
 
 patch {
-  url: http://localhost:3000/v1/api/users/update/66cff294b9565ffdc1e87276
+  url: http://localhost:3000/v1/api/users/profile/66da6e96c6a33fb01ba8e20e/update
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
 }
 
 body:json {
   {
-    "username": "Teo",
-    "email": "Teo@gmail.com",
-    "avatar": "Teo",
-    "wall": "Teodeptrai"
+     "bio":"Anh tèo vô đối",
+    "displayName":"Yeres"
   }
 }

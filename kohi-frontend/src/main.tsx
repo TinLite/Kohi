@@ -6,6 +6,7 @@ import './index.css'
 import MainLayout from './layout/main-layout.tsx'
 import { getUserId } from './repository/authentication-repository.ts'
 import PostList from './routes/posts/post-list.tsx'
+import SearchUI from './components/search.tsx'
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,16 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <PostList />
+      }
+    ]
+  },
+  {
+    path: '/search',
+    element: <MainLayout />,
+    children: [
+      {
+        index: true,
+        element: <SearchUI />
       }
     ]
   }

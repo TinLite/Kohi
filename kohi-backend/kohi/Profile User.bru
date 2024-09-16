@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: 
+  url: http://localhost:3000/v1/api/users/profile/66da6e96c6a33fb01ba8e20e/detail
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
 }

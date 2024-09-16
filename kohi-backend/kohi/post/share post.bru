@@ -5,7 +5,11 @@ meta {
 }
 
 post {
-  url: 
+  url: http://localhost:3000/v1/api/posts/detail/66dd37e8d68b531af0e287e4/share
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
 }

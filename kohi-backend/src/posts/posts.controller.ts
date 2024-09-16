@@ -1,32 +1,30 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Request,
-  NotFoundException,
-  UnauthorizedException,
-  Put,
-  Query,
   BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Request,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
 import mongoose from 'mongoose';
 import { Public } from 'src/auth/authmeta';
-import { Role } from 'src/users/schemas/user.schema';
 import { Roles } from 'src/auth/role.decorator';
-
+import { Role } from 'src/users/schemas/user.schema';
+import { CreatePostDto } from './dto/create-post.dto';
+import { SharePostDto } from './dto/share-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import { PostsService } from './posts.service';
+import { query } from 'express';
 
 @Controller('posts')
 export class PostsController {
-  constructor(
-    private readonly postsService: PostsService,
-  ) { }
+  constructor(private readonly postsService: PostsService) {}
 
   @Post('create')
   async create(@Request() request, @Body() createPostDto: CreatePostDto) {
@@ -47,7 +45,7 @@ export class PostsController {
   findAll() {
     return this.postsService.findAll();
   }
-  
+
   @Roles(Role.ADMIN)
   @Get('list/:id')
   findAllByAuthor(
@@ -55,7 +53,6 @@ export class PostsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    
     const currentPage = page ? Number(page) : 1;
     const currentLimit = limit ? Number(limit) : 10;
     if (
@@ -66,7 +63,7 @@ export class PostsController {
     ) {
       throw new BadRequestException('Malfunctioned page or limit');
     }
-    return this.postsService.findAllByAuthor(id,currentPage,currentLimit);
+    return this.postsService.findAllByAuthor(id, currentPage, currentLimit);
   }
 
   @Get('detail/:id')
@@ -146,7 +143,7 @@ export class PostsController {
   async sharePost(
     @Request() request,
     @Param('postId') postId: string,
-    @Body() createPostDto: CreatePostDto,
+    @Body() sharePostDto: SharePostDto,
   ) {
     const post = await this.postsService.findOne(postId);
     const authorId = request.user._id;
@@ -157,8 +154,14 @@ export class PostsController {
     return this.postsService.sharePost(
       authorId,
       shareTarget as string,
-      createPostDto,
+      sharePostDto,
     );
   }
-
+  @Get('search')
+  @Public()
+  async search(@Query('q') q: string) {
+    const post = await this.postsService.searchPosts(q);
+    console.log(post);
+    return post;
+  }
 }

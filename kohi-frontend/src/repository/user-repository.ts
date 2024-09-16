@@ -11,3 +11,14 @@ export async function getProfile() {
     }
     return await data.json() as User
 }
+export async function searchUsers(query: string) {
+    const respone = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/users/search?query=${query}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.backend_access_token}`,
+        },
+    });
+    if (!respone.ok) {
+        throw new Error("Failed to fetch user profile");
+    }
+    return await respone.json() as User[]
+}
