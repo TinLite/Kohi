@@ -50,7 +50,7 @@ export class User {
   @Prop({ref: 'User'})
   followers: String[];
 
-  @Prop()
+  @Prop({ref: 'Post'})
   bookmarks: string[];
 }
 

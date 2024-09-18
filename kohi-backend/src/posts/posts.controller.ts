@@ -20,7 +20,6 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
-import { query } from 'express';
 
 @Controller('posts')
 export class PostsController {
@@ -157,11 +156,54 @@ export class PostsController {
       sharePostDto,
     );
   }
+  
+  @Delete('detail/:postId/unshare')
+  async unsharePost(@Request() request, @Param('postId') postId: string) {
+    const post = await this.postsService.findOne(postId);
+    const authorId = request.user._id;
+    // console.log(authorId, post.author);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    if(!post.postShare){
+      throw new NotFoundException('Post not shared');
+    }
+    if(post.author.toString() !== authorId){
+      throw new UnauthorizedException('You are not allowed to delete this post');
+    }
+    return this.postsService.deletePostShare(postId);
+  }
+
+  @Patch('detail/:postId/updateshare')
+  async updatePostShare(
+    @Param('postId') postId: string,
+    @Body() updatePostShareDto: SharePostDto,
+    @Request() request,
+  ){
+    const post = await this.postsService.findOne(postId);
+    const author = request.user._id;
+    if(!post){
+      throw new NotFoundException('Post not found');
+    }
+    if(post.author.toString() !== author){
+      throw new UnauthorizedException('You are not allowed to update this post');
+    }
+    return this.postsService.updatePostShare(postId, updatePostShareDto);
+  }
   @Get('search')
   @Public()
   async search(@Query('q') q: string) {
     const post = await this.postsService.searchPosts(q);
     console.log(post);
     return post;
+  }
+  @Get(':id/likes')
+  @Public()
+  async countLikes(@Param('id') id: string) {
+    const post = await this.postsService.findOne(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    return await this.postsService.countLikes(id);
   }
 }

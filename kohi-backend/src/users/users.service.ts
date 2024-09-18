@@ -84,7 +84,7 @@ export class UsersService {
     const users = await this.userModel.find({
       $or: [
         { username: { $regex: query, $options: 'i' } },
-        { email: { $regex: query, $options: 'i' } },
+        { displayName: { $regex: query, $options: 'i' } },
       ],
     });
     return users;
@@ -99,8 +99,18 @@ export class UsersService {
     return this.userModel
       .find({
         username: { $regex: query.toLowerCase(), $options: 'i' },
+
       })
       .select('_id username')
       .exec();
+  }
+  async findByNameOrDisplayName(query: string) {
+    return this.userModel
+    .find()
+    .or([
+      { username: { $regex: query, $options: 'i' } }, 
+      { displayName: { $regex: query, $options: 'i' } },
+    ])
+    .exec();
   }
 }

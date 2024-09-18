@@ -28,7 +28,7 @@ export default function SideNav() {
   }, []);
 
   return (
-    <aside className="fixed z-10 md:sticky max-md:w-full bg-background border-r shadow overflow-y-scroll bottom-0 max-md:py-4">
+    <aside className="fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4">
       <div className="md:min-h-screen flex flex-col md:justify-between gap-4 px-2 md:py-4">
         <a href="#" className="hidden md:flex items-end px-4 gap-2 font-bold">
           <div>

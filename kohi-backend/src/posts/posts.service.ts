@@ -6,12 +6,13 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostFlags } from './schemas/post.schema';
-
+import { UtilsService } from "../utils/utils.service";
 @Injectable()
 export class PostsService {
   constructor(
     @InjectModel(Post.name) private readonly postModel: Model<Post>,
     private readonly usersService: UsersService,
+    private readonly utilsService: UtilsService
   ) {}
   async create(createPostDto: CreatePostDto) {
     console.log(createPostDto);
@@ -135,7 +136,7 @@ export class PostsService {
     postId: string,
     createPostDto: SharePostDto,
   ) {
-    console.log(authorId, postId, createPostDto);
+    // console.log(authorId, postId, createPostDto);
     const { content } = createPostDto;
     const sharedPost = await this.postModel.create({
       postShare: postId,
@@ -146,6 +147,31 @@ export class PostsService {
       _id: sharedPost._id,
     };
   }
+
+  async deletePostShare(postId: string) {
+    await this.postModel.deleteOne({ _id: postId });
+  }
+
+  async updatePostShare(postId: string, updatePostDto: SharePostDto) {
+    const { content } = updatePostDto;
+    const sharedPost = await this.postModel.findOneAndUpdate(
+      { _id: postId,
+        flags: { $nin: [PostFlags.HIDDEN] },
+       },
+      {
+        $set: {
+          content,
+        }
+      },
+      {
+        new: true,
+      }
+    )
+    return {
+      _id: sharedPost._id,
+    };
+  }
+
   async searchPosts(query: string) {
     const users = await this.usersService.findByName(query);
     const author = users.map((user) => user._id);
@@ -154,9 +180,40 @@ export class PostsService {
       .populate('author')
       .or([
         { content: { $regex: query, $options: 'i' } },
-        { author: { $in: author } },
+        {$and: [{ content: { $not: { $regex: query, $options: 'i' } } }, { author: { $in: author } }]},
       ])
       .exec();
     return post;
+  }
+  
+  async searchBookMark(query: string) {
+    const users = await this.usersService.findByNameOrDisplayName(query);
+    const authorIds = users.map((user) => user._id);
+    const posts = await this.postModel
+      .find()
+      .populate('author')
+      .or([
+        { content: { $regex: query, $options: 'i' } },
+        { author: { $in: authorIds } },
+      ])
+      .exec();
+  
+    return posts;
+  }
+
+  async countLikes(id: string) {
+    const post = await this.postModel
+      .findOne({
+        _id: id,
+        flags: { $nin: [PostFlags.HIDDEN] },
+      }).populate('likes')
+      .lean()
+      .exec();
+      const totalLike = post.likes.length;
+      const formattedLike = await this.utilsService.formatLikeCount(totalLike);
+    return {
+      total:formattedLike,
+      userLiked: post.likes,
+    }
   }
 }

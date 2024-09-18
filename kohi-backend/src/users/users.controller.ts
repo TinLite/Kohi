@@ -208,5 +208,8 @@ export class UsersController {
     }
     return this.bookmarkService.listBookMark(author, currentPage, currentLimit);
   }
-
+  @Get('profile/bookmarks/search')
+  async searchBookMark(@Query('query') query: string) {
+    return  this.postsService.searchBookMark(query);
+  }
 }

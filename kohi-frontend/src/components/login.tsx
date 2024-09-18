@@ -88,11 +88,11 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
               <div className="w-full grid gap-4 py-4">
                 <div>
                   <Label>
-                    Tài khoản:
+                    Email:
                     <Input
                       ref={accountRef}
                       type="text"
-                      placeholder="Nhập tài khoản"
+                      placeholder="m@example.com"
                     />
                   </Label>
                 </div>
