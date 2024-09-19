@@ -4,8 +4,12 @@ meta {
   seq: 2
 }
 
-post {
-  url: 
+delete {
+  url: http://localhost:3000/v1/api/posts/detail/66eabd2f5af20baccc74f0f0/unshare
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
 }

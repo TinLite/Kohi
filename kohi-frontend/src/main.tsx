@@ -7,6 +7,7 @@ import MainLayout from './layout/main-layout.tsx'
 import { getUserId } from './repository/authentication-repository.ts'
 import PostList from './routes/posts/post-list.tsx'
 import SearchUI from './components/search.tsx'
+import BookMarkUI from './components/bookmark.tsx'
 
 const router = createBrowserRouter([
   {
@@ -28,7 +29,18 @@ const router = createBrowserRouter([
         element: <SearchUI />
       }
     ]
+  },
+  {
+    path: '/bookmark',
+    element: <MainLayout />,
+    children: [
+      {
+        index: true,
+        element: <BookMarkUI />
+      }
+    ]
   }
+
 ])
 
 getUserId().then((id) => {
