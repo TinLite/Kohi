@@ -5,7 +5,17 @@ meta {
 }
 
 patch {
-  url: 
-  body: none
-  auth: none
+  url: http://localhost:3000/v1/api/posts/detail/66eabd9f5af20baccc74f0f3/updateshare
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:json {
+  {
+    "content":"bài ok"
+  }
 }

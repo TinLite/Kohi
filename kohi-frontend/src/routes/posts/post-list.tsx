@@ -1,4 +1,5 @@
 import { ButtonScrollToTop } from "@/components/button-scroll-to-top";
+import FriendSide from "@/components/friend-side";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +16,11 @@ function PostCreate() {
     <Card>
       <CardContent className="flex p-6 gap-6">
         <Avatar className="w-8 h-8">
-          <AvatarImage src="https://github.com/shadcn.png" className="rounded-full" alt="@shadcn" />
+          <AvatarImage
+            src="https://github.com/shadcn.png"
+            className="rounded-full"
+            alt="@shadcn"
+          />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Textarea
@@ -23,44 +28,41 @@ function PostCreate() {
           placeholder="How are you today?"
           onInput={(e) => {
             console.log("tested");
-            e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+            e.currentTarget.style.height = e.currentTarget.scrollHeight + "px";
             let test = e.currentTarget.value.trim().length > 0;
-            if (test != submittable)
-              setSubmittable(test);
+            if (test != submittable) setSubmittable(test);
           }}
           onFocus={() => {
-            if (!clicked)
-              setClicked(true);
+            if (!clicked) setClicked(true);
           }}
-        >
-        </Textarea>
+        ></Textarea>
       </CardContent>
-      {
-        clicked &&
+      {clicked && (
         <CardFooter className="flex justify-end">
           <Button disabled={!submittable}>Submit</Button>
         </CardFooter>
-      }
+      )}
     </Card>
-  )
+  );
 }
 
 export default function PostList() {
   const [posts, setPosts] = useState<Post[]>([]);
   useEffect(() => {
-    getGlobalLatestPosts().then(setPosts)
+    getGlobalLatestPosts().then(setPosts);
   }, []);
   return (
     <>
-      <div className="flex flex-col gap-6 max-w-xl mx-auto py-6">
-        <PostCreate />
-        {
-          posts.map((post) => (
+      <div className="flex">
+        <div className="flex flex-col gap-6 max-w-xl mx-auto py-6">
+          <PostCreate />
+          {posts.map((post) => (
             <UserPost post={post} key={post._id} />
-          ))
-        }
+          ))}
+        </div>
+        <ButtonScrollToTop />
+        <FriendSide />
       </div>
-      <ButtonScrollToTop />
     </>
-  )
+  );
 }

@@ -8,6 +8,7 @@ import { getUserId } from './repository/authentication-repository.ts'
 import PostList from './routes/posts/post-list.tsx'
 import SearchUI from './components/search.tsx'
 import MessagePage from './routes/messages/message.tsx'
+import BookMarkUI from './components/bookmark.tsx'
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: '/search',
         element: <SearchUI />
+      },
+      {
+        path: '/bookmark',
+        element: <BookMarkUI />
       }
     ]
   }
