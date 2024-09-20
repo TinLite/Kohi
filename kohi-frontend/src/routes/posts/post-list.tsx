@@ -2,6 +2,7 @@ import { ButtonScrollToTop } from "@/components/button-scroll-to-top";
 import FriendSide from "@/components/friend-side";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import UserPost from "@/components/user-post";
 import { getGlobalLatestPosts } from "@/repository/PostsRepository";
@@ -54,12 +55,16 @@ export default function PostList() {
   return (
     <>
       <div className="flex">
-        <div className="flex flex-col gap-6 max-w-xl mx-auto py-6">
-          <PostCreate />
-          {posts.map((post) => (
-            <UserPost post={post} key={post._id} />
-          ))}
-        </div>
+        <ScrollArea className="h-screen flex-grow flex flex-col py-6">
+          <div className="w-full flex justify-center">
+            <div className="w-screen max-w-xl space-y-6">
+              <PostCreate />
+              {posts.map((post) => (
+                <UserPost post={post} key={post._id} />
+              ))}
+            </div>
+          </div>
+        </ScrollArea>
         <ButtonScrollToTop />
         <FriendSide />
       </div>

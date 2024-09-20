@@ -1,4 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
@@ -40,11 +42,19 @@ export default function MessagePage() {
                 </ScrollArea>
             </div>
             <Separator orientation="vertical" />
-            <div className="flex-grow">
-                <div className="w-full px-4 py-2 bg-background">
+            <div className="flex-grow flex h-screen flex-col">
+                <div className="px-4 py-2 bg-background">
                     <h1 className="text-xl font-bold">Tin nhắn</h1>
                 </div>
                 <Separator />
+                <ScrollArea className="flex-grow pb-4">
+
+                </ScrollArea>
+                <Separator />
+                <div className="bg-background flex gap-2 px-4 py-2">
+                    <Input placeholder="Nhập tin nhắn..." className="flex-grow" />
+                    <Button>Gửi</Button>
+                </div>
             </div>
         </div>
     );
