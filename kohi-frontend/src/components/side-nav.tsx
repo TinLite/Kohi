@@ -1,4 +1,4 @@
-import { User } from "@/types/user-type";
+import { UserContext } from "@/context/user-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import {
   Bell,
@@ -9,23 +9,13 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
+import { NavLink } from "react-router-dom";
 import LoginSheet from "./login";
 import { ModeToggle } from "./mode-toggle";
-import { getProfile } from "@/repository/user-repository";
-import { NavLink } from "react-router-dom";
 
 export default function SideNav() {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    getProfile()
-      .then((u) => {
-        console.log(u);
-        setUser(u);
-      })
-      .catch(() => {});
-  }, []);
+  const {user} = useContext(UserContext);
 
   return (
     <aside className="fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4">

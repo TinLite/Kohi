@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -11,7 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { login } from "@/repository/authentication-repository";
+import { getUserId, login } from "@/repository/authentication-repository";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,8 +22,12 @@ import {
 } from "./ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
+import { UserContext } from "@/context/user-context";
+import { getProfile } from "@/repository/user-repository";
 
 const LoginSheet = ({ children }: { children: React.ReactNode }) => {
+  const { user, setUser } = useContext(UserContext);
+
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -31,6 +35,7 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
 
   const accountRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+
   const submitHandler = async () => {
     setSubmitting(true);
     const account = accountRef.current?.value;
@@ -47,8 +52,11 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
     }
     try {
       await login(account, password);
-      // setErrorMessage("Đăng nhập thành công");
-      // setOpenAlert(true);
+      if (localStorage.backend_access_token) {
+        const userId = await getUserId();
+        setUser(await getProfile(userId));
+        setOpenAlert(false);
+      }
     } catch (e) {
       setErrorMessage(
         "Đăng nhập thất bại. Hãy kiểm tra lại tài khoản và mật khẩu."

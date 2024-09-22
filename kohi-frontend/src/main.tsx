@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { ThemeProvider } from './components/theme-provider.tsx'
@@ -9,6 +9,9 @@ import PostList from './routes/posts/post-list.tsx'
 import SearchUI from './components/search.tsx'
 import MessagePage from './routes/messages/message.tsx'
 import BookMarkUI from './components/bookmark.tsx'
+import { getProfile } from './repository/user-repository.ts'
+import { UserContext, UserProvider } from './context/user-context.tsx'
+import { User } from './types/user-type.ts'
 
 const router = createBrowserRouter([
   {
@@ -35,14 +38,16 @@ const router = createBrowserRouter([
   }
 ])
 
-getUserId().then((id) => {
-  localStorage.user_id = id;
-}).finally(() => {
+let userData : User | undefined;
+
+getProfile().then((user) => userData = user).finally(async () => {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <RouterProvider router={router} />
-      </ThemeProvider>
+      <UserProvider userData={userData}>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </UserProvider>
     </StrictMode>,
   )
 })

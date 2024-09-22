@@ -1,7 +1,7 @@
 import { User } from "@/types/user-type";
 
-export async function getProfile() {
-    const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/users/profile/${localStorage.user_id}/detail`, {
+export async function getProfile(userId: string = "me") {
+    const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/users/profile/${userId}/detail`, {
         headers: {
             Authorization: `Bearer ${localStorage.backend_access_token}`,
         },

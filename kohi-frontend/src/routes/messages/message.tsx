@@ -27,12 +27,13 @@ function MessageSelectionItem({ selected = false }: { selected?: boolean }) {
     )
 }
 
-function UserMessage({ isMe, name, avatar, image }: { isMe?: boolean, name?: string, avatar?: string, image?: string }) {
+function UserMessage({ isMe, name, avatar, image, noPaddingBottom }: { isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingBottom?: boolean }) {
     return (
         <div
             className={[
-                "flex gap-2 px-4 my-4",
-                (isMe ? "flex-row-reverse" : "")
+                "flex gap-2 px-4",
+                (isMe ? "flex-row-reverse" : ""),
+                (noPaddingBottom ? "mb-1" : "mb-4")
             ].join(' ')}>
             {!isMe &&
                 <div className="w-10 flex items-end">
@@ -105,7 +106,7 @@ export default function MessagePage() {
                     <UserMessage name="Username" avatar="https://i.pravatar.cc/300" />
                     <UserMessage isMe />
                     <UserMessage name="Username" avatar="https://i.pravatar.cc/300" image="https://cataas.com/cat" />
-                    <UserMessage isMe />
+                    <UserMessage isMe noPaddingBottom />
                     <UserMessage isMe />
                 </ScrollArea>
                 <Separator />
