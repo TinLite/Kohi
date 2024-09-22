@@ -58,12 +58,18 @@ export class UsersController {
   }
 
   @Get('profile/:id/detail')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @Req() req) {
+    if (id == "me") {
+      id = req.user._id;
+    }
     return this.usersService.findOne(id);
   }
 
   @Delete('profile/:id/delete')
-  async deleteOne(@Param('id') id: string) {
+  async deleteOne(@Param('id') id: string, @Req() req) {
+    if (id == "me") {
+      id = req.user._id;
+    }
     if (mongoose.isValidObjectId(id)) {
       return this.usersService.deleteOne(id);
     } else {
@@ -72,7 +78,10 @@ export class UsersController {
   }
 
   @Patch('profile/:id/update')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req) {
+    if (id == "me") {
+      id = req.user._id;
+    }
     await this.usersService.updateUser(id, updateUserDto);
   }
 
