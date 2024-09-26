@@ -1,4 +1,3 @@
-import { getProfile } from "@/repository/user-repository";
 import { User } from "@/types/user-type";
 import React from "react";
 
