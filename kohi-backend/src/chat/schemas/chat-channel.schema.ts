@@ -14,10 +14,6 @@ export enum ChatParticipantRole {
 }
 
 export class ChatChannelParticipant {
-    @Prop({
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    })
     userId: User;
     role: string;
     joinedAt: Date;
@@ -28,10 +24,19 @@ export class ChatChannel {
     @Prop()
     name?: string;
 
-    @Prop({default: ChatChannelType.PRIVATE})
+    @Prop({ default: ChatChannelType.PRIVATE })
     type: ChatChannelType;
 
-    @Prop()
+    @Prop([
+        {
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+            role: String,
+            joinedAt: Date
+        }
+    ])
     participants: ChatChannelParticipant[];
 }
 
