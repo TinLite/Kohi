@@ -13,6 +13,7 @@ import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
 import { RolesGuard } from './auth/passport/role.guard';
 import { CommentsModule } from './comments/comments.module';
 import { ChatModule } from './chat/chat.module';
+import { EventsModule } from './events/events.module';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/kohi'), // MongoDB
@@ -30,17 +31,18 @@ import { ChatModule } from './chat/chat.module';
     UtilsModule,
     CommentsModule,
     ChatModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService,
     {
-    provide: 'APP_GUARD',
-    useClass: JwtAuthGuard,
-  },
+      provide: 'APP_GUARD',
+      useClass: JwtAuthGuard,
+    },
     {
-    provide: 'APP_GUARD',
-    useClass: RolesGuard
-  }
-],
+      provide: 'APP_GUARD',
+      useClass: RolesGuard
+    }
+  ],
 })
-export class AppModule {}
+export class AppModule { }

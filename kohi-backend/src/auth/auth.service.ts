@@ -20,20 +20,6 @@ export class AuthService {
     }
     return user;
   }
-  //login no Guard
-  // async signIn(username: string, pass: string): Promise<any> {
-  //   const user = await this.usersService.findByEmail(username);
-  //   const isCheckPass = await this.utilsService.comparePassword(pass, user.password)
-  //   if (!isCheckPass) {
-  //     throw new UnauthorizedException({
-  //       message: 'Wrong password or Wrong username',
-  //     });
-  //   }
-  //   const payload = { sub: user._id, username: user.email };
-  //   return {
-  //     access_token: await this.jwtService.signAsync(payload),
-  //   };
-  // }
 
   // login with Guard
   async login(user: any) {
@@ -42,5 +28,9 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  decodeToken(token: string) {
+    return this.jwtService.verify(token);
   }
 }

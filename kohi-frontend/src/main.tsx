@@ -1,16 +1,15 @@
-import { StrictMode, useState } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { ThemeProvider } from './components/theme-provider.tsx'
 import './index.css'
 import MainLayout from './layout/main-layout.tsx'
-import { getUserId } from './repository/authentication-repository.ts'
 import PostList from './routes/posts/post-list.tsx'
 import SearchUI from './components/search.tsx'
 import MessagePage from './routes/messages/message.tsx'
 import BookMarkUI from './components/bookmark.tsx'
 import { getProfile } from './repository/user-repository.ts'
-import { UserContext, UserProvider } from './context/user-context.tsx'
+import { UserProvider } from './context/user-context.tsx'
 import { User } from './types/user-type.ts'
 
 const router = createBrowserRouter([

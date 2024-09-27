@@ -1,0 +1,26 @@
+meta {
+  name: CreateChannel
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/v1/api/chat/channels/create
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:json {
+  {
+    "participants": [
+      {
+        "userId": "66dd6e428288976c34df357a"
+      }
+    ],
+        "firstMessage": "hi chat"
+  }
+}

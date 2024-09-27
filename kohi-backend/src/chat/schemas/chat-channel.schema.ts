@@ -1,21 +1,37 @@
-import { Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import e from "express";
+import mongoose from "mongoose";
+import { User } from "src/users/schemas/user.schema";
 
-enum ChatChannelType {
+export enum ChatChannelType {
     PRIVATE = 'private',
     GROUP = 'group'
 }
 
+export enum ChatParticipantRole {
+    ADMIN = 'admin',
+    PARTICIPANT = 'participant'
+}
+
 export class ChatChannelParticipant {
-    userId: string;
+    @Prop({
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    })
+    userId: User;
     role: string;
     joinedAt: Date;
 }
 
 @Schema()
 export class ChatChannel {
+    @Prop()
     name?: string;
+
+    @Prop({default: ChatChannelType.PRIVATE})
     type: ChatChannelType;
+
+    @Prop()
     participants: ChatChannelParticipant[];
 }
 

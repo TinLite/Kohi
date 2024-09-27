@@ -1,26 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import { CreateChatDto } from './dto/create-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
+import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
+import { ChatChannel } from './schemas/chat-channel.schema';
+import { ChatMessage } from './schemas/chat-message.schema';
+import { User } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class ChatService {
-  create(createChatDto: CreateChatDto) {
-    return 'This action adds a new chat';
+  constructor(
+    @InjectModel('ChatChannel') private chatChannelModel: Model<ChatChannel>,
+    @InjectModel('ChatMessage') private chatMessageModel: Model<ChatMessage>,
+  ) {}
+  getChannelsByUserId(userId: string) {
+    return this.chatChannelModel.find({ "participants.userId": userId }).populate('participants.userId');
   }
 
-  findAll() {
-    return `This action returns all chat`;
+  getChannelById(channelId: string) {
+    this.chatChannelModel.findById(channelId);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} chat`;
+  async createChannel(createChatDto: CreateChatChannelDto) {
+    const newChannel = new this.chatChannelModel({
+      name: createChatDto.name,
+      participants: createChatDto.participants,
+    });
+    return newChannel.save();
   }
 
-  update(id: number, updateChatDto: UpdateChatDto) {
-    return `This action updates a #${id} chat`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} chat`;
+  createMessage(channelId: ChatChannel | mongoose.Types.ObjectId | String, senderId: User | mongoose.Types.ObjectId | String, content: string) {
+    const newMessage = new this.chatMessageModel({
+      channelID: channelId,
+      senderID: senderId,
+      content: content,
+    });
+    return newMessage.save();
   }
 }

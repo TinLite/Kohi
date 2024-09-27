@@ -10,6 +10,10 @@ export async function login(email: string, password: string) {
     const data = await response.json();
     localStorage.backend_access_token = data.access_token;
   } else {
+    if (response.status === 401) {
+      localStorage.removeItem('backend_access_token');
+      throw new Error("Email hoặc mật khẩu không chính xác");
+    }
     throw new Error(await response.text());
   }
 }

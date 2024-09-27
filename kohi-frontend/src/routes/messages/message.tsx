@@ -4,8 +4,12 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { getChannelList } from "@/repository/chat-repository";
+import socket from "@/services/socket";
+import { ChatChannel } from "@/types/chat-types";
+import { useEffect, useState } from "react";
 
-function MessageSelectionItem({ selected = false }: { selected?: boolean }) {
+function MessageSelectionItem({chatChannel, selected = false }: {chatChannel: ChatChannel, selected?: boolean }) {
     return (
         <button className={[
             "w-full flex gap-4 px-4 py-2 mb-2 rounded-md border",
@@ -18,7 +22,7 @@ function MessageSelectionItem({ selected = false }: { selected?: boolean }) {
             </Avatar>
             <div className="flex-grow text-left text-sm">
                 <div className="flex justify-between">
-                    <span className="font-bold">User</span>
+                    <span className="font-bold">{chatChannel.name ?? chatChannel._id}</span>
                     <span className="pl-2 text-muted-foreground text-sm">3 giờ trước</span>
                 </div>
                 <div className="text-muted-foreground">Last message</div>
@@ -74,6 +78,18 @@ function UserMessage({ isMe, name, avatar, image, noPaddingTop }: { isMe?: boole
 }
 
 export default function MessagePage() {
+    const [channels, setChannels] = useState<ChatChannel[]>([]);
+    getChannelList().then(setChannels);
+    useEffect(() => {
+        document.title = "Tin nhắn";
+        if (localStorage.backend_access_token) {
+            socket.io.opts.extraHeaders = {
+                Authorization: `Bearer ${localStorage.backend_access_token}`
+            }
+            socket.connect();
+            return () => { socket.disconnect(); }
+        }
+    })
     return (
         <div className="flex flex-grow h-screen">
             <div className="bg-background flex flex-col h-screen w-96 max-w-[100vw]">
@@ -82,10 +98,11 @@ export default function MessagePage() {
                 </div>
                 <Separator />
                 <ScrollArea className="flex-grow flex flex-col items-stretch p-4">
-                    <MessageSelectionItem />
-                    <MessageSelectionItem />
-                    <MessageSelectionItem />
-                    <MessageSelectionItem />
+                    {
+                        channels.map((channel) => (
+                            <MessageSelectionItem key={channel._id} chatChannel={channel} />
+                        ))
+                    }
                 </ScrollArea>
             </div>
             <Separator orientation="vertical" />

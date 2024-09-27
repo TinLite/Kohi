@@ -7,15 +7,15 @@ const socket = io(URL, {
 })
 
 socket.on('connect', () => {
-    console.log('Connected to server');
+    console.log('[socket] Connected to server');
 })
 
 socket.on('disconnect', () => {
-    console.log('Disconnected from server');
+    console.log('[socket] Disconnected from server');
 })
 
 socket.onAny((event, ...args) => {
-    console.log(event, args);
+    console.log("[socket] ", event, args);
 })
 
 export default socket;

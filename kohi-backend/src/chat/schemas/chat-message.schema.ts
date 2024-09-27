@@ -21,7 +21,7 @@ export class ChatMessage {
     content: string;
 
     @Prop({
-        default: Date.now()
+        default: Date.now(),
     })
     timeStamp: Date;
 
