@@ -45,7 +45,6 @@ const SearchUI = () => {
       handleSearch(e.target.value);
     }, 500);
   };
-
   return (
     <div className="w-full max-w-lg mx-auto mt-10 p-6 rounded-lg  ">
       <div className="flex items-center mb-6">

@@ -80,7 +80,10 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
       </AlertDialog>
       <Sheet>
         <SheetTrigger asChild>{children}</SheetTrigger>
-        <SheetContent className="w-full mx-auto justify-center items-center">
+        <SheetContent
+          side="left"
+          className="w-full mx-auto justify-center items-center"
+        >
           <Tabs defaultValue="login" className="pt-4">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Đăng nhập</TabsTrigger>

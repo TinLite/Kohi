@@ -20,4 +20,12 @@ export class EventsService {
     announceToUser(userId: string, event: string, data: any) {
         this.socket.server.to(`user:${userId}`).emit(event, data);
     }
+    async sendFollowNotification(notification: any) {
+        this.announceToUser(notification.userId, 'notification', {
+            _id: notification._id,
+        content: notification.content,
+        isRead: notification.isRead,
+        createAt: notification.createAt,
+        });
+    }
 }

@@ -13,6 +13,7 @@ import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import LoginSheet from "./login";
 import { ModeToggle } from "./mode-toggle";
+import UserNoti from "./noti";
 
 export default function SideNav() {
   const {user} = useContext(UserContext);
@@ -71,14 +72,15 @@ export default function SideNav() {
 
             <span className="hidden md:block">Message</span>
           </NavLink>
-          <a
-            href="#"
+          <UserNoti>
+          <button
             className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
           >
             <Bell />
 
             <span className="hidden md:block">Notification</span>
-          </a>
+          </button>
+          </UserNoti>
           <NavLink
             to="/bookmark"
             className={({ isActive }) =>

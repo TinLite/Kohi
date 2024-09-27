@@ -19,6 +19,5 @@ export class UpdateUserDto {
 
   @IsOptional()
   wall: string;
-  
 
 }

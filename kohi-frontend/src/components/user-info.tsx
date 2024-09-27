@@ -3,11 +3,27 @@ import { Card } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { followUser, unFollowUser } from "@/repository/user-repository";
 
 const UserInfo = ({ user }: { user: User }) => {
   const [isFollowing, setIsFollowing] = useState(false);
-  const handleFollow = () => {
-    setIsFollowing(!isFollowing);
+
+  const handleFollow = async () => {
+    try {
+      await followUser(user._id);
+      setIsFollowing(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const handleUnfollow = async () => {
+    try {
+      console.log("Unfollow");
+      await unFollowUser(user._id);
+      setIsFollowing(false);
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <Card>
@@ -27,11 +43,11 @@ const UserInfo = ({ user }: { user: User }) => {
           </div>
         </div>
         <Button
+          onClick={isFollowing ? handleUnfollow : handleFollow}
           variant={isFollowing ? "outline" : "default"}
           className="ml-auto"
-          onClick={handleFollow}
         >
-          {isFollowing ? "Following" : "Follow"}
+          {isFollowing ? "Unfollow" : "Follow"}
         </Button>
       </div>
     </Card>

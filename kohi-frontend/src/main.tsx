@@ -11,44 +11,54 @@ import BookMarkUI from './components/bookmark.tsx'
 import { getProfile } from './repository/user-repository.ts'
 import { UserProvider } from './context/user-context.tsx'
 import { User } from './types/user-type.ts'
+import UserProfile from './components/user-profile.tsx'
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <MainLayout />,
     children: [
       {
         index: true,
-        element: <PostList />
+        element: <PostList />,
       },
       {
-        path: '/message',
-        element: <MessagePage />
+        path: "/message",
+        element: <MessagePage />,
       },
       {
-        path: '/search',
-        element: <SearchUI />
+        path: "/search",
+        element: <SearchUI />,
       },
       {
-        path: '/bookmark',
-        element: <BookMarkUI />
-      }
-    ]
-  }
-])
+        path: "/bookmark",
+        element: <BookMarkUI />,
+      },
+      {
+        path: "/profile",
+        children: [
+          {
+            index: true,
+            element: <UserProfile />,
+          },
+        ],
+      },
+    ],
+  },
+]);
 
-let userData : User | undefined;
+let userData: User | undefined;
 
-getProfile().then((user) => userData = user).finally(async () => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <UserProvider userData={userData}>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <RouterProvider router={router} />
-        </ThemeProvider>
-      </UserProvider>
-    </StrictMode>,
-  )
-})
-
-
+getProfile()
+  .then((user) => (userData = user))
+  .finally(async () => {
+    createRoot(document.getElementById("root")!).render(
+      <StrictMode>
+        <UserProvider userData={userData}>
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <RouterProvider router={router} />
+          </ThemeProvider>
+        </UserProvider>
+      </StrictMode>
+    );
+  });
