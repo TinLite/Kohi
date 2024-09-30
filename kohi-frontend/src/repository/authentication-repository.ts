@@ -18,6 +18,30 @@ export async function login(email: string, password: string) {
   }
 }
 
+export async function register(data: {
+  displayName?: string;
+  username: string;
+  email: string;
+  password: string;
+}) {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/users/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) {
+    const data = await response.json();
+    localStorage.backend_access_token = data.access_token;
+  } else {
+    if (response.status === 401) {
+      localStorage.removeItem('backend_access_token');
+      throw new Error("Email hoặc mật khẩu không chính xác");
+    }
+  }
+}
+
 export async function getUserId() {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/auth/profile`, {
         headers: {

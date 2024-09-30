@@ -15,6 +15,7 @@ import LoginSheet from "./login";
 import UserNoti from "./noti";
 import { cn } from "@/lib/utils";
 import { SheetSetting } from "./sheet-settings";
+import { DropdownSetting } from "./dropdown-setting";
 
 export default function SideNav() {
   const { user } = useContext(UserContext);
@@ -130,12 +131,14 @@ export default function SideNav() {
             </LoginSheet>
           )}
         </nav>
-        <button onClick={() => setSettingOpen(true)} className={cn("hidden md:flex",
-          "h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-        )}>
-          <Settings />
-          <span className="hidden md:block">Setting</span>
-        </button>
+        <DropdownSetting>
+          <button className={cn("hidden md:flex",
+            "h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+          )}>
+            <Settings />
+            <span className="hidden md:block">Setting</span>
+          </button>
+        </DropdownSetting>
       </div>
       <SheetSetting open={settingOpen} onOpenChange={setSettingOpen} side="left" />
     </aside>

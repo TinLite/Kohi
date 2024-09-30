@@ -23,7 +23,6 @@ import { Role } from './schemas/user.schema';
 // import { FollowsService } from './follows.service';
 // import { BookmarkService } from './bookmarks.service';
 // import { PostsService } from 'src/posts/posts.service';
-import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Controller('users')
 export class UsersController {
