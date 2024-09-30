@@ -9,14 +9,18 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { NavLink } from "react-router-dom";
 import LoginSheet from "./login";
-import { ModeToggle } from "./mode-toggle";
 import UserNoti from "./noti";
+import { cn } from "@/lib/utils";
+import { SheetSetting } from "./sheet-settings";
 
 export default function SideNav() {
-  const {user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
+
+
+  const [settingOpen, setSettingOpen] = useState(false);
 
   return (
     <aside className="fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4">
@@ -73,13 +77,13 @@ export default function SideNav() {
             <span className="hidden md:block">Message</span>
           </NavLink>
           <UserNoti>
-          <button
-            className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-          >
-            <Bell />
+            <button
+              className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+            >
+              <Bell />
 
-            <span className="hidden md:block">Notification</span>
-          </button>
+              <span className="hidden md:block">Notification</span>
+            </button>
           </UserNoti>
           <NavLink
             to="/bookmark"
@@ -126,16 +130,14 @@ export default function SideNav() {
             </LoginSheet>
           )}
         </nav>
-        <div className="hidden md:flex justify-around gap-2">
-          <ModeToggle />
-          <a
-            href="#"
-            className="flex h-9 w-9 justify-center items-center gap-2 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-          >
-            <Settings />
-          </a>
-        </div>
+        <button onClick={() => setSettingOpen(true)} className={cn("hidden md:flex",
+          "h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+        )}>
+          <Settings />
+          <span className="hidden md:block">Setting</span>
+        </button>
       </div>
+      <SheetSetting open={settingOpen} onOpenChange={setSettingOpen} side="left" />
     </aside>
   );
 }
