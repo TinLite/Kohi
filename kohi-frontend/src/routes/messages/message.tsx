@@ -3,13 +3,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import { getChannelList } from "@/repository/chat-repository";
 import socket from "@/services/socket";
-import { ChatChannel } from "@/types/chat-types";
-import { useEffect, useState } from "react";
+import { ChatChannel, ChatChannelType } from "@/types/chat-types";
+import { useContext, useEffect, useState } from "react";
 
 function MessageSelectionItem({chatChannel, selected = false }: {chatChannel: ChatChannel, selected?: boolean }) {
+    const {user} = useContext(UserContext);
+    let avatar = "https://i.pravatar.cc/300";
+    let channelName = chatChannel.name ?? chatChannel._id;
+    if (chatChannel.type === ChatChannelType.PRIVATE) {
+        const targetUser = chatChannel.participants.find(p => p.user._id !== user?._id)?.user;
+        if (targetUser) {
+            avatar = targetUser.avatar ?? avatar;
+            channelName = targetUser.displayName ?? `@${targetUser.username}` ?? channelName;
+        }
+    }
     return (
         <button className={[
             "w-full flex gap-4 px-4 py-2 mb-2 rounded-md border",
@@ -17,12 +28,12 @@ function MessageSelectionItem({chatChannel, selected = false }: {chatChannel: Ch
             selected ? "bg-muted" : ""
         ].join(' ')}>
             <Avatar>
-                <AvatarImage src="https://i.pravatar.cc/300" className="rounded-full" alt="User" />
+                <AvatarImage src={avatar} className="rounded-full" alt="User" />
                 <AvatarFallback>U</AvatarFallback>
             </Avatar>
             <div className="flex-grow text-left text-sm">
                 <div className="flex justify-between">
-                    <span className="font-bold">{chatChannel.name ?? chatChannel._id}</span>
+                    <span className="font-bold">{channelName}</span>
                     <span className="pl-2 text-muted-foreground text-sm">3 giờ trước</span>
                 </div>
                 <div className="text-muted-foreground">Last message</div>
@@ -79,8 +90,9 @@ function UserMessage({ isMe, name, avatar, image, noPaddingTop }: { isMe?: boole
 
 export default function MessagePage() {
     const [channels, setChannels] = useState<ChatChannel[]>([]);
-    getChannelList().then(setChannels);
+    const { user } = useContext(UserContext);
     useEffect(() => {
+        getChannelList().then(setChannels);
         document.title = "Tin nhắn";
         if (localStorage.backend_access_token) {
             socket.io.opts.extraHeaders = {
@@ -89,7 +101,7 @@ export default function MessagePage() {
             socket.connect();
             return () => { socket.disconnect(); }
         }
-    })
+    }, [user])
     return (
         <div className="flex flex-grow h-screen">
             <div className="bg-background flex flex-col h-screen w-96 max-w-[100vw]">

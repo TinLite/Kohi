@@ -155,7 +155,7 @@ export default function UserPost({ post }: { post: Post }) {
     }
   };
   return (
-    <Card>
+    <Card className="max-sm:rounded-none">
       <div className="flex px-6 py-4 flex-row gap-4 items-center">
         <UserHoverCard user={post.author}>
           <Avatar className="w-8 h-8">

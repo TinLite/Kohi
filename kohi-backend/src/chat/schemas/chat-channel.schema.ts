@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import e from "express";
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { User } from "src/users/schemas/user.schema";
 
 export enum ChatChannelType {
@@ -14,11 +14,7 @@ export enum ChatParticipantRole {
 }
 
 export class ChatChannelParticipant {
-    @Prop({
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    })
-    userId: User;
+    user: ObjectId;
     role: string;
     joinedAt: Date;
 }
@@ -28,10 +24,19 @@ export class ChatChannel {
     @Prop()
     name?: string;
 
-    @Prop({default: ChatChannelType.PRIVATE})
+    @Prop({ default: ChatChannelType.PRIVATE })
     type: ChatChannelType;
 
-    @Prop()
+    @Prop([
+        {
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+            role: String,
+            joinedAt: Date
+        }
+    ])
     participants: ChatChannelParticipant[];
 }
 

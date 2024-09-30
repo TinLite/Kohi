@@ -17,7 +17,7 @@ export class ChatController {
         const currentUser = req.user._id;
         let isCurrentUserExisted = false;
         createChatDto.participants.map(participant => {
-            if (participant.userId === currentUser) {
+            if (participant.user === currentUser) {
                 participant.role = ChatParticipantRole.ADMIN;
                 isCurrentUserExisted = true;
             } else {
@@ -27,7 +27,7 @@ export class ChatController {
         });
         if (!isCurrentUserExisted) {
             createChatDto.participants.push({
-                userId: currentUser,
+                user: currentUser,
                 role: ChatParticipantRole.ADMIN,
                 joinedAt: new Date()
             });
@@ -38,5 +38,10 @@ export class ChatController {
         const channel = await this.chatService.createChannel(createChatDto);
         await this.chatService.createMessage(channel._id, currentUser, createChatDto.firstMessage);
         return channel;
+    }
+
+    @Get('/channels/:channelId/messages')
+    async getMessages(@Req() req) {
+        return this.chatService.getMessagesByChannelId(req.params.channelId);
     }
 }

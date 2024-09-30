@@ -13,7 +13,7 @@ export class ChatService {
     @InjectModel('ChatMessage') private chatMessageModel: Model<ChatMessage>,
   ) {}
   getChannelsByUserId(userId: string) {
-    return this.chatChannelModel.find({ "participants.userId": userId }).populate('participants.userId');
+    return this.chatChannelModel.find({ "participants.user": userId }).populate('participants.user');
   }
 
   getChannelById(channelId: string) {
@@ -35,5 +35,9 @@ export class ChatService {
       content: content,
     });
     return newMessage.save();
+  }
+
+  async getMessagesByChannelId(channelId: string) {
+    return this.chatMessageModel.find({ channelID: channelId }).populate('senderID');
   }
 }
