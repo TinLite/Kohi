@@ -25,7 +25,7 @@ import { Separator } from "./ui/separator";
 import { Post } from "@/types/post-type";
 import { User } from "@/types/user-type";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   addBookMark,
   followUser,
@@ -131,6 +131,11 @@ export default function UserPost({ post }: { post: Post }) {
     }
   };
 
+  useEffect(() => {
+    if(user?.bookmarks?.includes(post._id)) {
+      setIsBookMarked(true);
+    }
+  }, [user, post._id])
   const handleAddBookmark = async () => {
     try {
       await addBookMark(post._id);
@@ -144,6 +149,7 @@ export default function UserPost({ post }: { post: Post }) {
     try {
       await unBookMark(post._id);
       setIsBookMarked(false);
+      console.log("Remove bookmark");
     } catch (err) {
       console.log(err);
     }

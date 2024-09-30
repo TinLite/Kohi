@@ -104,6 +104,7 @@ export async function getBookMarks() {
       import.meta.env.VITE_API_PREFIX
     }/users/profile/bookmark`,
     {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${localStorage.backend_access_token}`,
       },
@@ -112,5 +113,6 @@ export async function getBookMarks() {
   if (!response.ok) {
     throw new Error("Failed to get bookmarks");
   }
-  return (await response.json()) as Post[];
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
 }

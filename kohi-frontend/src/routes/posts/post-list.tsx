@@ -10,6 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import { useEffect, useState } from "react";
 
 function PostCreate() {
+  
   const [submittable, setSubmittable] = useState(false);
   const [clicked, setClicked] = useState(false);
   return (
