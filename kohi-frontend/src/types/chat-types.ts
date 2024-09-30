@@ -1,3 +1,5 @@
+import { User } from "./user-type";
+
 export enum ChatParticipantRole {
     ADMIN = "admin",
     PARTICIPANT = "participant"
@@ -9,15 +11,15 @@ export enum ChatChannelType {
 }
 
 export class ChatParticipant {
-    userId: string;
+    user: User;
     role: ChatParticipantRole;
     joinedAt: Date;
     constructor(
-        userId: string,
+        user: User,
         role: ChatParticipantRole,
         joinedAt: Date
     ) {
-        this.userId = userId;
+        this.user = user;
         this.role = role;
         this.joinedAt = joinedAt;
     }
