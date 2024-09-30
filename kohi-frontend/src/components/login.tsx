@@ -26,7 +26,7 @@ import { UserContext } from "@/context/user-context";
 import { getProfile } from "@/repository/user-repository";
 
 const LoginSheet = ({ children }: { children: React.ReactNode }) => {
-  const { user, setUser } = useContext(UserContext);
+  const { setUser } = useContext(UserContext);
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
