@@ -9,6 +9,7 @@ export class CreateUserDto {
     @IsEmail()
     @IsNotEmpty()
     email: string;
+    
     avatar: string;
     wall: string;
     following: string[];

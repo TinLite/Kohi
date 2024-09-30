@@ -45,10 +45,10 @@ export class BookmarkService {
         model: 'Post',
         populate: { path: 'author', model: 'User', select: 'username' },
       })
-      .select('bookmarks')
+      .select('bookmarks -_id')
       .exec();
     return {
-      data: listBookmark,
+      data: listBookmark.bookmarks,
       pagination: {
         currentPage: page,
         totalPage: totalPage,

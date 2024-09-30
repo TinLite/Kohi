@@ -29,11 +29,12 @@ export class User {
     select: false,
   })
   email: string;
-
+  @Prop({ select: false })
+  sdt: string;
   @Prop({ default: [Role.USER], select: false })
   roles: String[];
 
-  @Prop({ default: Date.now, select: false })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
   @Prop({ default: Date.now, select: false })

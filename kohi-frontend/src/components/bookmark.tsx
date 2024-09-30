@@ -27,23 +27,13 @@ const BookMarkUI = () => {
   const { user } = useContext(UserContext);
   const [bookmarks, setBookmarks] = useState<Post[]>([]);
 
-  useEffect(() => {
-    const fetchBookmarks = async () => {
-      if (user?.bookmarks?.length) {
-        try {
-          const posts = await getBookMarks();
-          setBookmarks(posts);
-        } catch (error) {
-          console.error("Failed to fetch bookmarks", error);
-          setBookmarks([]);
-        }
-      } else {
-        setBookmarks([]);
-      }
-    };
+  const fetchBookmarks = async () => {
+    getBookMarks().then((post) => setBookmarks(post.data));
+  };
 
+  useEffect(() => {
     fetchBookmarks();
-  }, [user]);
+  }, []);
 
   return (
     <div className="w-full max-w-lg mx-auto mt-10 p-6 rounded-lg bg-background">
@@ -57,11 +47,17 @@ const BookMarkUI = () => {
           className="bg-background"
         />
       </div>
-      <div>
+      <div className="space-y-4">
         {bookmarks.length === 0 ? (
           <p className="text-center">There are no saved posts</p>
         ) : (
-          bookmarks.map((post) => <UserPost key={post._id} post={post} />)
+          bookmarks.map((post) => (
+            <UserPost
+              key={post._id}
+              post={post}
+              onBookmarkUpdate={fetchBookmarks}
+            />
+          ))
         )}
       </div>
       <div className="absolute top-8 right-10 w-1/4 p-4 ">
