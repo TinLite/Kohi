@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
@@ -25,15 +25,9 @@ export class BookmarkService {
     );
   }
   async removeBookMark(userId: string, postId: string) {
-    await this.userModel.findByIdAndUpdate(
-      userId,
-      {
-        $pull: { bookmarks: postId },
-      },
-      {
-        new: true,
-      },
-    );
+    return this.userModel.findByIdAndUpdate(userId, {
+      $pull: { bookmarks: postId },
+    });
   }
   async listBookMark(userId: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
@@ -51,10 +45,10 @@ export class BookmarkService {
         model: 'Post',
         populate: { path: 'author', model: 'User', select: 'username' },
       })
-      .select('bookmarks')
+      .select('bookmarks -_id')
       .exec();
     return {
-      data: listBookmark,
+      data: listBookmark.bookmarks,
       pagination: {
         currentPage: page,
         totalPage: totalPage,
@@ -63,5 +57,4 @@ export class BookmarkService {
       },
     };
   }
-
 }

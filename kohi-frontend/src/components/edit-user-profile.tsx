@@ -2,6 +2,7 @@ import { Button } from "./ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { type VariantProps } from 'class-variance-authority';
 
 export default function EditProfileDialog() {
   return (
@@ -67,9 +68,20 @@ export default function EditProfileDialog() {
             />
           </div>
 
+          {/* Phone Number */}
+          <div className="space-y-2">
+            <Label htmlFor="sdt" className="text-sm">Phone</Label>
+            <Input
+            type="number"
+            id="sdt"
+            placeholder="Enter your phone number"
+            className="w-full p-2 rounded-lg bg-gray-800 border border-gray-600 text-white"
+            />
+          </div>
+
           {/* Bio */}
           <div className="space-y-2">
-            <Label htmlFor="bio" className="text-sm">Bio</Label>
+            <Label htmlFor="bio" className="text-sm">Bio2</Label>
             <textarea
               id="bio"
               placeholder="Write something about yourself"

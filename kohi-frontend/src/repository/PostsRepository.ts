@@ -9,6 +9,28 @@ export async function getGlobalLatestPosts() {
     });
     return await response.json() as Post[];
 }
+export async function createPosts(content: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/create`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+      body: JSON.stringify({
+        content
+      }),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to create post");
+  }
+  return await response.json();
+}
+  
 export async function searchPosts(query: string) {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/posts/search?q=${query}`, {
         headers: {

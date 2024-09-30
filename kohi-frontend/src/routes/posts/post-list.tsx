@@ -5,14 +5,31 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import UserPost from "@/components/user-post";
-import { getGlobalLatestPosts } from "@/repository/PostsRepository";
+import {
+  createPosts,
+  getGlobalLatestPosts,
+} from "@/repository/PostsRepository";
 import { Post } from "@/types/post-type";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import { useEffect, useState } from "react";
 
-function PostCreate() {
+function PostCreate({ onSubmit }: { onSubmit: () => void }) {
   const [submittable, setSubmittable] = useState(false);
   const [clicked, setClicked] = useState(false);
+  const [content, setContent] = useState("");
+
+  const handleSubmit = async () => {
+    try {
+      await createPosts(content);
+      setContent("");
+      setSubmittable(false);
+      setClicked(false);
+      onSubmit();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <Card>
       <CardContent className="flex p-6 gap-6">
@@ -27,11 +44,13 @@ function PostCreate() {
         <Textarea
           className="resize-y p-0 border-0 focus-visible:ring-0 min-h-0"
           placeholder="How are you today?"
+          value={content}
           onInput={(e) => {
-            console.log("tested");
+            const value = e.currentTarget.value;
             e.currentTarget.style.height = e.currentTarget.scrollHeight + "px";
-            let test = e.currentTarget.value.trim().length > 0;
-            if (test != submittable) setSubmittable(test);
+            let isSubmittable = value.trim().length > 0;
+            setSubmittable(isSubmittable);
+            setContent(value);
           }}
           onFocus={() => {
             if (!clicked) setClicked(true);
@@ -40,7 +59,9 @@ function PostCreate() {
       </CardContent>
       {clicked && (
         <CardFooter className="flex justify-end">
-          <Button disabled={!submittable}>Submit</Button>
+          <Button disabled={!submittable} onClick={handleSubmit}>
+            Submit
+          </Button>
         </CardFooter>
       )}
     </Card>
@@ -48,18 +69,22 @@ function PostCreate() {
 }
 
 export default function PostList() {
+  function refreshPost() {
+    getGlobalLatestPosts().then(setPosts);
+  }
+
   const [posts, setPosts] = useState<Post[]>([]);
   useEffect(() => {
-    getGlobalLatestPosts().then(setPosts);
+    refreshPost();
   }, []);
   return (
     <>
       <div className="flex">
         <div className="h-screen flex-grow">
-          <div className="w-full flex justify-center gap-8">
+          <div className="w-full flex justify-center gap-4">
             <ScrollArea className="w-screen h-screen max-w-xl">
-              <div className="space-y-6 py-6 md:mb-0 mb-12">
-                <PostCreate />
+              <div className="space-y-6 py-6 md:mb-0 mb-12 md:pr-4">
+                <PostCreate onSubmit={refreshPost} />
                 {posts.map((post) => (
                   <UserPost post={post} key={post._id} />
                 ))}

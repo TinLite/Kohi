@@ -25,6 +25,7 @@ export class PostsService {
     return this.postModel
       .find({ flags: { $nin: [PostFlags.HIDDEN] } })
       .populate('author')
+      .sort({ createdAt: -1 })
       .exec();
   }
   //admin

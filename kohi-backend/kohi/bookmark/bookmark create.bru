@@ -5,7 +5,11 @@ meta {
 }
 
 post {
-  url: 
+  url: http://localhost:3000/v1/api/users/profile/bookmark/add/66eabd9f5af20baccc74f0f3
   body: none
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
 }

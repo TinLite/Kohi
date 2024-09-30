@@ -1,4 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
+import { Post } from 'src/posts/schemas/post.schema';
 
 export enum Role {
   USER = 'user',
@@ -9,11 +11,11 @@ export enum Role {
 export class User {
   @Prop()
   username: string;
-  
+
   @Prop({
     select: false,
   })
-  bio:string;
+  bio: string;
 
   @Prop({
     select: false,
@@ -27,11 +29,12 @@ export class User {
     select: false,
   })
   email: string;
-
+  @Prop({ select: false })
+  sdt: string;
   @Prop({ default: [Role.USER], select: false })
   roles: String[];
 
-  @Prop({ default: Date.now, select: false })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
   @Prop({ default: Date.now, select: false })
@@ -44,14 +47,14 @@ export class User {
   wall: string;
 
   // Tạo hai trường nhằm tránh Full Database Scan
-  @Prop({ref: 'User'})
+  @Prop({ ref: 'User' })
   following: String[];
 
-  @Prop({ref: 'User'})
+  @Prop({ ref: 'User' })
   followers: String[];
 
-  @Prop({ref: 'Post'})
-  bookmarks: string[];
+  @Prop([{ type: String, ref: 'Post' }])
+  bookmarks: Post[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

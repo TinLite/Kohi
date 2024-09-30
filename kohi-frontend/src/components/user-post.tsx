@@ -25,10 +25,11 @@ import { Separator } from "./ui/separator";
 import { Post } from "@/types/post-type";
 import { User } from "@/types/user-type";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   addBookMark,
   followUser,
+  getProfile,
   unBookMark,
   unFollowUser,
 } from "@/repository/user-repository";
@@ -105,8 +106,14 @@ function UserHoverCard({
   );
 }
 
-export default function UserPost({ post }: { post: Post }) {
-  const { user } = useContext(UserContext);
+export default function UserPost({
+  post,
+  onBookmarkUpdate,
+}: {
+  post: Post;
+  onBookmarkUpdate?: (newStatus: boolean) => void;
+}) {
+  const { user, setUser } = useContext(UserContext);
   const [isLiked, setIsLiked] = useState(
     post.likes?.includes(user ? user._id : "") ?? 0
   );
@@ -131,10 +138,19 @@ export default function UserPost({ post }: { post: Post }) {
     }
   };
 
+  useEffect(() => {
+    if (user?.bookmarks?.includes(post._id)) {
+      setIsBookMarked(true);
+    }
+  }, [user, post._id]);
   const handleAddBookmark = async () => {
     try {
       await addBookMark(post._id);
       setIsBookMarked(true);
+      getProfile().then(setUser);
+      if (onBookmarkUpdate) {
+        onBookmarkUpdate(true);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -144,6 +160,10 @@ export default function UserPost({ post }: { post: Post }) {
     try {
       await unBookMark(post._id);
       setIsBookMarked(false);
+      getProfile().then(setUser);
+      if (onBookmarkUpdate) {
+        onBookmarkUpdate(false);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -176,7 +196,9 @@ export default function UserPost({ post }: { post: Post }) {
         </div>
       </div>
       <div className="px-6 mb-4">
-        <p>{post.content}</p>
+        <p>{post.content.split("\n").filter(v=>v).map((v)=>{
+          return <span>{v}<br/></span>
+        })}</p>
       </div>
       {/* <img src="https://cataas.com/cat" alt="cat" className="mt-4 mx-auto max-w-xl max-h-[36rem] object-contain"/> */}
       <Separator />

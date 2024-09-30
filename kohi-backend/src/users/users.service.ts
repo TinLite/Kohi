@@ -58,7 +58,7 @@ export class UsersService {
   }
   //GET ONE user
   async findOne(id: string): Promise<User> {
-    return await this.userModel.findById(id).select('+bio').exec();
+    return await this.userModel.findById(id).select('+bio +email +sdt').exec();
   }
 
   async findAllById(id: string[]) {
@@ -77,7 +77,9 @@ export class UsersService {
     const updateUser = await this.userModel
       .updateOne({ _id: id }, updateUserDto)
       .exec();
+      console.log(updateUser)
     return updateUser;
+
   }
   //search User
   async searchUser(query: string) {

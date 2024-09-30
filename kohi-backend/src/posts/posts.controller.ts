@@ -25,7 +25,7 @@ import { PostsService } from './posts.service';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @Post('create')
+  @Post('/create')
   async create(@Request() request, @Body() createPostDto: CreatePostDto) {
     const requestUserId = request.user._id;
     if (!createPostDto.author) {
