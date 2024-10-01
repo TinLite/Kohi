@@ -25,7 +25,7 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
       }
     ), // Config
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'kohi-frontend', 'dist'), // Serving build file
+      rootPath: join(__dirname, 'frontend-dist'), // Serving build file
     }),
     PostsModule,
     UsersModule,
@@ -50,4 +50,5 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
     }
   ],
 })
+
 export class AppModule { }
