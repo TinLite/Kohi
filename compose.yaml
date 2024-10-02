@@ -11,6 +11,7 @@ services:
   app:
     build:
       context: .
+      target: final
     environment:
       - JWT_SECRET=ChangeThisBeforeRunning
       - JWT_ACCESS_TOKEN_EXPIRED=1d
