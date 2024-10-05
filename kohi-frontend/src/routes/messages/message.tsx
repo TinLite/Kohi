@@ -6,7 +6,6 @@ import { Separator } from "@/components/ui/separator";
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import { getChannelList } from "@/repository/chat-repository";
-import socket from "@/services/socket";
 import { ChatChannel, ChatChannelType } from "@/types/chat-types";
 import { useContext, useEffect, useState } from "react";
 
@@ -93,14 +92,6 @@ export default function MessagePage() {
     const { user } = useContext(UserContext);
     useEffect(() => {
         getChannelList().then(setChannels);
-        document.title = "Tin nhắn";
-        if (localStorage.backend_access_token) {
-            socket.io.opts.extraHeaders = {
-                Authorization: `Bearer ${localStorage.backend_access_token}`
-            }
-            socket.connect();
-            return () => { socket.disconnect(); }
-        }
     }, [user])
     return (
         <div className="flex flex-grow h-screen">
