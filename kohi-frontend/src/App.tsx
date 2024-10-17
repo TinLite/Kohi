@@ -1,57 +1,63 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import '@/App.css';
-import BookMarkUI from '@/components/bookmark';
-import SearchUI from '@/components/search';
-import UserProfile from '@/components/user-profile';
-import MainLayout from '@/layout/main-layout';
-import MessagePage from '@/routes/messages/message';
-import PostList from '@/routes/posts/post-list';
-import { Toaster } from 'sonner';
-import { UserProvider } from '@/context/user-context';
-import './index.css'
-import { ThemeProvider } from '@/components/theme-provider';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "@/App.css";
+import BookMarkUI from "@/components/bookmark";
+import SearchUI from "@/components/search";
+import UserProfile from "@/components/user-profile";
+import MainLayout from "@/layout/main-layout";
+import MessagePage from "@/routes/messages/message";
+import PostList from "@/routes/posts/post-list";
+import { Toaster } from "sonner";
+import { UserProvider } from "@/context/user-context";
+import "./index.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import PostPage from "./components/post-detail";
 
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <MainLayout />,
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      {
+        index: true,
+        element: <PostList />,
+      },
+      {
+        path: "/message",
+        element: <MessagePage />,
+      },
+      {
+        path: "/search",
+        element: <SearchUI />,
+      },
+      {
+        path: "/bookmark",
+        element: <BookMarkUI />,
+      },
+      {
+        path: "/profile",
         children: [
-            {
-                index: true,
-                element: <PostList />,
-            },
-            {
-                path: "/message",
-                element: <MessagePage />,
-            },
-            {
-                path: "/search",
-                element: <SearchUI />,
-            },
-            {
-                path: "/bookmark",
-                element: <BookMarkUI />,
-            },
-            {
-                path: "/profile",
-                children: [
-                    {
-                        index: true,
-                        element: <UserProfile />,
-                    },
-                ],
-            },
+          {
+            index: true,
+            element: <UserProfile />,
+          },
         ],
-    },
+      },
+      {
+        path: "/post/detail/:id",
+        element: <PostPage />,
+      },
+    ],
+  },
 ]);
 
 function App() {
-    return (
-        <UserProvider>
-            <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-                <RouterProvider router={router} />
-                <Toaster />
-            </ThemeProvider>
-        </UserProvider>)
+  return (
+    <UserProvider>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <RouterProvider router={router} />
+        <Toaster />
+      </ThemeProvider>
+    </UserProvider>
+  );
 }
-export default App
+export default App;
