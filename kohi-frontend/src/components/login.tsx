@@ -11,7 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { getUserId, login } from "@/repository/authentication-repository";
+import { getUserId, login, register } from "@/repository/authentication-repository";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,8 +35,11 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
 
   const accountRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  
+  const emailRef = useRef<HTMLInputElement>(null);
+  const repeatPasswordRef = useRef<HTMLInputElement>(null);
 
-  const submitHandler = async () => {
+  const loginSubmitHandler = async () => {
     setSubmitting(true);
     const account = accountRef.current?.value;
     const password = passwordRef.current?.value;
@@ -67,6 +70,44 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
       setSubmitting(false);
     }
   };
+
+  const reigsterSubmitHandler = async () => {
+    setSubmitting(true);
+    const username = accountRef.current?.value;
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+    const repeatPassword = repeatPasswordRef.current?.value;
+    passwordRef.current!.value = "";
+    repeatPasswordRef.current!.value = "";
+    if (!username || !email || !password || !repeatPassword) {
+      setErrorMessage("Vui lòng điền đầy đủ thông tin");
+      setOpenAlert(true);
+      setSubmitting(false);
+      return;
+    }
+    if (password !== repeatPassword) {
+      setErrorMessage("Mật khẩu không khớp");
+      setOpenAlert(true);
+      setSubmitting(false);
+      return;
+    }
+    try {
+      await register({ username, email, password });
+      if (localStorage.backend_access_token) {
+        const userId = await getUserId();
+        setUser(await getProfile(userId));
+        setOpenAlert(false);
+      }
+    } catch (e) {
+      setErrorMessage(
+        "Đăng ký thất bại. Hãy kiểm tra lại thông tin."
+      );
+      setOpenAlert(true);
+      console.error(e);
+    } finally {
+      setSubmitting(false);
+    }
+  }
   return (
     <>
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
@@ -121,7 +162,7 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
               <SheetFooter>
                 <Button
                   type="submit"
-                  onClick={submitHandler}
+                  onClick={loginSubmitHandler}
                   disabled={submitting}
                 >
                   Đăng nhập
@@ -138,11 +179,11 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
               <div className="w-full grid gap-4 py-4">
                 <div>
                   <Label>
-                    Họ và tên:
+                    Tên người dùng:
                     <Input
                       ref={accountRef}
                       type="text"
-                      placeholder="Nhập họ và tên "
+                      placeholder="jeff..."
                     />
                   </Label>
                 </div>
@@ -150,7 +191,7 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
                   <Label>
                     Nhập email:
                     <Input
-                      ref={accountRef}
+                      ref={emailRef}
                       type="text"
                       placeholder="Nhập email dùng để đăng nhập"
                     />
@@ -170,7 +211,7 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
                   <Label>
                     Xác nhận mật khẩu:
                     <Input
-                      ref={passwordRef}
+                      ref={repeatPasswordRef}
                       type="password"
                       placeholder="Nhập mật khẩu xác nhận"
                     />
@@ -180,7 +221,7 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
               <SheetFooter>
                 <Button
                   type="submit"
-                  onClick={submitHandler}
+                  onClick={reigsterSubmitHandler}
                   disabled={submitting}
                 >
                   Đăng ký
