@@ -1,12 +1,25 @@
+import { UserContext } from "@/context/user-context";
+import { cn } from "@/lib/utils";
+import { likePost, unLikePost } from "@/repository/PostsRepository";
+import {
+  addBookMark,
+  followUser,
+  getProfile,
+  unBookMark,
+  unFollowUser,
+} from "@/repository/user-repository";
+import { Post } from "@/types/post-type";
+import { User } from "@/types/user-type";
 import {
   Bookmark,
-  MessageCircle,
   MessagesSquare,
   Repeat,
   Send,
   ThumbsUp,
   UserRoundPlus,
 } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import CommentUI from "./comment";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -21,21 +34,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Separator } from "./ui/separator";
-import { Post } from "@/types/post-type";
-import { User } from "@/types/user-type";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { useContext, useEffect, useState } from "react";
-import {
-  addBookMark,
-  followUser,
-  getProfile,
-  unBookMark,
-  unFollowUser,
-} from "@/repository/user-repository";
-import { likePost, unLikePost } from "@/repository/PostsRepository";
-import { cn } from "@/lib/utils";
-import { UserContext } from "@/context/user-context";
+import { Separator } from "./ui/separator";
+import { NavLink } from "react-router-dom";
 
 function UserHoverCard({
   children,
@@ -62,6 +63,8 @@ function UserHoverCard({
       console.log(err);
     }
   };
+
+  console.log("A", user);
   return (
     <HoverCard>
       <HoverCardTrigger>{children}</HoverCardTrigger>
@@ -79,7 +82,7 @@ function UserHoverCard({
             <div>
               <div>
                 <span className="font-bold">
-                  {user.displayName ?? user.username}
+                  {/* {user.displayName ?? user.username} */}
                 </span>
                 <span className="pl-2 text-muted-foreground text-sm">
                   @{user.username}
@@ -170,36 +173,51 @@ export default function UserPost({
   };
   return (
     <Card className="max-sm:rounded-none">
-      <div className="flex px-6 py-4 flex-row gap-4 items-center">
-        <UserHoverCard user={post.author}>
-          <Avatar className="w-8 h-8">
-            <AvatarImage
-              src={post.author.avatar}
-              className="rounded-full"
-              alt="@shadcn"
-            />
-            <AvatarFallback>{post.author.username[0]}</AvatarFallback>
-          </Avatar>
-        </UserHoverCard>
-        <div>
+      <NavLink
+        to={`/post/detail/${post._id}`}
+        className="no-underline text-inherit"
+      >
+        <div className="flex px-6 py-4 flex-row gap-4 items-center">
           <UserHoverCard user={post.author}>
-            <div className="font-bold">
-              {post.author.displayName ?? post.author.username}
-            </div>
+            <Avatar className="w-8 h-8">
+              <AvatarImage
+                src={post.author.avatar}
+                className="rounded-full"
+                alt="@shadcn"
+              />
+              <AvatarFallback>{post.author.username[0]}</AvatarFallback>
+            </Avatar>
           </UserHoverCard>
-          <div className="text-muted-foreground text-sm">
+          <div>
             <UserHoverCard user={post.author}>
-              @{post.author.username}
-            </UserHoverCard>{" "}
-            - {post.createdAt.toLocaleString()}
+              <div className="font-bold">
+                {post.author.displayName ?? post.author.username}
+              </div>
+            </UserHoverCard>
+            <div className="text-muted-foreground text-sm">
+              <UserHoverCard user={post.author}>
+                @{post.author.username}
+              </UserHoverCard>{" "}
+              - {post.createdAt.toLocaleString()}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="px-6 mb-4">
-        <p>{post.content.split("\n").filter(v=>v).map((v)=>{
-          return <span>{v}<br/></span>
-        })}</p>
-      </div>
+        <div className="px-6 mb-4">
+          <p>
+            {post.content
+              .split("\n")
+              .filter((v) => v)
+              .map((v) => {
+                return (
+                  <span>
+                    {v}
+                    <br />
+                  </span>
+                );
+              })}
+          </p>
+        </div>
+      </NavLink>
       {/* <img src="https://cataas.com/cat" alt="cat" className="mt-4 mx-auto max-w-xl max-h-[36rem] object-contain"/> */}
       <Separator />
       <div className="flex justify-between gap-2 px-4 py-2">
@@ -215,13 +233,7 @@ export default function UserPost({
             />
             {likeCount}
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center justify-center gap-2"
-          >
-            <MessageCircle className="h-4 w-4" />
-          </Button>
+          <CommentUI postId={post._id} post={post} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

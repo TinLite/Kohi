@@ -87,3 +87,17 @@ export async function likePost(postId: string) {
     );
     return await response.json();
   }
+  export async function getPostsById(postId: string) {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+        import.meta.env.VITE_API_PREFIX
+      }/posts/detail/${postId}`,
+      {
+        // headers: {
+        //   Authorization: `Bearer ${localStorage.backend_access_token}`,
+        // },
+        method: "GET",
+      }
+    );
+    return await response.json() as Post;
+  }

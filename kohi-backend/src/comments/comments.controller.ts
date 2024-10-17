@@ -18,11 +18,13 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PostsService } from 'src/posts/posts.service';
 import { Role } from 'src/users/schemas/user.schema';
 import { Roles } from 'src/auth/role.decorator';
+import { Public } from 'src/auth/authmeta';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService,
-    private readonly postsService: PostsService
+  constructor(
+    private readonly commentsService: CommentsService,
+    private readonly postsService: PostsService,
   ) {}
 
   @Post('create/:id')
@@ -52,7 +54,9 @@ export class CommentsController {
       throw new NotFoundException('Comment not found');
     }
     if (comment.author.toString() !== author) {
-      throw new ForbiddenException('You are not authorized to reply this comment');
+      throw new ForbiddenException(
+        'You are not authorized to reply this comment',
+      );
     }
     return this.commentsService.updateComment(
       commentId,
@@ -66,7 +70,7 @@ export class CommentsController {
     @Param('id') commentId: string,
     @Body() replyCommentDto: CreateCommentDto,
     @Req() req,
-  ){
+  ) {
     const author = req.user._id;
     const commentOld = await this.commentsService.getOneComment(commentId);
     if (!commentOld) {
@@ -77,9 +81,8 @@ export class CommentsController {
       postId,
       commentId,
       author,
-      replyCommentDto
-    )
-
+      replyCommentDto,
+    );
   }
   //Like bình luận
   @Post('like/:id')
@@ -95,7 +98,7 @@ export class CommentsController {
     return this.commentsService.likeComment(commentId, author);
   }
   //Remove like bình luận
-  @Post('unlike/:id')
+  @Delete('unlike/:id')
   async removeLike(@Param('id') commentId: string, @Req() req) {
     const author = req.user._id;
     const comment = await this.commentsService.getOneComment(commentId);
@@ -117,15 +120,25 @@ export class CommentsController {
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
-    if (comment.author.toString() !== author && post.author.toString() !== author) {
-      throw new NotFoundException('You are not authorized to delete this comment');
+    if (
+      comment.author.toString() !== author &&
+      post.author.toString() !== author
+    ) {
+      throw new NotFoundException(
+        'You are not authorized to delete this comment',
+      );
     }
-    
+
     return this.commentsService.deleteComment(commentId, author);
   }
-  @Roles(Role.ADMIN)
+  // @Roles(Role.ADMIN)
+  @Public()
   @Get('list/:id')
-  async getCommentByPostId(@Param('id') postId: string,@Query('page') page?: string, @Query('limit') limit?: string) {
+  async getCommentByPostId(
+    @Param('id') postId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
     const post = await this.postsService.findOne(postId);
     if (!post) {
       throw new NotFoundException('Post not found');
@@ -140,11 +153,20 @@ export class CommentsController {
     ) {
       throw new BadRequestException('Malfunctioned page or limit');
     }
-    return this.commentsService.getCommentByPostId(postId,currentPage,currentLimit);
+    return this.commentsService.getCommentByPostId(
+      postId,
+      currentPage,
+      currentLimit,
+    );
   }
+
   // get bình luận theo replyTo
   @Get('list/reply/:id')
-  async getCommentByReplyTo(@Param('id') commentId: string,@Query('page') page?: string, @Query('limit') limit?: string) {
+  async getCommentByReplyTo(
+    @Param('id') commentId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
     const comment = await this.commentsService.getOneComment(commentId);
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -159,7 +181,10 @@ export class CommentsController {
     ) {
       throw new BadRequestException('Malfunctioned page or limit');
     }
-    return this.commentsService.getCommentByReplyTo(commentId,currentPage,currentLimit);
+    return this.commentsService.getCommentByReplyTo(
+      commentId,
+      currentPage,
+      currentLimit,
+    );
   }
-  
 }

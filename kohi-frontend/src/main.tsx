@@ -12,6 +12,8 @@ import { getProfile } from './repository/user-repository.ts'
 import { UserProvider } from './context/user-context.tsx'
 import { User } from './types/user-type.ts'
 import UserProfile from './components/user-profile.tsx'
+import DetailPost from './components/detail-post-comment.tsx'
+import PostPage from './components/post-detail.tsx'
 
 const router = createBrowserRouter([
   {
@@ -42,6 +44,10 @@ const router = createBrowserRouter([
             element: <UserProfile />,
           },
         ],
+      },
+      {
+        path: "/post/detail/:id",
+        element: <PostPage />,
       },
     ],
   },

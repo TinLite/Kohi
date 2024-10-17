@@ -4,8 +4,8 @@ import { User } from 'src/users/schemas/user.schema';
 
 @Schema()
 export class Comment {
-  @Prop()
-  author: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  author: User[];
   @Prop()
   content: string;
   @Prop()

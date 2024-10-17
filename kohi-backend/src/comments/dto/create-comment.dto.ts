@@ -6,5 +6,5 @@ export class CreateCommentDto {
   // @IsNotEmpty()
   // postId: string;
   @IsOptional()
-  replyTo?: string;
+  replyTo?: string | null;
 }

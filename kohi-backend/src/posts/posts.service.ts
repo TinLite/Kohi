@@ -57,11 +57,10 @@ export class PostsService {
   }
 
   async findOne(id: string) {
-    this.postModel.findOne({
+    return this.postModel.findOne({
       _id: id,
       flags: { $nin: [PostFlags.HIDDEN] },
-    });
-    return this.postModel.findById(id).exec();
+    }).populate('author').exec();
   }
 
   update(id: string, updatePostDto: UpdatePostDto) {

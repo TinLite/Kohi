@@ -105,6 +105,7 @@ export class CommentsService {
         postId: postId,
         replyTo: null,
       })
+      .populate('author','username avatar displayName')
       .exec();
     const totalComment = await this.commentModel
       .countDocuments({ postId })
