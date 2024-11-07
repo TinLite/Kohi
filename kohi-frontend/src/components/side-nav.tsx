@@ -10,7 +10,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useContext, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import LoginSheet from "./login";
 import UserNoti from "./noti";
 import { cn } from "@/lib/utils";
@@ -25,14 +25,21 @@ export default function SideNav() {
 
   return (
     <aside className="fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4">
+      <div className="fixed flex md:hidden top-0 w-full bg-background border-b border-muted px-4 pt-2 pb-8">
+        <Link to='/' className="font-bold text-sm">
+          コー
+          <br />
+          ヒー
+        </Link>
+      </div>
       <div className="md:min-h-screen flex flex-col md:justify-between gap-4 px-2 md:py-4">
-        <a href="#" className="hidden md:flex items-end px-4 gap-2 font-bold">
+        <Link to="/" className="hidden md:flex items-end px-4 gap-2 font-bold">
           <div>
             コー
             <br />
             ヒー
           </div>
-        </a>
+        </Link>
         <nav className="grid gap-4 max-md:grid-cols-6">
           <NavLink
             to="/"

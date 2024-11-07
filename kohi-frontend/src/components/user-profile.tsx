@@ -49,8 +49,8 @@ const UserProfile = () => {
   };
   const [open, setOpen] = useState(false);
   return (
-    <div className="max-w-6xl mx-auto flex">
-      <div className="w-3/4 mt-6">
+    <div className="max-w-6xl mx-auto flex justify-center">
+      <div className="flex-grow max-w-2xl mt-6">
         <div className="relative h-48">
           <img
             src="https://github.com/QuangTeoo.png"
@@ -184,7 +184,7 @@ const UserProfile = () => {
           <TabsContent value="likes">Likes content here</TabsContent>
         </Tabs>
       </div>
-      <div className="w-1/4 p-4">
+      <div className="hidden xl:block w-full max-w-xs p-4">
         <div className="mb-4">
           <Input
             placeholder="Search..."
@@ -192,7 +192,7 @@ const UserProfile = () => {
             type="text"
           />
         </div>
-        <div className="bg-gray-100 p-4 rounded-lg dark:bg-gray-800 ">
+        <div className="p-4 rounded-lg bg-background ">
           <h3 className="text-lg font-semibold mb-2">Friends</h3>
           {friends.map((friend) => (
             <div
@@ -203,9 +203,9 @@ const UserProfile = () => {
               //  className="grid grid-cols-2 gap-3"
               >
                 <p className="font-medium">{friend.name}</p>
-                <p className="text-gray-500">{friend.username}</p>
+                <p className="text-muted-foreground">{friend.username}</p>
               </div>
-              <Button variant="outline" size="sm">
+              <Button variant="default" size="sm">
                 Follow
               </Button>
             </div>

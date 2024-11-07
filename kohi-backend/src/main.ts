@@ -15,7 +15,7 @@ async function bootstrap() {
   //   origin: '*',
   // });
   app.enableCors({
-    origin: 'http://localhost:5173', // Địa chỉ frontend của bạn
+    origin: true, // Địa chỉ frontend của bạn
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Nếu bạn cần gửi cookie
   });

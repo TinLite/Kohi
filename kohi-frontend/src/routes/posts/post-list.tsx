@@ -90,7 +90,9 @@ export default function PostList() {
                 ))}
               </div>
             </ScrollArea>
-            <FriendSide />
+            <div className="hidden xl:block">
+              <FriendSide />
+            </div>
           </div>
         </div>
         <ButtonScrollToTop />

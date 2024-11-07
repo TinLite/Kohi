@@ -36,52 +36,30 @@ const BookMarkUI = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-lg mx-auto mt-10 p-6 rounded-lg bg-background">
-      <div className="flex items-center mb-6">
-        <Input
-          type="text"
-          placeholder="Tìm kiếm..."
-          //   // value={query}
-          //   onChange={handleKeyDown}
-          //   // onKeyDown={handleKeyDown}
-          className="bg-background"
-        />
-      </div>
-      <div className="space-y-4">
-        {bookmarks.length === 0 ? (
-          <p className="text-center">There are no saved posts</p>
-        ) : (
-          bookmarks.map((post) => (
-            <UserPost
-              key={post._id}
-              post={post}
-              onBookmarkUpdate={fetchBookmarks}
-            />
-          ))
-        )}
-      </div>
-      <div className="absolute top-8 right-10 w-1/4 p-4 ">
-        <div className="mb-4">
+    <div className="w-full mt-10 flex justify-center gap-2">
+      <div className="w-full max-w-xl">
+        <div className="flex items-center mb-6">
           <Input
-            placeholder="Search..."
-            className="bg-background"
             type="text"
+            placeholder="Tìm kiếm..."
+            //   // value={query}
+            //   onChange={handleKeyDown}
+            //   // onKeyDown={handleKeyDown}
+            className="bg-background"
           />
         </div>
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">Friends</h3>
-          {friends.map((friend) => (
-            <div
-              key={friend.id}
-              className=" flex items-center justify-between mb-2 "
-            >
-              <div>
-                <p className="font-medium">{friend.name}</p>
-                <p className="text-gray-500">{friend.username}</p>
-              </div>
-              <Button variant="outline">Follow</Button>
-            </div>
-          ))}
+        <div className="space-y-4">
+          {bookmarks.length === 0 ? (
+            <p className="text-center">There are no saved posts</p>
+          ) : (
+            bookmarks.map((post) => (
+              <UserPost
+                key={post._id}
+                post={post}
+                onBookmarkUpdate={fetchBookmarks}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>

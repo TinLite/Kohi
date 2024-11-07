@@ -207,9 +207,9 @@ export default function UserPost({
             {post.content
               .split("\n")
               .filter((v) => v)
-              .map((v) => {
+              .map((v, i) => {
                 return (
-                  <span>
+                  <span key={i}>
                     {v}
                     <br />
                   </span>
