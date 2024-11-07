@@ -1,4 +1,5 @@
 import { UserContext } from "@/context/user-context";
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import {
   Bell,
@@ -11,17 +12,18 @@ import {
 } from "lucide-react";
 import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { DropdownSetting } from "./dropdown-setting";
 import LoginSheet from "./login";
 import UserNoti from "./noti";
-import { cn } from "@/lib/utils";
 import { SheetSetting } from "./sheet-settings";
-import { DropdownSetting } from "./dropdown-setting";
 
 export default function SideNav() {
   const { user } = useContext(UserContext);
 
 
   const [settingOpen, setSettingOpen] = useState(false);
+
+  const [notiOpen, setNotiOpen] = useState(false);
 
   return (
     <aside className="fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4">
@@ -84,15 +86,14 @@ export default function SideNav() {
 
             <span className="hidden md:block">Message</span>
           </NavLink>
-          <UserNoti>
-            <button
-              className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-            >
-              <Bell />
-
-              <span className="hidden md:block">Notification</span>
-            </button>
-          </UserNoti>
+          <UserNoti open={notiOpen} onOpenChange={setNotiOpen}/>
+          <button
+            onClick={() => setNotiOpen(true)}
+            className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+          >
+            <Bell />
+            <span className="hidden md:block">Notification</span>
+          </button>
           <NavLink
             to="/bookmark"
             className={({ isActive }) =>

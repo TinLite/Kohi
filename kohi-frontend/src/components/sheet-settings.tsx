@@ -14,7 +14,7 @@ import { ModeToggle } from "./mode-toggle"
 import { LogOut } from "lucide-react"
 import { ButtonLogout } from "./button-logout"
 
-export const SheetSetting = ({open, onOpenChange, side = "left"}: {open: boolean, onOpenChange: (open: boolean) => void, side: "top" | "bottom" | "left" | "right"}) => {
+export const SheetSetting = ({open, onOpenChange, side = "left"}: {open: boolean, onOpenChange: (open: boolean) => void, side?: "top" | "bottom" | "left" | "right"}) => {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side={side}>
