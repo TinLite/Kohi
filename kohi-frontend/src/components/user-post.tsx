@@ -18,7 +18,7 @@ import {
   ThumbsUp,
   UserRoundPlus,
 } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import CommentUI from "./comment";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -36,14 +36,16 @@ import {
 } from "./ui/dropdown-menu";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { Separator } from "./ui/separator";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 function UserHoverCard({
   children,
   user,
+  className,
 }: {
-  children?: React.ReactNode;
-  user: User;
+  children?: React.ReactNode,
+  user: User,
+  className?: string,
 }) {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const handleFollow = async () => {
@@ -64,10 +66,9 @@ function UserHoverCard({
     }
   };
 
-  console.log("A", user);
   return (
     <HoverCard>
-      <HoverCardTrigger>{children}</HoverCardTrigger>
+      <HoverCardTrigger className={className}>{children}</HoverCardTrigger>
       <HoverCardContent className="w-80 max-w-full">
         <div className="space-y-4">
           <div className="flex gap-4">
@@ -173,51 +174,49 @@ export default function UserPost({
   };
   return (
     <Card className="max-sm:rounded-none">
-      <NavLink
-        to={`/post/detail/${post._id}`}
-        className="no-underline text-inherit"
-      >
-        <div className="flex px-6 py-4 flex-row gap-4 items-center">
+      <div className="flex px-6 pt-4 flex-row items-center">
+        <UserHoverCard user={post.author} className="self-stretch grid place-items-center pr-4">
+          <Avatar className="w-8 h-8">
+            <AvatarImage
+              src={post.author.avatar}
+              className="rounded-full"
+              alt="@shadcn"
+            />
+            <AvatarFallback>{post.author.username[0]}</AvatarFallback>
+          </Avatar>
+        </UserHoverCard>
+        <div className="">
           <UserHoverCard user={post.author}>
-            <Avatar className="w-8 h-8">
-              <AvatarImage
-                src={post.author.avatar}
-                className="rounded-full"
-                alt="@shadcn"
-              />
-              <AvatarFallback>{post.author.username[0]}</AvatarFallback>
-            </Avatar>
-          </UserHoverCard>
-          <div>
-            <UserHoverCard user={post.author}>
-              <div className="font-bold">
-                {post.author.displayName ?? post.author.username}
-              </div>
-            </UserHoverCard>
-            <div className="text-muted-foreground text-sm">
-              <UserHoverCard user={post.author}>
-                @{post.author.username}
-              </UserHoverCard>{" "}
-              - {post.createdAt.toLocaleString()}
+            <div className="font-bold">
+              {post.author.displayName ?? post.author.username}
             </div>
+          </UserHoverCard>
+          <div className="text-muted-foreground text-sm">
+            <UserHoverCard user={post.author}>
+              @{post.author.username}
+            </UserHoverCard>{" "}
+            <Link to={`/post/detail/${post._id}`}>
+              - {post.createdAt.toLocaleString()}
+            </Link>
           </div>
         </div>
-        <div className="px-6 mb-4">
-          <p>
-            {post.content
-              .split("\n")
-              .filter((v) => v)
-              .map((v, i) => {
-                return (
-                  <span key={i}>
-                    {v}
-                    <br />
-                  </span>
-                );
-              })}
-          </p>
-        </div>
-      </NavLink>
+        <Link to={`/post/detail/${post._id}`} className="block flex-grow self-stretch" />
+      </div>
+      <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
+        <p>
+          {post.content
+            .split("\n")
+            .filter((v) => v)
+            .map((v, i) => {
+              return (
+                <span key={i}>
+                  {v}
+                  <br />
+                </span>
+              );
+            })}
+        </p>
+      </Link>
       {/* <img src="https://cataas.com/cat" alt="cat" className="mt-4 mx-auto max-w-xl max-h-[36rem] object-contain"/> */}
       <Separator />
       <div className="flex justify-between gap-2 px-4 py-2">

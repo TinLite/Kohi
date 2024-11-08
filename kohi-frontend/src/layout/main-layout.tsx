@@ -1,7 +1,26 @@
 import SideNav from "@/components/side-nav";
+import { UserContext } from "@/context/user-context";
+import socket from "@/services/socket";
+import { useContext, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
 export default function MainLayout() {
+  const { user } = useContext(UserContext);
+  useEffect(() => {
+    if (user) {
+      socket.auth = {
+        token: localStorage.getItem("backend_access_token"),
+      }
+      socket.connect();
+    } else if (socket.active) {
+      socket.disconnect();
+    }
+    return () => {
+      if (socket.active) {
+        socket.disconnect();
+      }
+    }
+  }, [user]);
   return (
     <div className="bg-muted dark:bg-muted/10">
       <div className="flex items-start min-h-screen mx-auto pt-16 md:pt-0">

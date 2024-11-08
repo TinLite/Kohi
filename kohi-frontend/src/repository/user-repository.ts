@@ -1,6 +1,5 @@
 import { User } from "@/types/user-type";
 import { Post } from "../types/post-type";
-import socket from "@/services/socket";
 
 export async function getProfile(userId: string = "me") {
   const data = await fetch(

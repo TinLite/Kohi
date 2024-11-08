@@ -15,10 +15,10 @@ socket.on('connect', () => {
     }
 })
 
-socket.on('disconnect', () => {
+socket.on('disconnect', (reason) => {
     if (import.meta.env.DEV) {
         toast.warning('[DEBUG] Socket', {
-            description: 'Ngắt kết nối đến server.'
+            description: 'Ngắt kết nối đến server. Lý do: ' + reason
         })
     }
 })
