@@ -5,6 +5,7 @@ import { PostsService } from './posts.service';
 import { Post, PostSchema } from './schemas/post.schema';
 import { UtilsModule } from 'src/utils/utils.module';
 import { UsersModule } from 'src/users/users.module';
+import { EventsModule } from 'src/events/events.module';
 
 /*
                            _
@@ -34,6 +35,7 @@ import { UsersModule } from 'src/users/users.module';
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
     UtilsModule,
     UsersModule,
+    EventsModule,
   ],
   controllers: [PostsController],
   providers: [PostsService],

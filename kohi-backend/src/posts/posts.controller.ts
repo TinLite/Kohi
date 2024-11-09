@@ -20,10 +20,15 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
+import { EventsService } from 'src/events/events.service';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly eventsService: EventsService,
+
+  ) {}
 
   @Post('/create')
   async create(@Request() request, @Body() createPostDto: CreatePostDto) {
@@ -36,7 +41,9 @@ export class PostsController {
         'You are not allowed to create post for other user',
       );
     }
-    return await this.postsService.create(createPostDto);
+    const data = await this.postsService.create(createPostDto);
+    this.eventsService.announceAllClients("New post created by " + requestUserId);
+    return data;
   }
 
   @Get('list')

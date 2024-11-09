@@ -4,12 +4,16 @@ import { CreateFollowDto } from './dto/create-follow.dto';
 import { UpdateFollowDto } from './dto/update-follow.dto';
 import { UsersService } from 'src/users/users.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { EventsService } from 'src/events/events.service';
+import { NewFollowerNotificationDto } from '../notifications/dto/new-follower-notification.dto';
+import mongoose, { mongo } from 'mongoose';
 
 @Controller('users/follows')
 export class FollowsController {
   constructor(private readonly followsService: FollowsService,
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
+    private readonly eventsService: EventsService,
   ) {}
   @Post('add/:id')
   async followByUser(@Param('id') followUserId: string, @Req() req) {
@@ -29,8 +33,10 @@ export class FollowsController {
 
     const content = `User ${authorUser.displayName || authorUser.username} is now following you.`;
     const test = await this.notificationsService.createNotification(
-      { content },
-      followUserId,
+      new NewFollowerNotificationDto({
+        userId: new mongoose.Types.ObjectId(followUserId),
+        otherUser: author,
+      })
     );
     // console.log(test);
   }
