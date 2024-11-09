@@ -1,10 +1,7 @@
-import { Body, Controller, Post, Query, Req } from '@nestjs/common';
-import { NotificationsService } from './notifications.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { request } from 'http';
-import { NotificationsGateway } from './notifications.gateway';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 import { EventsService } from '../events/events.service';
-import { Notification } from './schemas/notification.schema';
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
 export class NotificationsController {

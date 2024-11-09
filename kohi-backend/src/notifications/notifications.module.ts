@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from 'src/auth/auth.module';
+import { EventsModule } from 'src/events/events.module';
 import { NotificationsController } from './notifications.controller';
-import { NotificationsGateway } from './notifications.gateway';
 import { NotificationsService } from './notifications.service';
 import {
   Notification,
   NotificationSchema,
 } from './schemas/notification.schema';
-import { EventsModule } from 'src/events/events.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -16,8 +14,8 @@ import { EventsModule } from 'src/events/events.module';
     ]),
     EventsModule
   ],
-  providers: [NotificationsService, NotificationsGateway],
+  providers: [NotificationsService],
   controllers: [NotificationsController],
   exports: [NotificationsService],
 })
-export class NotificationsModule {}
+export class NotificationsModule { }

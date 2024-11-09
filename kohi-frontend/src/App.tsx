@@ -6,11 +6,12 @@ import UserProfile from "@/components/user-profile";
 import MainLayout from "@/layout/main-layout";
 import MessagePage from "@/routes/messages/message";
 import PostList from "@/routes/posts/post-list";
-import { Toaster } from "sonner";
 import { UserProvider } from "@/context/user-context";
 import "./index.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import PostPage from "./components/post-detail";
+import { Toaster } from "./components/ui/sonner";
+import { useMediaQuery } from "./hooks/use-media-query";
 
 const router = createBrowserRouter([
   {
@@ -51,11 +52,13 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
+  const isWideScreen = useMediaQuery('(min-width: 768px');
+
   return (
     <UserProvider>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <RouterProvider router={router} />
-        <Toaster />
+        <Toaster closeButton position={(isWideScreen ? "bottom-right" : "top-center")} />
       </ThemeProvider>
     </UserProvider>
   );

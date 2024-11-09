@@ -3,7 +3,12 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, WebSocketGatew
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: true,
+    credentials: true,
+  }
+})
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   @WebSocketServer() server: Server;
   private readonly logger = new Logger(this.constructor.name);
@@ -16,6 +21,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
 
   handleConnection(client: Socket, ...args: any[]) {
     this.logger.debug(`Client connected: ${client.id}`);
+    
     const token = client.handshake.auth?.token;
     try {
       if (token) {
