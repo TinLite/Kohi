@@ -6,6 +6,7 @@ import { Post, PostSchema } from './schemas/post.schema';
 import { UtilsModule } from 'src/utils/utils.module';
 import { UsersModule } from 'src/users/users.module';
 import { EventsModule } from 'src/events/events.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 /*
                            _
@@ -36,6 +37,7 @@ import { EventsModule } from 'src/events/events.module';
     UtilsModule,
     UsersModule,
     EventsModule,
+    NotificationsModule,
   ],
   controllers: [PostsController],
   providers: [PostsService],

@@ -77,9 +77,8 @@ export class UsersService {
     const updateUser = await this.userModel
       .updateOne({ _id: id }, updateUserDto)
       .exec();
-      console.log(updateUser)
+    console.log(updateUser);
     return updateUser;
-
   }
   //search User
   async searchUser(query: string) {
@@ -101,18 +100,24 @@ export class UsersService {
     return this.userModel
       .find({
         username: { $regex: query.toLowerCase(), $options: 'i' },
-
       })
       .select('_id username')
       .exec();
   }
   async findByNameOrDisplayName(query: string) {
     return this.userModel
-    .find()
-    .or([
-      { username: { $regex: query, $options: 'i' } }, 
-      { displayName: { $regex: query, $options: 'i' } },
-    ])
-    .exec();
+      .find()
+      .or([
+        { username: { $regex: query, $options: 'i' } },
+        { displayName: { $regex: query, $options: 'i' } },
+      ])
+      .exec();
+  }
+  async getFollowers(userId: string) {
+    const user = await this.userModel
+      .findById(userId)
+      .select('followers')
+      .exec();
+    return user.followers
   }
 }

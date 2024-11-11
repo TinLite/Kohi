@@ -1,4 +1,4 @@
-  import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
+import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 
@@ -18,12 +18,12 @@ export class Post {
   author: User;
 
   @Prop({
-    default: Date.now(),
+    default: Date.now,
   })
   createdAt: Date;
 
   @Prop({
-    default: Date.now(),
+    default: Date.now,
   })
   updatedAt: Date;
 

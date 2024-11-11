@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req } from '@nestjs/common';
 import { EventsService } from '../events/events.service';
 import { NotificationsService } from './notifications.service';
+import mongoose from 'mongoose';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -9,7 +10,14 @@ export class NotificationsController {
     private readonly eventsService: EventsService,
   ) {}
   @Get('all')
-  async getAllNotifications() {
-    // return await this.notificationsService.getAllNotifications();
+  async getAllNotifications(@Req() req) {
+    return await this.notificationsService.findAllNotificationByUserId(req.user._id);
   }
+
+  @Delete('delete/:id')
+  async deleteNotification(@Param('id') id:mongoose.Schema.Types.ObjectId) {
+    return await this.notificationsService.deleteNotification(id);
+  }
+
+  
 }

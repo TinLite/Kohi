@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { EventsGateway } from './events.gateway';
 import { AuthModule } from 'src/auth/auth.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, UsersModule],
   providers: [EventsService, EventsGateway],
-  exports: [EventsService]
+  exports: [EventsService],
 })
-export class EventsModule { }
+export class EventsModule {}

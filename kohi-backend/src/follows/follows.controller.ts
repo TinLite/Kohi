@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, NotFoundException, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  NotFoundException,
+  Query,
+  BadRequestException,
+} from '@nestjs/common';
 import { FollowsService } from './follows.service';
 import { CreateFollowDto } from './dto/create-follow.dto';
 import { UpdateFollowDto } from './dto/update-follow.dto';
@@ -10,7 +22,8 @@ import mongoose, { mongo } from 'mongoose';
 
 @Controller('users/follows')
 export class FollowsController {
-  constructor(private readonly followsService: FollowsService,
+  constructor(
+    private readonly followsService: FollowsService,
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
     private readonly eventsService: EventsService,
@@ -26,17 +39,20 @@ export class FollowsController {
     if (!authorUser) {
       throw new NotFoundException('Author user not found');
     }
+    if (author === followUserId) {
+      throw new BadRequestException('Cannot follow yourself');
+    }
     if (authorUser.following.includes(followUserId)) {
-      throw new NotFoundException('User already followed');
+      throw new BadRequestException('User already followed');
     }
     await this.followsService.followByUser(author, followUserId);
 
-    const content = `User ${authorUser.displayName || authorUser.username} is now following you.`;
+    // const content = `User ${authorUser.displayName || authorUser.username} is now following you.`;
     const test = await this.notificationsService.createNotification(
       new NewFollowerNotificationDto({
         userId: new mongoose.Types.ObjectId(followUserId),
         otherUser: author,
-      })
+      }),
     );
     // console.log(test);
   }
@@ -51,6 +67,14 @@ export class FollowsController {
     const authorUser = await this.usersService.findOne(author);
     if (!authorUser.following.includes(followUserId)) {
       throw new NotFoundException('User not followed');
+    }
+    const notification =
+      await this.notificationsService.findOneFollowNotification(
+        followUserId,
+        author,
+      );
+    if (notification) {
+      await this.notificationsService.deleteNotification(notification._id);
     }
     return this.followsService.unFollowByUser(author, followUserId);
   }

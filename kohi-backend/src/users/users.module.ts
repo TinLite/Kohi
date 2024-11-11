@@ -7,17 +7,14 @@ import { PostsModule } from 'src/posts/posts.module';
 import { User, UserSchema } from './schemas/user.schema';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { FollowsModule } from 'src/follows/follows.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    // NotificationsModule,
   ],
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    // BookmarkService // Tách bookmark ra đã =)
-  ],
+  providers: [UsersService],
   exports: [UsersService],
 })
 export class UsersModule {}

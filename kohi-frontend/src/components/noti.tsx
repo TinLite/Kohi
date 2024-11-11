@@ -16,9 +16,29 @@ import {
   SheetTitle
 } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { useContext, useEffect, useState } from "react";
+import { getAllNotifications } from "@/repository/notification-repository";
+import { UserContext } from "@/context/user-context";
 
 const UserNoti = ({ open, onOpenChange, side = "left" }: { open: boolean, onOpenChange: (open: boolean) => void, side?: "top" | "bottom" | "left" | "right" }) => {
-  // Tạo NotificationItem bên trong component UserNoti
+  const { user } = useContext(UserContext);
+  const [notifications, setNotifications] = useState([]);
+  const fetchNotifications = async () => {
+    if(!user){
+      console.error("User not logged in");
+      return;
+    }
+    try {
+      const response = await getAllNotifications();
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  useEffect(() => {
+    fetchNotifications();
+  },[user]);
+  
   const NotificationItem = ({
     title,
     time,
@@ -77,7 +97,7 @@ const UserNoti = ({ open, onOpenChange, side = "left" }: { open: boolean, onOpen
             <TabsTrigger value="all">Tất cả</TabsTrigger>
             <TabsTrigger value="unread">Chưa đọc</TabsTrigger>
           </TabsList>
-          <ScrollArea className="flex-1 px-4 py-2">
+          <ScrollArea className="flex-1  py-2">
             <TabsContent value="all">
               <p className="font-medium text-sm mb-2">Mới</p>
               <NotificationItem
@@ -88,8 +108,6 @@ const UserNoti = ({ open, onOpenChange, side = "left" }: { open: boolean, onOpen
                 title="Vựa Cua Đăng Quân đã thêm một video mới"
                 time="27 phút trước"
               />
-              <Separator className="my-2" />
-              <p className="font-medium text-sm mb-2">Trước đó</p>
               <NotificationItem
                 title="Nguyễn Ngọc Long đã chấp nhận lời mời"
                 time="13 giờ trước"
@@ -122,3 +140,4 @@ const UserNoti = ({ open, onOpenChange, side = "left" }: { open: boolean, onOpen
   );
 };
 export default UserNoti;
+

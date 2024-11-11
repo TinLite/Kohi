@@ -1,0 +1,15 @@
+meta {
+  name: Unlike
+  type: http
+  seq: 7
+}
+
+delete {
+  url: http://localhost:3000/v1/api/comments/unlike/6731a50cd2376e3e2836d0cd
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

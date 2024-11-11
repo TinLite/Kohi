@@ -19,12 +19,16 @@ import { PostsService } from 'src/posts/posts.service';
 import { Role } from 'src/users/schemas/user.schema';
 import { Roles } from 'src/auth/role.decorator';
 import { Public } from 'src/auth/authmeta';
+import { NewCommentNotificationDto } from 'src/notifications/dto/new-comment-notification.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { LIKECommentNotificationDto } from 'src/notifications/dto/new-likecomment-notification.dto';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
     private readonly commentsService: CommentsService,
     private readonly postsService: PostsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @Post('create/:id')
@@ -34,11 +38,28 @@ export class CommentsController {
     @Req() req,
   ) {
     const authorId = req.user._id;
-    await this.commentsService.createComment(
+    const comment = await this.commentsService.createComment(
       createCommentDto,
       authorId,
       postId,
     );
+    const data = (await this.postsService.findOne(postId)).depopulate('author');
+    // console.log(data)
+    // console.log(authorId)
+    // console.log(data.author)
+    console.log(postId);
+    if (authorId != data.author) {
+      const notification =
+        await this.notificationsService.createNotificationNewComment(
+          new NewCommentNotificationDto({
+            userId: data.author,
+            otherUser: authorId,
+            post: postId,
+            comment: comment._id,
+          }),
+        );
+    }
+    return comment;
   }
 
   // Update bình luận
@@ -53,7 +74,7 @@ export class CommentsController {
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
-    if (comment.author.toString() !== author) {
+    if (comment.author != author) {
       throw new ForbiddenException(
         'You are not authorized to reply this comment',
       );
@@ -95,6 +116,18 @@ export class CommentsController {
     if (comment.likes.includes(author)) {
       throw new NotFoundException('You have already liked this comment');
     }
+    const authorId = comment.author;
+    if (authorId != author) {
+      const notification =
+        await this.notificationsService.createNotificationLikeComment(
+          new LIKECommentNotificationDto({
+            userId: authorId,
+            otherUser: author,
+            post: comment.postId,
+            comment: commentId,
+          }),
+        );
+    }
     return this.commentsService.likeComment(commentId, author);
   }
   //Remove like bình luận
@@ -108,6 +141,11 @@ export class CommentsController {
     if (!comment.likes.includes(author)) {
       throw new NotFoundException('You have not liked this comment');
     }
+    const notification =
+      await this.notificationsService.findOneCommentNotification(commentId);
+    if (notification) {
+      await this.notificationsService.deleteNotification(notification._id);
+    }
     return this.commentsService.removeLike(commentId, author);
   }
 
@@ -116,6 +154,7 @@ export class CommentsController {
   async deleteComment(@Param('id') commentId: string, @Req() req) {
     const author = req.user._id;
     const comment = await this.commentsService.getOneComment(commentId);
+    console.log(comment);
     const post = await this.postsService.findOne(comment.postId);
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -128,7 +167,11 @@ export class CommentsController {
         'You are not authorized to delete this comment',
       );
     }
-
+    const notification =
+      await this.notificationsService.findOneCommentNotification(commentId);
+    if (notification) {
+      await this.notificationsService.deleteNotification(notification._id);
+    }
     return this.commentsService.deleteComment(commentId, author);
   }
   // @Roles(Role.ADMIN)

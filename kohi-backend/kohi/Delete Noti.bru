@@ -1,0 +1,15 @@
+meta {
+  name: Delete Noti
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:3000/v1/api/notifications/delete/672f0cc3910a89a2ebfbe323
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

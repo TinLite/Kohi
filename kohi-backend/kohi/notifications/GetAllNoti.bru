@@ -1,11 +1,11 @@
 meta {
-  name: Get Followers
+  name: GetAllNoti
   type: http
-  seq: 4
+  seq: 2
 }
 
 get {
-  url: http://localhost:3000/v1/api/users/follows/list/followers
+  url: http://localhost:3000/v1/api/notifications/all
   body: none
   auth: bearer
 }

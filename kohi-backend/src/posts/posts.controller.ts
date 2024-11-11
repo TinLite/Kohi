@@ -21,13 +21,19 @@ import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
 import { EventsService } from 'src/events/events.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { NewPostNotificationDto } from 'src/notifications/dto/new-post-notification.dto';
+import { UsersService } from 'src/users/users.service';
+import { LikePostNotificationDto } from 'src/notifications/dto/new-likepost-notification.dto';
+import { Notification } from '../notifications/schemas/notification.schema';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
+    private readonly usersService: UsersService,
     private readonly eventsService: EventsService,
-
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @Post('/create')
@@ -36,13 +42,22 @@ export class PostsController {
     if (!createPostDto.author) {
       createPostDto.author = requestUserId;
     } else if (createPostDto.author !== requestUserId) {
-      // TODO check if user is admin
       throw new UnauthorizedException(
         'You are not allowed to create post for other user',
       );
     }
     const data = await this.postsService.create(createPostDto);
-    this.eventsService.announceAllClients("New post created by " + requestUserId);
+    const followers = await this.usersService.getFollowers(requestUserId);
+    console.log(followers);
+    for (const followerId of followers) {
+      const test = await this.notificationsService.createNotificationNewPost(
+        new NewPostNotificationDto({
+          userId: followerId,
+          otherUser: createPostDto.author,
+          post: data._id,
+        }),
+      );
+    }
     return data;
   }
 
@@ -129,7 +144,22 @@ export class PostsController {
     if (post.likes.includes(requestUserId)) {
       throw new UnauthorizedException('You already liked this post');
     }
-    return this.postsService.addLike(id, requestUserId);
+    const postNoPopulate = await this.postsService.findOneNoPopulate(id);
+    const authorId = postNoPopulate.author;
+    const liked = await this.postsService.addLike(id, requestUserId);
+    // console.log(requestUserId, authorId);
+    if (requestUserId !== authorId.toString()) {
+      const test =
+        await this.notificationsService.createNotificationNewLikePost(
+          new LikePostNotificationDto({
+            userId: authorId,
+            otherUser: requestUserId,
+            post: id,
+          }),
+        );
+      return test;
+    }
+    return liked;
   }
 
   @Delete('detail/:id/unlike')
@@ -141,6 +171,14 @@ export class PostsController {
     const requestUserId = request.user._id;
     if (!post.likes.includes(requestUserId)) {
       throw new UnauthorizedException('You have not liked this post yet');
+    }
+    const Notification =
+      await this.notificationsService.findOneLikePostNotification(
+        requestUserId,
+        id,
+      );
+    if (Notification) {
+      await this.notificationsService.deleteNotification(Notification._id);
     }
     return this.postsService.removeLike(id, requestUserId);
   }
@@ -163,7 +201,7 @@ export class PostsController {
       sharePostDto,
     );
   }
-  
+
   @Delete('detail/:postId/unshare')
   async unsharePost(@Request() request, @Param('postId') postId: string) {
     const post = await this.postsService.findOne(postId);
@@ -172,11 +210,13 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    if(!post.postShare){
+    if (!post.postShare) {
       throw new NotFoundException('Post not shared');
     }
-    if(post.author.toString() !== authorId){
-      throw new UnauthorizedException('You are not allowed to delete this post');
+    if (post.author.toString() !== authorId) {
+      throw new UnauthorizedException(
+        'You are not allowed to delete this post',
+      );
     }
     return this.postsService.deletePostShare(postId);
   }
@@ -186,14 +226,16 @@ export class PostsController {
     @Param('postId') postId: string,
     @Body() updatePostShareDto: SharePostDto,
     @Request() request,
-  ){
+  ) {
     const post = await this.postsService.findOne(postId);
     const author = request.user._id;
-    if(!post){
+    if (!post) {
       throw new NotFoundException('Post not found');
     }
-    if(post.author.toString() !== author){
-      throw new UnauthorizedException('You are not allowed to update this post');
+    if (post.author.toString() !== author) {
+      throw new UnauthorizedException(
+        'You are not allowed to update this post',
+      );
     }
     return this.postsService.updatePostShare(postId, updatePostShareDto);
   }

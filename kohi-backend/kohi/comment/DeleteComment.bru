@@ -5,7 +5,11 @@ meta {
 }
 
 delete {
-  url: http://localhost:3000/v1/api/comments/delete/
+  url: http://localhost:3000/v1/api/comments/delete/6731a50dd2376e3e2836d0d9
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
 }

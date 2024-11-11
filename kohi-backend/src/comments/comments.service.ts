@@ -26,7 +26,7 @@ export class CommentsService {
   ) {
     // console.log(postId);
     const { content, replyTo } = createCommentDto;
-    await this.commentModel.create({
+    return this.commentModel.create({
       author: authorId,
       content,
       postId: postId,
@@ -34,6 +34,9 @@ export class CommentsService {
     });
   }
 
+  async findOne(postId: string) {
+    return this.commentModel.findOne({ postId: postId }).exec();
+  }
   //Update bình luận
   async updateComment(
     commentId: string,
@@ -54,14 +57,11 @@ export class CommentsService {
     createCommentDto: CreateCommentDto,
   ) {
     const { content, replyTo } = createCommentDto;
-    await this.commentModel.findByIdAndUpdate(
-      commentId,
-      {
-        $set: {
-          hasReply: true,
-        },
-      }
-    )
+    await this.commentModel.findByIdAndUpdate(commentId, {
+      $set: {
+        hasReply: true,
+      },
+    });
     const comment = await this.commentModel.create({
       author: author,
       content,
@@ -105,7 +105,7 @@ export class CommentsService {
         postId: postId,
         replyTo: null,
       })
-      .populate('author','username avatar displayName')
+      .populate('author', 'username avatar displayName')
       .exec();
     const totalComment = await this.commentModel
       .countDocuments({ postId })
@@ -143,5 +143,4 @@ export class CommentsService {
       },
     };
   }
-  
 }
