@@ -1,0 +1,19 @@
+meta {
+  name: create message
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3000/v1/api/chat/channels/{{channelId}}/messages
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+vars:pre-request {
+  channelId: 66fa18fc4a2cd30d7f2cbf5c
+}

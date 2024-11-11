@@ -16,24 +16,20 @@ import { DropdownSetting } from "./dropdown-setting";
 import LoginSheet from "./login";
 import UserNoti from "./noti";
 import { SheetSetting } from "./sheet-settings";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
-export default function SideNav() {
+export default function SideNav({disableNavOnPhone = false}: {disableNavOnPhone?: boolean}) {
   const { user } = useContext(UserContext);
 
+  const isOnPhone = useMediaQuery("(max-width: 720px)");
 
   const [settingOpen, setSettingOpen] = useState(false);
 
   const [notiOpen, setNotiOpen] = useState(false);
+  console.log(disableNavOnPhone, isOnPhone);
 
   return (
-    <aside className="fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4">
-      <div className="fixed flex md:hidden top-0 w-full bg-background border-b border-muted px-4 pt-2 pb-8">
-        <Link to='/' className="font-bold text-sm">
-          コー
-          <br />
-          ヒー
-        </Link>
-      </div>
+    <aside className={cn("fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4", isOnPhone && disableNavOnPhone ? "hidden" : "")}>
       <div className="md:min-h-screen flex flex-col md:justify-between gap-4 px-2 md:py-4">
         <Link to="/" className="hidden md:flex items-end px-4 gap-2 font-bold">
           <div>

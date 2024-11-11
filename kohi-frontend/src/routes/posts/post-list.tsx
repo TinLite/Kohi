@@ -12,6 +12,7 @@ import {
 import { Post } from "@/types/post-type";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function PostCreate({ onSubmit }: { onSubmit: () => void }) {
   const [submittable, setSubmittable] = useState(false);
@@ -79,6 +80,13 @@ export default function PostList() {
   }, []);
   return (
     <>
+      <div className="sticky flex md:hidden top-0 w-full bg-background border-b border-muted px-4 pt-2 pb-8">
+        <Link to='/' className="font-bold text-sm">
+          コー
+          <br />
+          ヒー
+        </Link>
+      </div>
       <div className="flex">
         <div className="h-screen flex-grow">
           <div className="w-full flex justify-center gap-4">

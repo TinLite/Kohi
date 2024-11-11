@@ -49,6 +49,16 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: '/',
+    element: <MainLayout disableNavOnPhone />,
+    children: [
+      {
+        path: "/message/:channelID",
+        element: <MessagePage />,
+      },
+    ],
+  }
 ]);
 
 function App() {

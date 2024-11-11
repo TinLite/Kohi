@@ -11,13 +11,13 @@ export class ChatService {
   constructor(
     @InjectModel('ChatChannel') private chatChannelModel: Model<ChatChannel>,
     @InjectModel('ChatMessage') private chatMessageModel: Model<ChatMessage>,
-  ) {}
+  ) { }
   getChannelsByUserId(userId: string) {
     return this.chatChannelModel.find({ "participants.user": userId }).populate('participants.user');
   }
 
-  getChannelById(channelId: string) {
-    this.chatChannelModel.findById(channelId);
+  async getChannelById(channelId: string) {
+    return this.chatChannelModel.findById(channelId);
   }
 
   async createChannel(createChatDto: CreateChatChannelDto) {
@@ -28,16 +28,22 @@ export class ChatService {
     return newChannel.save();
   }
 
-  createMessage(channelId: ChatChannel | mongoose.Types.ObjectId | String, senderId: User | mongoose.Types.ObjectId | String, content: string) {
+  async createMessage(channelId: ChatChannel | mongoose.Types.ObjectId | String, senderId: User | mongoose.Types.ObjectId | String, content: string) {
     const newMessage = new this.chatMessageModel({
       channelID: channelId,
       senderID: senderId,
-      content: content,
+      content,
     });
-    return newMessage.save();
+    return (await newMessage.save()).populate({
+      path: 'senderID',
+      select: 'username avatar displayName',
+    });
   }
 
-  async getMessagesByChannelId(channelId: string) {
-    return this.chatMessageModel.find({ channelID: channelId }).populate('senderID');
+  async getMessagesByChannelId(channelId: string, skip: number = 0, limit: number = 10) {
+    return this.chatMessageModel.find({ channelID: channelId }).sort({ timeStamp: -1 }).skip(skip).limit(limit).populate({
+      path: 'senderID',
+      select: 'username avatar displayName',
+    });
   }
 }

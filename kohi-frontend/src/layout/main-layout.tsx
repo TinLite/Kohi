@@ -1,10 +1,11 @@
 import SideNav from "@/components/side-nav";
 import { UserContext } from "@/context/user-context";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import socket from "@/services/socket";
 import { useContext, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
-export default function MainLayout() {
+export default function MainLayout({disableNavOnPhone = false}: {disableNavOnPhone?: boolean}) {
   const { user } = useContext(UserContext);
   useEffect(() => {
     if (user) {
@@ -21,10 +22,11 @@ export default function MainLayout() {
       }
     }
   }, [user]);
+
   return (
     <div className="bg-muted dark:bg-muted/10">
-      <div className="flex items-start min-h-screen mx-auto pt-16 md:pt-0">
-        <SideNav />
+      <div className="flex items-start min-h-screen mx-auto">
+        <SideNav disableNavOnPhone={disableNavOnPhone} />
         <div className="flex-grow relative h-screen">
           <Outlet />
         </div>

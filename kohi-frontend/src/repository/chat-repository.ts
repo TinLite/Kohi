@@ -1,4 +1,4 @@
-import { ChatChannel } from "@/types/chat-types";
+import { ChatChannel, ChatMessage } from "@/types/chat-types";
 
 export async function getChannelList() {
     const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/`, {
@@ -28,4 +28,31 @@ export async function createChannel(members: string[], message: string[], name?:
         throw new Error(`Failed to create chat channel: ${await respone.text()}`);
     }
     return await respone.json() as ChatChannel
+}
+
+export async function getChannelMessages(channelId: string) {
+    const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.backend_access_token}`,
+        },
+    });
+    if (!data.ok) {
+        throw new Error("Failed to fetch chat messages");
+    }
+    return await data.json() as ChatMessage[];
+}
+
+export async function sendMessage(channelId: string, content: string) {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages/create`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.backend_access_token}`,
+        },
+        body: JSON.stringify({ content }),
+    });
+    if (!response.ok) {
+        throw new Error("Failed to send message");
+    }
+    return await response.json() as ChatMessage;
 }

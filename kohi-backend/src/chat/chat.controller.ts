@@ -1,12 +1,16 @@
-import { BadRequestException, Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
 import { ChatParticipantRole } from './schemas/chat-channel.schema';
+import { EventsService } from 'src/events/events.service';
 
 @Controller('chat')
 export class ChatController {
-    constructor(private readonly chatService: ChatService) {}
-    
+    constructor(
+        private readonly chatService: ChatService,
+        private readonly eventsService: EventsService,
+    ) { }
+
     @Get('/channels')
     async getChannels(@Req() req) {
         return this.chatService.getChannelsByUserId(req.user._id);
@@ -41,7 +45,20 @@ export class ChatController {
     }
 
     @Get('/channels/:channelId/messages')
-    async getMessages(@Req() req) {
-        return this.chatService.getMessagesByChannelId(req.params.channelId);
+    async getMessages(@Param('channelId') channelId: string, @Query('skip') skip: number = 0, @Query('limit') limit: number = 10) {
+        return this.chatService.getMessagesByChannelId(channelId, skip, limit);
+    }
+
+    @Post('/channels/:channelId/messages/create')
+    async createMessage(@Param('channelId') channelId: string, @Body('content') content: string, @Req() req) {
+        const message = await this.chatService.createMessage(channelId, req.user._id, content);
+        this.chatService.getChannelById(channelId).then(channel => {
+            channel.participants.map(participant => {
+                if (participant.user != req.user._id) {
+                    this.eventsService.announceToUser(participant.user.toString(), 'chat:message:new', message);
+                }
+            })
+        });
+        return message;
     }
 }

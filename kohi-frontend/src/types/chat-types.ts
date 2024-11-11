@@ -42,3 +42,34 @@ export class ChatChannel {
         this.participants = participants;
     }
 }
+
+export class ChatMessage {
+    _id: string;
+    senderID: {
+        _id: string;
+        displayName?: string;
+        username: string;
+        avatar?: string;
+    };
+    channelID: string;
+    content: string;
+    createdAt: Date;
+    constructor(
+        _id: string,
+        senderID: {
+            _id: string;
+            displayName?: string;
+            username: string;
+            avatar?: string;
+        },
+        channelID: string,
+        content: string,
+        createdAt: Date
+    ) {
+        this._id = _id;
+        this.senderID = senderID;
+        this.channelID = channelID;
+        this.content = content;
+        this.createdAt = createdAt;
+    }
+}
