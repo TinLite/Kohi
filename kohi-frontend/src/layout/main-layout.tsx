@@ -1,6 +1,5 @@
 import SideNav from "@/components/side-nav";
 import { UserContext } from "@/context/user-context";
-import { useMediaQuery } from "@/hooks/use-media-query";
 import socket from "@/services/socket";
 import { useContext, useEffect } from "react";
 import { Outlet } from "react-router-dom";

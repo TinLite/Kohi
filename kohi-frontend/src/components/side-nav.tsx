@@ -26,7 +26,6 @@ export default function SideNav({disableNavOnPhone = false}: {disableNavOnPhone?
   const [settingOpen, setSettingOpen] = useState(false);
 
   const [notiOpen, setNotiOpen] = useState(false);
-  console.log(disableNavOnPhone, isOnPhone);
 
   return (
     <aside className={cn("fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4", isOnPhone && disableNavOnPhone ? "hidden" : "")}>
