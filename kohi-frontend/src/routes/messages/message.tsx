@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { UserContext } from "@/context/user-context";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -10,7 +10,7 @@ import { getChannelList, getChannelMessages, sendMessage } from "@/repository/ch
 import socket from "@/services/socket";
 import { ChatChannel, ChatChannelType, ChatMessage } from "@/types/chat-types";
 import { SocketEvent } from "@/types/socket-types";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ImagePlus, Trash2 } from "lucide-react";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -49,7 +49,7 @@ function MessageSelectionItem({ chatChannel, selected = false, onSelect }: { cha
     )
 }
 
-function UserMessage({className, isMe, name, avatar, image, noPaddingTop, message }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingTop?: boolean, message?: string }) {
+function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, message }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingTop?: boolean, message?: string }) {
     return (
         <div
             className={cn([
@@ -122,14 +122,16 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
     const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
     const [isScrolling, setIsScrolling] = useState(false);
-    
+
+    const [selectedImages, setSelectedImages] = useState<File[]>([]);
+
     function scrollToBottom() {
         const target = scrollAreaRef.current?.querySelector('.h-full.w-full.rounded-\\[inherit\\]')
         target?.scrollTo({ top: target?.scrollHeight, behavior: 'smooth' });
     }
 
     useEffect(() => {
-        getChannelMessages(channel._id).then((messages) => {setReducedMessage({type: 'replace', payload: messages.reverse()})});
+        getChannelMessages(channel._id).then((messages) => { setReducedMessage({ type: 'replace', payload: messages.reverse() }) });
     }, [channel])
 
     useEffect(() => {
@@ -147,7 +149,7 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
         }
         socket.on(SocketEvent.CHAT_MESSAGE_NEW, (newMessage: ChatMessage) => {
             if (newMessage.channelID === channel._id) {
-                setReducedMessage({type: 'append', payload: [newMessage]});
+                setReducedMessage({ type: 'append', payload: [newMessage] });
             }
         });
         return () => {
@@ -166,10 +168,12 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
         e.preventDefault();
         const form = e.currentTarget as HTMLFormElement;
         const input = form.querySelector('input') as HTMLInputElement;
-        const message = input.value;
+        const message = input.value.trim();
+        if (!message)
+            return;
         input.value = '';
         sendMessage(channel._id, message).then((newMessage) => {
-            setReducedMessage({type: 'append', payload: [newMessage]});
+            setReducedMessage({ type: 'append', payload: [newMessage] });
         });
     }
 
@@ -179,6 +183,25 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
         if (newScrollState !== isScrolling) {
             setIsScrolling(newScrollState);
         }
+    }
+
+    const openFileUploadSelector = () => {
+        document.getElementById("form-inp-upload-file")?.click();
+    }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files!;
+        const arrayFiles = [];
+        // Kiem tra xem neu file khong phai anh thi return
+        for (var i = 0; i < files.length; i++) {
+            const singleFile = files.item(i);
+            if (!singleFile?.type.startsWith("image/")) {
+                e.preventDefault();
+                return;
+            }
+            arrayFiles.push(singleFile)
+        }
+        setSelectedImages(arrayFiles);
     }
 
     return (
@@ -214,8 +237,37 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
                     })
                 }
             </ScrollArea>
+
+            {selectedImages && <>
+                <Separator />
+                <ScrollArea
+                    className="shrink-0"
+                >
+                    <div className="flex gap-4 px-2">
+                        {selectedImages.map((v, i) => {
+                            // TODO: Add removing image
+                            return <div className="aspect-square w-24 h-24 grid place-items-center relative p-2">
+                                <Button variant="outline" size="icon" className="w-6 h-6 absolute top-0 -right-2" onClick={(e) => e.preventDefault()}>
+                                    <Trash2 />
+                                </Button>
+                                <img src={URL.createObjectURL(v)} alt="" key={i} className="" />
+                            </div>
+                        }
+                        )}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+            </>}
+
             <Separator />
             <form onSubmit={onSendMessage} className="bg-background flex gap-2 px-4 py-2">
+                <input type="file" name="images" className="hidden" id="form-inp-upload-file" onChange={handleFileChange} accept="image/*" multiple />
+                <Button variant="ghost" size="icon" onClick={(e) => {
+                    e.preventDefault();
+                    openFileUploadSelector();
+                }}>
+                    <ImagePlus />
+                </Button>
                 <Input placeholder="Nhập tin nhắn..." className="flex-grow" />
                 <Button>Gửi</Button>
             </form>
@@ -226,7 +278,7 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
 export default function MessagePage() {
 
     const isOnPhone = useMediaQuery('(max-width: 768px)');
-    const {channelID} = useParams();
+    const { channelID } = useParams();
 
     const [channels, setChannels] = useState<ChatChannel[]>([]);
     const navigate = useNavigate();

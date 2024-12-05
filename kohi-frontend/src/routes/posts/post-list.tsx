@@ -2,6 +2,7 @@ import { ButtonScrollToTop } from "@/components/button-scroll-to-top";
 import FriendSide from "@/components/friend-side";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import UserPost from "@/components/user-post";
@@ -10,7 +11,7 @@ import {
   getGlobalLatestPosts,
 } from "@/repository/PostsRepository";
 import { Post } from "@/types/post-type";
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -60,6 +61,7 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
       </CardContent>
       {clicked && (
         <CardFooter className="flex justify-end">
+          <Input type="file" className="file:text-foreground" capture/>
           <Button disabled={!submittable} onClick={handleSubmit}>
             Submit
           </Button>
@@ -90,8 +92,8 @@ export default function PostList() {
       <div className="flex">
         <div className="h-screen flex-grow">
           <div className="w-full flex justify-center gap-4">
-            <ScrollArea className="w-screen h-screen max-w-xl">
-              <div className="space-y-6 py-6 md:mb-0 mb-12 md:pr-4">
+            <ScrollArea className="w-full h-screen max-w-2xl">
+              <div className="space-y-6 py-6 md:mb-0 mb-12 xl:pr-4">
                 <PostCreate onSubmit={refreshPost} />
                 {posts.map((post) => (
                   <UserPost post={post} key={post._id} />
