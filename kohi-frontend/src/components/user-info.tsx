@@ -2,12 +2,24 @@ import { User } from "@/types/user-type";
 import { Card } from "./ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { useState } from "react";
-import { followUser, unFollowUser } from "@/repository/user-repository";
+import { useEffect, useState } from "react";
+import {
+  followUser,
+  getFollowing,
+  unFollowUser,
+} from "@/repository/user-repository";
 
-const UserInfo = ({ user }: { user: User }) => {
+const UserInfo = ({
+  user,
+  isFollowed,
+  onFollowClick,
+}: {
+  user: User;
+  isFollowed?: boolean;
+  onFollowClick?: () => void;
+}) => {
   const [isFollowing, setIsFollowing] = useState(false);
-
+  const [following, setFollowing] = useState<User[]>([]);
   const handleFollow = async () => {
     try {
       await followUser(user._id);
@@ -25,6 +37,13 @@ const UserInfo = ({ user }: { user: User }) => {
       console.log(err);
     }
   };
+  const fetchFollowing = async () => {
+    getFollowing().then((res) => setFollowing(res.data));
+  };
+  useEffect(() => {
+    fetchFollowing();
+  }, []);
+
   return (
     <Card>
       <div className="flex px-6 py-4 flex-row gap-4 items-center w-full">

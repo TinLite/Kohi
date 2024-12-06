@@ -18,7 +18,7 @@ export async function getProfile(userId: string = "me") {
   return (await data.json()) as User;
 }
 
-export async function updateUser(userId: string,formData:any) {
+export async function updateUser(userId: string, formData: any) {
   const data = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
@@ -39,7 +39,7 @@ export async function updateUser(userId: string,formData:any) {
 }
 
 export async function searchUsers(query: string) {
-  const respone = await fetch(
+  const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
     }/users/search?query=${query}`,
@@ -49,10 +49,10 @@ export async function searchUsers(query: string) {
       },
     }
   );
-  if (!respone.ok) {
+  if (!response.ok) {
     throw new Error("Failed to fetch user profile");
   }
-  return (await respone.json()) as User[];
+  return (await response.json()) as User[];
 }
 export async function followUser(userId: string) {
   const response = await fetch(
@@ -136,6 +136,32 @@ export async function getBookMarks() {
   const data = await response.json();
   return data as {
     data: Post[];
+    pagination: {
+      currentPage: number;
+      totalPage: number;
+      totalElement: number;
+      limit: number;
+    };
+  };
+}
+export async function getFollowing() {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/users/follows/list/following`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to get following");
+  }
+  const data = await response.json();
+  return data as {
+    data: User[];
     pagination: {
       currentPage: number;
       totalPage: number;

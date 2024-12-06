@@ -184,7 +184,12 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
     return (
         <div className={cn(className, "flex-grow flex h-screen flex-col")}>
             <div className="md:px-4 py-0.5 bg-background flex items-center">
-                <Button variant="ghost" onClick={() => navigate('/message')} size="icon">
+                <Button
+                    variant="ghost" 
+                    onClick={() => navigate('/message')} 
+                    size="icon"
+                    className="md:hidden"
+                >
                     <ChevronLeft />
                 </Button>
                 <Avatar className="w-8 h-8 shadow mr-4">

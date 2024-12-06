@@ -118,6 +118,6 @@ export class UsersService {
       .findById(userId)
       .select('followers')
       .exec();
-    return user.followers
+    return user.followers;
   }
 }

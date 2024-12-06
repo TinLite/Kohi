@@ -16,14 +16,13 @@ import { ChatModule } from './chat/chat.module';
 import { EventsModule } from './events/events.module';
 import { FollowsModule } from './follows/follows.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/kohi'), // MongoDB
-    ConfigModule.forRoot(
-      {
-        isGlobal: true,
-      }
-    ), // Config
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }), // Config
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'kohi-frontend', 'dist'), // Serving build file
     }),
@@ -36,18 +35,19 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
     EventsModule,
     FollowsModule,
     BookmarksModule,
-
+    CloudinaryModule,
   ],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [
+    AppService,
     {
       provide: 'APP_GUARD',
       useClass: JwtAuthGuard,
     },
     {
       provide: 'APP_GUARD',
-      useClass: RolesGuard
-    }
+      useClass: RolesGuard,
+    },
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -32,7 +32,6 @@ export class FollowsService {
         new: true,
       },
     );
-
   }
   // UnFollow người dùng
   async unFollowByUser(author: string, followUserId: string) {
@@ -80,7 +79,7 @@ export class FollowsService {
 
     const totalPage = Math.ceil(totalUser / limit);
 
-    const following = await this.userModel
+    const user = await this.userModel
       .findById(userId)
       .populate('following', 'username displayName')
       .select('following')
@@ -88,7 +87,7 @@ export class FollowsService {
       .limit(limit)
       .exec();
     return {
-      data: following,
+      data: user.following,
       pagination: {
         currentPage: page,
         totalPage: totalPage,
@@ -98,4 +97,17 @@ export class FollowsService {
     };
   }
 
+  async getUserById(userId: string) {
+    return await this.userModel.findById(userId).select('following').exec();
+  }
+  async getFollowingByUser(userId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    return await this.userModel
+      .findById(userId)
+      .populate('following', 'username displayName')
+      .select('following')
+      .skip(skip)
+      .limit(limit)
+      .exec();
+  }
 }

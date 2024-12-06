@@ -20,6 +20,7 @@ import mongoose from 'mongoose';
 import { Public } from '../auth/authmeta';
 import { Roles } from 'src/auth/role.decorator';
 import { Role } from './schemas/user.schema';
+import { elementAt } from 'rxjs';
 // import { FollowsService } from './follows.service';
 // import { BookmarkService } from './bookmarks.service';
 // import { PostsService } from 'src/posts/posts.service';
@@ -90,9 +91,8 @@ export class UsersController {
 
   @Get('search')
   @Public()
-  async searchUser(@Query('query') query: string) {
-    const users = await this.usersService.searchUser(query);
-    return users;
+  async searchUser(@Query('query') query: string,@Req() req) {
+    return this.usersService.searchUser(query)
   }
 
   // @Post('follow/:id')

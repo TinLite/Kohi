@@ -117,6 +117,43 @@ export class FollowsController {
     ) {
       throw new NotFoundException('Page or limit not found');
     }
-    return this.followsService.getFollowing(userId, currentPage, currentLimit);
+    return await this.followsService.getFollowing(userId, currentPage, currentLimit);
+  }
+
+  @Get('following')
+  async getFollowingByUser(
+    @Req() req,
+    @Query() { id }: { id?: string },
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const userId = id ?? req.user._id;
+    const currentPage = page ? Number(page) : 1;
+    const currentLimit = limit ? Number(limit) : 10;
+    const userFollowing = await this.followsService.getUserById(userId);
+    const totalUser = userFollowing.following.length;
+    const totalPage = Math.ceil(totalUser / currentLimit);
+    if (
+      !Number.isInteger(currentPage) ||
+      !Number.isInteger(currentLimit) ||
+      currentPage <= 0 ||
+      currentLimit <= 0
+    ) {
+      throw new NotFoundException('Page or limit not found');
+    }
+    const user = await this.followsService.getFollowingByUser(
+      userId,
+      currentPage,
+      currentLimit,
+    );
+    return {
+      data: user.following,
+      pagination: {
+        currentPage: currentPage,
+        totalPage: totalPage,
+        totalElement: totalUser,
+        limit: currentLimit,
+      },
+    };
   }
 }

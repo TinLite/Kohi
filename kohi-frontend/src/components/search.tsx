@@ -1,9 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { searchPosts } from "@/repository/PostsRepository";
-import { searchUsers } from "@/repository/user-repository";
+import {
+  followUser,
+  getFollowing,
+  searchUsers,
+} from "@/repository/user-repository";
 import { Post } from "@/types/post-type";
 import { User } from "@/types/user-type";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import UserInfo from "./user-info";
 import UserPost from "./user-post";
@@ -12,6 +16,7 @@ const SearchUI = () => {
   // const [query, setQuery] = useState<string>("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [followUserList, setFollowUserList] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const handleSearch = async (query: string) => {
@@ -36,6 +41,13 @@ const SearchUI = () => {
       setError("You cần nhập từ khóa tìm kiếm");
     }
   };
+
+  async function followHandler(user: User) {}
+
+  console.log(followUserList);
+  useEffect(() => {
+    getFollowing().then((data) => setFollowUserList(data.data));
+  }, []);
 
   var timer: NodeJS.Timeout;
   const handleKeyDown = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +90,19 @@ const SearchUI = () => {
           {error ? (
             <p>{error}</p>
           ) : users.length > 0 ? (
-            users.map((user) => <UserInfo key={user._id} user={user} />)
+            users.map((searchResultEntry) => (
+              <UserInfo
+                key={searchResultEntry._id}
+                user={searchResultEntry}
+                isFollowed={
+                  // followUserList.find(
+                  //   (followEntry) => followEntry._id == searchResultEntry._id
+                  // ) != undefined
+                  false
+                }
+                onFollowClick={() => followHandler(searchResultEntry)}
+              />
+            ))
           ) : (
             <p>Không tìm thấy người dùng nào.</p>
           )}

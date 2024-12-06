@@ -1,0 +1,15 @@
+meta {
+  name: UploadIMGS
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/v1/api/upload/imgs
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  files: @file(C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\432787469_951994392979180_2193080079577116366_n.jpg|C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\b812e04bd33917512a577b896eae8d11.jpg|C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\e8effa8d7eeb4d92eb74143adff1c90b.jpg|C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\f563998e2baec1cea6b7bca9ed0ef53f.jpg|C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\GJpnJZYakAA9Kh0.jpg)
+}
