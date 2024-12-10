@@ -1,13 +1,14 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
-import { ChatChannel } from "./chat-channel.schema";
 import { User } from "src/users/schemas/user.schema";
+import { ChatChannel } from "./chat-channel.schema";
 
 @Schema()
 export class ChatMessage {
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'ChatChannel'
+        ref: 'ChatChannel',
+        index: true,
     })
     channelID: ChatChannel;
 
