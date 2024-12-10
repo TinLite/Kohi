@@ -54,9 +54,10 @@ export async function likePost(postId: string) {
         },
       }
     );
-    if (!response.ok) {
-      throw new Error("Failed to like post");
-    }
+    // if (!response.ok) {
+    //   throw new Error("Failed to like post");
+    // }
+    return response.json();
   }
   export async function unLikePost(postId: string) {
     const response = await fetch(

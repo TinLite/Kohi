@@ -7,15 +7,26 @@ import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostFlags } from './schemas/post.schema';
 import { UtilsService } from '../utils/utils.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 @Injectable()
 export class PostsService {
   constructor(
     @InjectModel(Post.name) private readonly postModel: Model<Post>,
     private readonly usersService: UsersService,
     private readonly utilsService: UtilsService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
-  async create(createPostDto: CreatePostDto) {
-    console.log(createPostDto);
+  async create(createPostDto: CreatePostDto, files?: Express.Multer.File[]) {
+    if (files && files.length > 0) {
+      const folder = process.env.CLOUDINARY_FOLDER;
+      const uploadImages = await this.cloudinaryService.uploadFiles(
+        files,
+        folder
+      );
+      createPostDto.media = uploadImages;
+    }
+    console.log(files);
+    // console.log(createPostDto);
     const data = await this.postModel.create(createPostDto);
     return {
       _id: data._id,

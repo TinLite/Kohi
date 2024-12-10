@@ -7,68 +7,75 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import { createComment, listCommentsByPostId } from "@/repository/comment-repository";
+import {
+  createComment,
+  listCommentsByPostId,
+} from "@/repository/comment-repository";
+import { Card } from "./ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const DetailPost = ({ post, comment }: { post: Post; comment: Comment }) => {
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [newComment, setNewComment] = useState("");
-  
-    const fetchComments = async () => {
-      try {
-        const response = await listCommentsByPostId(post._id);
-        if (response && response.data && Array.isArray(response.data)) {
-          setComments(response.data);
-        } else {
-          // console.log( response);
-          setComments([]);
-        }
-      } catch (err) {
-        console.error(err);
+const DetailPost = ({ post }: { post: Post }) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+
+  const fetchComments = async () => {
+    try {
+      const response = await listCommentsByPostId(post._id);
+      if (response && response.data) {
+        setComments(response.data);
+      } else {
+        // console.log( response)
         setComments([]);
       }
-    };
-    useEffect(() => {
+    } catch (err) {
+      console.error(err);
+      setComments([]);
+    }
+  };
+  const handleCreateComment = async () => {
+    if (!newComment.trim()) return;
+    try {
+      await createComment(post._id, newComment);
+      setNewComment("");
       fetchComments();
-    }, [post._id]);
-    const handleCreateComment = async () => {
-      if (!newComment.trim()) return;
-      try {
-        await createComment(post._id, newComment);
-        setNewComment("");
-        fetchComments();
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  useEffect(() => {
+    fetchComments();
+  }, [post._id]);
+
   return (
-    <div>
-      <UserPost post={post} />
-      <Separator />
-      <div className="space-y-6">
-        <div className="flex items-start gap-4">
-          <Avatar className="w-8 h-8">
-            <AvatarImage
-              src="https://github.com/shadcn.png"
-              className="rounded-full"
-              alt="@shadcn"
+    <ScrollArea className="h-screen">
+      <div className="space-y-6 py-6 max-w-2xl mx-auto">
+        <UserPost post={post} />
+        <div className="space-y-6">
+          <div className="flex items-start gap-2">
+            <Avatar className="w-8 h-8">
+              <AvatarImage
+                src="https://github.com/QuangTeoo.png"
+                className="rounded-full"
+                alt="@shadcn"
+              />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+            <Textarea
+              className="resize-none p-0 border-0 focus-visible:ring-0 min-h-0 flex-grow"
+              placeholder="Add a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
             />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-          <Textarea
-            className="resize-none p-0 border-0 focus-visible:ring-0 min-h-0"
-            placeholder="Add a comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-          />
-          <Button variant="default" onClick={handleCreateComment}>
-            OK
-          </Button>
+            <Button variant="default" onClick={handleCreateComment}>
+              OK
+            </Button>
+          </div>
+          {comments.map((comment) => (
+            <CommentItem key={comment._id} comment={comment} />
+          ))}
         </div>
       </div>
-      <div>
-          <CommentItem comment={comment} />
-      </div>
-    </div>
+    </ScrollArea>
   );
 };
 export default DetailPost;

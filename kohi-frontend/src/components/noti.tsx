@@ -9,36 +9,41 @@ import {
 } from "./ui/dropdown-menu";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle
-} from "./ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { useContext, useEffect, useState } from "react";
 import { getAllNotifications } from "@/repository/notification-repository";
 import { UserContext } from "@/context/user-context";
 
-const UserNoti = ({ open, onOpenChange, side = "left" }: { open: boolean, onOpenChange: (open: boolean) => void, side?: "top" | "bottom" | "left" | "right" }) => {
+const UserNoti = ({
+  open,
+  onOpenChange,
+  side = "left",
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  side?: "top" | "bottom" | "left" | "right";
+}) => {
   const { user } = useContext(UserContext);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
+
   const fetchNotifications = async () => {
-    if(!user){
+    if (!user) {
       console.error("User not logged in");
       return;
     }
     try {
       const response = await getAllNotifications();
-      console.log(response);
+      setNotifications(response);
     } catch (err) {
       console.error(err);
     }
-  }
+  };
+
   useEffect(() => {
     fetchNotifications();
-  },[user]);
-  
+  }, [user]);
+
   const NotificationItem = ({
     title,
     time,
@@ -72,9 +77,7 @@ const UserNoti = ({ open, onOpenChange, side = "left" }: { open: boolean, onOpen
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onSelect={() => console.log("Đánh dấu quan trọng")}
-            >
+            <DropdownMenuItem onSelect={() => console.log("Đánh dấu quan trọng")}>
               Đánh dấu quan trọng
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => console.log("Xóa thông báo")}>
@@ -97,35 +100,44 @@ const UserNoti = ({ open, onOpenChange, side = "left" }: { open: boolean, onOpen
             <TabsTrigger value="all">Tất cả</TabsTrigger>
             <TabsTrigger value="unread">Chưa đọc</TabsTrigger>
           </TabsList>
-          <ScrollArea className="flex-1  py-2">
+          <ScrollArea className="flex-1 py-2">
             <TabsContent value="all">
-              <p className="font-medium text-sm mb-2">Mới</p>
-              <NotificationItem
-                title="Vựa Cua Đăng Quân đã thêm 13 ảnh mới"
-                time="34 phút trước"
-              />
-              <NotificationItem
-                title="Vựa Cua Đăng Quân đã thêm một video mới"
-                time="27 phút trước"
-              />
-              <NotificationItem
-                title="Nguyễn Ngọc Long đã chấp nhận lời mời"
-                time="13 giờ trước"
-              />
-              <NotificationItem
-                title="Thanh Loc đã thêm vào tin của mình"
-                time="17 giờ trước"
-              />
+              {notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <NotificationItem
+                    key={notification._id}
+                    title={
+                      notification.type === "NEW_FOLLOWER"
+                        ? `${notification.otherUser.displayName} đã theo dõi bạn`
+                        : "Thông báo khác"
+                    }
+                    time={new Date(notification.createAt).toLocaleString()}
+                    // action={notification.type === "NEW_FOLLOWER" ? "Theo dõi lại" : undefined}
+                  />
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm">Không có thông báo nào.</p>
+              )}
             </TabsContent>
             <TabsContent value="unread">
-              <NotificationItem
-                title="Vựa Cua Đăng Quân đã thêm 13 ảnh mới"
-                time="34 phút trước"
-              />
-              <NotificationItem
-                title="Nguyễn Ngọc Long đã chấp nhận lời mời"
-                time="13 giờ trước"
-              />
+              {notifications.filter((noti) => !noti.isRead).length > 0 ? (
+                notifications
+                  .filter((noti) => !noti.isRead)
+                  .map((notification) => (
+                    <NotificationItem
+                      key={notification._id}
+                      title={
+                        notification.type === "NEW_FOLLOWER"
+                          ? `${notification.otherUser.displayName} đã theo dõi bạn`
+                          : "Thông báo khác"
+                      }
+                      time={new Date(notification.createAt).toLocaleString()}
+                      // action={notification.type === "NEW_FOLLOWER" ? "Theo dõi lại" : undefined}
+                    />
+                  ))
+              ) : (
+                <p className="text-muted-foreground text-sm">Không có thông báo nào chưa đọc.</p>
+              )}
             </TabsContent>
           </ScrollArea>
           <Separator />
@@ -139,5 +151,5 @@ const UserNoti = ({ open, onOpenChange, side = "left" }: { open: boolean, onOpen
     </Sheet>
   );
 };
-export default UserNoti;
 
+export default UserNoti;

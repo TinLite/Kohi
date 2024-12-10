@@ -7,6 +7,7 @@ import { UtilsModule } from 'src/utils/utils.module';
 import { UsersModule } from 'src/users/users.module';
 import { EventsModule } from 'src/events/events.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 /*
                            _
@@ -38,6 +39,7 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
     UsersModule,
     EventsModule,
     NotificationsModule,
+    CloudinaryModule
   ],
   controllers: [PostsController],
   providers: [PostsService],

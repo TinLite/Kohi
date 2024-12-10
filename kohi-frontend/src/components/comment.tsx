@@ -71,7 +71,7 @@ const CommentUI = ({ postId, post }: { postId: string; post: Post }) => {
               </div>
 
               <div className="text-muted-foreground text-sm">
-                @{post.author.username}- {post.createdAt.toLocaleString()}
+                @{post.author.username}- {new Date (post.createdAt).toLocaleString("vi-VN")}
               </div>
             </div>
           </div>

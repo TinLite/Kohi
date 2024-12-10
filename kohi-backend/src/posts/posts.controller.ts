@@ -11,6 +11,8 @@ import {
   Query,
   Request,
   UnauthorizedException,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { Public } from 'src/auth/authmeta';
@@ -26,6 +28,7 @@ import { NewPostNotificationDto } from 'src/notifications/dto/new-post-notificat
 import { UsersService } from 'src/users/users.service';
 import { LikePostNotificationDto } from 'src/notifications/dto/new-likepost-notification.dto';
 import { Notification } from '../notifications/schemas/notification.schema';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('posts')
 export class PostsController {
@@ -37,7 +40,12 @@ export class PostsController {
   ) {}
 
   @Post('/create')
-  async create(@Request() request, @Body() createPostDto: CreatePostDto) {
+  @UseInterceptors(FilesInterceptor('files', 15))
+  async create(
+    @Request() request,
+    @Body() createPostDto: CreatePostDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
     const requestUserId = request.user._id;
     if (!createPostDto.author) {
       createPostDto.author = requestUserId;
@@ -46,9 +54,9 @@ export class PostsController {
         'You are not allowed to create post for other user',
       );
     }
-    const data = await this.postsService.create(createPostDto);
+    const data = await this.postsService.create(createPostDto, files);
     const followers = await this.usersService.getFollowers(requestUserId);
-    console.log(followers);
+    // console.log(followers);
     for (const followerId of followers) {
       const test = await this.notificationsService.createNotificationNewPost(
         new NewPostNotificationDto({

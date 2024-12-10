@@ -22,7 +22,7 @@ import React, { useContext, useEffect, useState } from "react";
 import CommentUI from "./comment";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { Card } from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,16 +36,28 @@ import {
 } from "./ui/dropdown-menu";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { Separator } from "./ui/separator";
-import { Link, NavLink } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  NavLink,
+  UNSAFE_ErrorResponseImpl,
+} from "react-router-dom";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "./ui/carousel";
 
 function UserHoverCard({
   children,
   user,
   className,
 }: {
-  children?: React.ReactNode,
-  user: User,
-  className?: string,
+  children?: React.ReactNode;
+  user: User;
+  className?: string;
 }) {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const handleFollow = async () => {
@@ -175,7 +187,10 @@ export default function UserPost({
   return (
     <Card className="max-sm:rounded-none">
       <div className="flex px-6 pt-4 flex-row items-center">
-        <UserHoverCard user={post.author} className="self-stretch grid place-items-center pr-4">
+        <UserHoverCard
+          user={post.author}
+          className="self-stretch grid place-items-center pr-4"
+        >
           <Avatar className="w-8 h-8">
             <AvatarImage
               src={post.author.avatar}
@@ -200,7 +215,10 @@ export default function UserPost({
             </Link>
           </div>
         </div>
-        <Link to={`/post/detail/${post._id}`} className="block flex-grow self-stretch" />
+        <Link
+          to={`/post/detail/${post._id}`}
+          className="block flex-grow self-stretch"
+        />
       </div>
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
         <p>
@@ -217,7 +235,52 @@ export default function UserPost({
             })}
         </p>
       </Link>
-      {/* <img src="https://cataas.com/cat" alt="cat" className="mt-4 mx-auto max-w-xl max-h-[36rem] object-contain"/> */}
+      {post.media && post.media.length > 0 && (
+        <Carousel
+          opts={{
+            align: "start",
+          }}
+          className="w-screen max-w-2xl pb-4"
+        >
+          <CarouselContent className="px-8">
+            {post.media?.map((media, index) => (
+              <CarouselItem key={index} className="basis-1/3">
+                <div className="p-1">
+                  <Card>
+                    <CardContent className="aspect-square p-0">
+                      <img
+                        key={index}
+                        src={media}
+                        alt="cat"
+                        className="object-cover w-full h-full rounded-lg"
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="left-8 disabled:opacity-5" />
+          <CarouselNext className="right-8 disabled:opacity-5" />
+        </Carousel>
+        // <Carousel
+        //   // className="max-w-2xl w-screen"
+        //   opts={{
+        //     align: "start",
+        //   }}
+        // >
+        //   <CarouselContent>
+        //     {post.media?.map((media, index) => (
+        //       <CarouselItem>
+        //         <Card>
+        //           <CardContent>
+        //           </CardContent>
+        //         </Card>
+        //       </CarouselItem>
+        //     ))}
+        //   </CarouselContent>
+        // </Carousel>
+      )}
       <Separator />
       <div className="flex justify-between gap-2 px-4 py-2">
         <div className="flex gap-2">

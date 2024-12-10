@@ -19,16 +19,11 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
-  async uploadFiles(file: Express.Multer.File,folder:string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream({folder:folder},
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result.secure_url);
-        },
-      );
-      streamifier.createReadStream(file.buffer).pipe(uploadStream);
-    });
-  }
 
+  async uploadFiles(files: Express.Multer.File[], folder: string): Promise<string[]> {
+    const uploadPromises = files.map(file => this.uploadFile(file, folder));
+    const uploadResults = await Promise.all(uploadPromises);
+    return uploadResults.map(result => result.secure_url);
+  }
+  
 }

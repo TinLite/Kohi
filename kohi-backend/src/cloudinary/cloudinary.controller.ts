@@ -17,18 +17,15 @@ export class CloudinaryController {
   @UseInterceptors(FileInterceptor('file'))
   uploadImage(@UploadedFile() file: Express.Multer.File) {
     const folder = process.env.CLOUDINARY_FOLDER_USER;
-    return this.cloudinaryService.uploadFile(file,folder);
+    return this.cloudinaryService.uploadFile(file, folder);
   }
-
 
   @Public()
   @Post('imgs')
   @UseInterceptors(FilesInterceptor('files', 15))
   async uploadImages(@UploadedFiles() files: Express.Multer.File[]) {
     const folder = process.env.CLOUDINARY_FOLDER_POST;
-    const uploadData = await Promise.all(
-      files.map((file) => this.cloudinaryService.uploadFiles(file,folder)),
-    );
+    const uploadData = await this.cloudinaryService.uploadFiles(files, folder);
     return uploadData;
   }
 }

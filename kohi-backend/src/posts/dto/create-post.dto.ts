@@ -4,10 +4,10 @@ import { Schema } from 'mongoose';
 export class CreatePostDto {
   @IsOptional()
   author: Schema.Types.ObjectId;
-
-  @IsString()
+  @IsOptional()
   content: string;
-
   @IsOptional()
   postShare: Schema.Types.ObjectId;
+  @IsOptional()
+  media:string[];
 }
