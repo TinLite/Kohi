@@ -12,6 +12,8 @@ import {
   Req,
   ForbiddenException,
   Logger,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,6 +23,7 @@ import { Public } from '../auth/authmeta';
 import { Roles } from 'src/auth/role.decorator';
 import { Role } from './schemas/user.schema';
 import { elementAt } from 'rxjs';
+import { FileInterceptor } from '@nestjs/platform-express';
 // import { FollowsService } from './follows.service';
 // import { BookmarkService } from './bookmarks.service';
 // import { PostsService } from 'src/posts/posts.service';
@@ -76,7 +79,6 @@ export class UsersController {
       throw new BadRequestException('Id Not Found');
     }
   }
-
   @Patch('profile/:id/update')
   async update(
     @Param('id') id: string,
@@ -86,13 +88,38 @@ export class UsersController {
     if (id == 'me') {
       id = req.user._id;
     }
+
     await this.usersService.updateUser(id, updateUserDto);
   }
 
+  @UseInterceptors(FileInterceptor('file'))
+  @Patch('avatar/:id/update')
+  async updateAvatar(
+    @Param('id') id: string,
+    @Req() req,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (id == 'me') {
+      id = req.user._id;
+    }
+    return this.usersService.updateAvatar(id, file);
+  }
+  @UseInterceptors(FileInterceptor('file'))
+  @Patch('wall/:id/update')
+  async updateWall(
+    @Param('id') id: string,
+    @Req() req,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (id == 'me') {
+      id = req.user._id;
+    }
+    return this.usersService.updateWall(id, file);
+  }
   @Get('search')
   @Public()
-  async searchUser(@Query('query') query: string,@Req() req) {
-    return this.usersService.searchUser(query)
+  async searchUser(@Query('query') query: string, @Req() req) {
+    return this.usersService.searchUser(query);
   }
 
   // @Post('follow/:id')

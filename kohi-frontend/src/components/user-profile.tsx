@@ -7,7 +7,7 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "@/context/user-context";
 import { getProfile, updateUser } from "@/repository/user-repository";
 import { get } from "node:http";
@@ -18,20 +18,31 @@ const UserProfile = () => {
     { id: 3, name: "Google for Developers", username: "@googledevs" },
   ];
 
-  const { user,setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     username: user?.username || "",
     displayName: user?.displayName || "",
     email: user?.email || "",
-    sdt: user?.sdt|| "",
-    bio: user?.bio|| "",
+    sdt: user?.sdt || "",
+    bio: user?.bio || "",
   });
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    setFormData({
+      username: user?.username || "",
+      displayName: user?.displayName || "",
+      email: user?.email || "",
+      sdt: user?.sdt || "",
+      bio: user?.bio || "",
+    });
+  }, [user]);
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-  }
+  };
   const handleSave = () => {
     if (user?._id) {
       updateUser(user._id, formData)
@@ -53,22 +64,25 @@ const UserProfile = () => {
       <div className="flex-grow max-w-2xl mt-6">
         <div className="relative h-48">
           <img
-            src="https://github.com/QuangTeoo.png"
+            // src="/dm-david-l2vzYlIqHF8-unsplash.jpg"
+            src={user?.wall || user?.displayName}
             alt="Wall Image"
             className="absolute top-0 left-0 w-full h-full object-cover"
           />
+          <div className="absolute bottom-0 w-full bg-gradient-to-t from-background h-full opacity-50"></div>
           <div className="absolute top-24 left-6 ">
             <Avatar className="rounded-full border-4 border-gray-800 w-24 h-24">
               <AvatarImage
-                src="https://github.com/QuangTeoo.png"
+                // src="https://github.com/QuangTeoo.png"
+                src={user?.avatar || user?.displayName}
                 alt="@shadcn"
               />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </div>
-          <div className="absolute top-32 left-36">
+          <div className="absolute top-32 left-36 text-white">
             <h1 className=" text-2xl font-bold">{user?.displayName}</h1>
-            <p className="text-white">@{user?.username}</p>
+            <p className="">@{user?.username}</p>
           </div>
           <div className="absolute top-32 right-6">
             <Dialog open={open} onOpenChange={setOpen}>
@@ -79,7 +93,7 @@ const UserProfile = () => {
                 <div className="relative">
                   <div className="h-32 ">
                     <img
-                      src="https://github.com/QuangTeoo.png"
+                      src={user?.wall || user?.displayName}
                       alt="Wall"
                       className="w-full h-full object-cover"
                     />
@@ -87,7 +101,7 @@ const UserProfile = () => {
                   <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
                     <Avatar className="w-24 h-24 shadow-2xl">
                       <AvatarImage
-                        src="https://github.com/QuangTeoo.png"
+                        src={user?.avatar || user?.displayName}
                         alt="@shadcn"
                       />
                       <AvatarFallback>CN</AvatarFallback>
@@ -102,7 +116,9 @@ const UserProfile = () => {
                       id="username"
                       placeholder="Enter your username"
                       value={formData.username}
-                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, username: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -112,7 +128,12 @@ const UserProfile = () => {
                       id="displayName"
                       placeholder="Enter your display name"
                       value={formData.displayName}
-                      onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          displayName: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -124,7 +145,9 @@ const UserProfile = () => {
                       id="email"
                       placeholder="Enter your email"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -136,7 +159,9 @@ const UserProfile = () => {
                       id="sdt"
                       placeholder="Enter your phone number"
                       value={formData.sdt}
-                      onChange={(e) => setFormData({ ...formData, sdt: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, sdt: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -147,12 +172,16 @@ const UserProfile = () => {
                       id="bio"
                       placeholder="Write something about yourself"
                       value={formData.bio}
-                      onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, bio: e.target.value })
+                      }
                     ></Textarea>
                   </div>
                 </div>
                 <div className="flex justify-end space-x-4 p-6  ">
-                  <Button variant="default" onClick={handleSave}>Save </Button>
+                  <Button variant="default" onClick={handleSave}>
+                    Save{" "}
+                  </Button>
                 </div>
               </DialogContent>
             </Dialog>

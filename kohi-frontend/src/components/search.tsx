@@ -7,33 +7,30 @@ import {
 } from "@/repository/user-repository";
 import { Post } from "@/types/post-type";
 import { User } from "@/types/user-type";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import UserInfo from "./user-info";
 import UserPost from "./user-post";
+import { UserContext } from "@/context/user-context";
 
 const SearchUI = () => {
-  // const [query, setQuery] = useState<string>("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [followUserList, setFollowUserList] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const {user: currentUser,setUser} = useContext(UserContext);
+
   const handleSearch = async (query: string) => {
     if (query.trim() !== "") {
-      // setLoading(true);
       setError(null);
-      // const loadingTimeOut = setTimeout(() => setLoading(false), 500000000);
       try {
         const resultPosts: Post[] = await searchPosts(query);
         setPosts(resultPosts);
         const resultUsers: User[] = await searchUsers(query);
         setUsers(resultUsers);
-        // clearTimeout(loadingTimeOut);
       } catch (err) {
         setError("Không thể tìm kiếm");
       } finally {
-        // clearTimeout(loadingTimeOut);
         setLoading(false);
       }
     } else {
@@ -41,14 +38,6 @@ const SearchUI = () => {
       setError("You cần nhập từ khóa tìm kiếm");
     }
   };
-
-  async function followHandler(user: User) {}
-
-  console.log(followUserList);
-  useEffect(() => {
-    getFollowing().then((data) => setFollowUserList(data.data));
-  }, []);
-
   var timer: NodeJS.Timeout;
   const handleKeyDown = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log("lmao", e.target.value);
@@ -63,9 +52,7 @@ const SearchUI = () => {
         <Input
           type="text"
           placeholder="Tìm kiếm..."
-          // value={query}
           onChange={handleKeyDown}
-          // onKeyDown={handleKeyDown}
           className="bg-background"
         />
       </div>
@@ -95,12 +82,8 @@ const SearchUI = () => {
                 key={searchResultEntry._id}
                 user={searchResultEntry}
                 isFollowed={
-                  // followUserList.find(
-                  //   (followEntry) => followEntry._id == searchResultEntry._id
-                  // ) != undefined
-                  false
+                 currentUser?.following?.includes(searchResultEntry._id)
                 }
-                onFollowClick={() => followHandler(searchResultEntry)}
               />
             ))
           ) : (

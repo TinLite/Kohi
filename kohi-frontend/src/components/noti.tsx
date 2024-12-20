@@ -12,8 +12,13 @@ import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { useContext, useEffect, useState } from "react";
-import { getAllNotifications } from "@/repository/notification-repository";
+import {
+  deleteNotification,
+  getAllNotifications,
+  readNotification,
+} from "@/repository/notification-repository";
 import { UserContext } from "@/context/user-context";
+import { get } from "http";
 
 const UserNoti = ({
   open,
@@ -26,7 +31,6 @@ const UserNoti = ({
 }) => {
   const { user } = useContext(UserContext);
   const [notifications, setNotifications] = useState<any[]>([]);
-
   const fetchNotifications = async () => {
     if (!user) {
       console.error("User not logged in");
@@ -39,19 +43,28 @@ const UserNoti = ({
       console.error(err);
     }
   };
-
+  const handleReadNotification = async (id: string) => {
+    return readNotification(id).then(fetchNotifications);
+  };
+  const handleDeleteNotification = async (id: string) => {
+    return deleteNotification(id).then(fetchNotifications);
+  };
   useEffect(() => {
     fetchNotifications();
   }, [user]);
 
   const NotificationItem = ({
+    type,
     title,
     time,
     action,
+    id,
   }: {
+    type: boolean;
     title: string;
     time: string;
     action?: string;
+    id: string;
   }) => (
     <div className="flex items-center justify-between py-2">
       <div className="flex items-center">
@@ -77,18 +90,25 @@ const UserNoti = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => console.log("Đánh dấu quan trọng")}>
-              Đánh dấu quan trọng
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => console.log("Xóa thông báo")}>
-              Xóa
-            </DropdownMenuItem>
+            {type === true ? (
+              <DropdownMenuItem onClick={() => handleDeleteNotification(id)}>
+                Xóa
+              </DropdownMenuItem>
+            ) : (
+              <>
+                <DropdownMenuItem onClick={() => handleReadNotification(id)}>
+                  Đánh dấu chưa đọc
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleReadNotification(id)}>
+                  Xóa
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
   );
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side={side} className="w-[350px] flex flex-col">
@@ -109,34 +129,59 @@ const UserNoti = ({
                     title={
                       notification.type === "NEW_FOLLOWER"
                         ? `${notification.otherUser.displayName} đã theo dõi bạn`
+                        : notification.type === "LIKE_POST"
+                        ? `${notification.otherUser.displayName} đã thích bài viết của bạn`
+                        : notification.type === "NEW_POST"
+                        ? `${notification.otherUser.displayName} đã đăng một bài viết mới`
+                        : notification.type === "NEW_COMMENT"
+                        ? `${notification.otherUser.displayName} đã bình luận về bài viết của bạn`
+                        : notification.type === "LIKE_COMMENT"
+                        ? `${notification.otherUser.displayName} đã thích bình luận của bạn`
                         : "Thông báo khác"
                     }
-                    time={new Date(notification.createAt).toLocaleString()}
-                    // action={notification.type === "NEW_FOLLOWER" ? "Theo dõi lại" : undefined}
+                    time={new Date(notification.createAt).toLocaleString(
+                      "vi-VN"
+                    )}
+                    type={notification.isRead}
+                    id={notification._id}
                   />
                 ))
               ) : (
-                <p className="text-muted-foreground text-sm">Không có thông báo nào.</p>
+                <p className="text-muted-foreground text-sm">
+                  Không có thông báo nào.
+                </p>
               )}
             </TabsContent>
             <TabsContent value="unread">
-              {notifications.filter((noti) => !noti.isRead).length > 0 ? (
+              {notifications.filter((noti) => noti.isRead === false).length >
+              0 ? (
                 notifications
-                  .filter((noti) => !noti.isRead)
+                  .filter((noti) => noti.isRead === false)
                   .map((notification) => (
                     <NotificationItem
                       key={notification._id}
                       title={
                         notification.type === "NEW_FOLLOWER"
                           ? `${notification.otherUser.displayName} đã theo dõi bạn`
+                          : notification.type === "LIKE_POST"
+                          ? `${notification.otherUser.displayName} đã thích bài viết của bạn`
+                          : notification.type === "NEW_POST"
+                          ? `${notification.otherUser.displayName} đã đăng một bài viết mới`
+                          : notification.type === "NEW_COMMENT"
+                          ? `${notification.otherUser.displayName} đã bình luận về bài viết của bạn`
+                          : notification.type === "LIKE_COMMENT"
+                          ? `${notification.otherUser.displayName} đã thích bình luận của bạn`
                           : "Thông báo khác"
                       }
                       time={new Date(notification.createAt).toLocaleString()}
-                      // action={notification.type === "NEW_FOLLOWER" ? "Theo dõi lại" : undefined}
+                      id={notification._id}
+                      type={notification.isRead}
                     />
                   ))
               ) : (
-                <p className="text-muted-foreground text-sm">Không có thông báo nào chưa đọc.</p>
+                <p className="text-muted-foreground text-sm">
+                  Không có thông báo nào chưa đọc.
+                </p>
               )}
             </TabsContent>
           </ScrollArea>

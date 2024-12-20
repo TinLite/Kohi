@@ -8,10 +8,12 @@ import { User, UserSchema } from './schemas/user.schema';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { FollowsModule } from 'src/follows/follows.module';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    CloudinaryModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

@@ -6,7 +6,7 @@ meta {
 
 post {
   url: http://localhost:3000/v1/api/posts/create
-  body: json
+  body: multipartForm
   auth: bearer
 }
 
@@ -18,6 +18,11 @@ body:json {
   {
     "content": "test thông báo cai"
   }
+}
+
+body:multipart-form {
+  content: Test tốc độ up ảnh
+  files: @file(C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\2a9de95d959644927660d58a0a62fff2.jpg|C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\29c1ce796549b9f40d5f4cbcdf3561b3.jpg|C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\432787469_951994392979180_2193080079577116366_n.jpg|C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\b812e04bd33917512a577b896eae8d11.jpg|C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\e8effa8d7eeb4d92eb74143adff1c90b.jpg)
 }
 
 vars:post-response {

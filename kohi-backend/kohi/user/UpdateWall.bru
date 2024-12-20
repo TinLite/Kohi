@@ -1,0 +1,15 @@
+meta {
+  name: UpdateWall
+  type: http
+  seq: 9
+}
+
+patch {
+  url: http://localhost:3000/v1/api/users/wall/66da6e8bc6a33fb01ba8e208/update
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

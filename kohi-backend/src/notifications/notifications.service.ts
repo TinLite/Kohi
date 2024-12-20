@@ -64,8 +64,10 @@ export class NotificationsService {
     );
     console.log('Notification sent to user ' + notification.userId);
   }
-  
-  async createNotificationLikeComment(notification: LIKECommentNotificationDto) {
+
+  async createNotificationLikeComment(
+    notification: LIKECommentNotificationDto,
+  ) {
     const notificationLikeComment =
       await this.notificationModel.create(notification);
     delete notificationLikeComment.__v;
@@ -78,15 +80,24 @@ export class NotificationsService {
   }
 
   async findAllNotificationByUserId(id) {
-    // console.log(id);
     return await this.notificationModel
       .find({
         userId: id,
       })
+      .sort({ createAt: -1 })
       .populate('otherUser')
       .exec();
   }
-
+  async findAllNotificationNotReadByUserId(id) {
+    return await this.notificationModel
+      .find({
+        userId: id,
+        isRead: false,
+      })
+      .sort({ createAt: -1 })
+      .populate('otherUser')
+      .exec();
+  }
   async deleteNotification(id) {
     return await this.notificationModel.findByIdAndDelete(id).exec();
   }
@@ -100,10 +111,12 @@ export class NotificationsService {
   }
 
   async findOneLikeCommentNotification(id, commentId) {
-    return await this.notificationModel.findOne({
-      userId: id,
-      comment: commentId,
-    }).exec();
+    return await this.notificationModel
+      .findOne({
+        userId: id,
+        comment: commentId,
+      })
+      .exec();
   }
 
   async findOneFollowNotification(id, otherUser) {
@@ -123,5 +136,17 @@ export class NotificationsService {
   }
   async findAllByUserId(userId: string) {
     return await this.notificationModel.find({ userId }).exec();
+  }
+
+  async readNotification(id) {
+    return await this.notificationModel
+      .findOneAndUpdate({ _id: id }, { isRead: true })
+      .exec();
+  }
+  async findOneNotification(id) {
+    return await this.notificationModel.findOne({ _id: id }).exec();
+  }
+  async deleteOneNotification(id) {
+    return await this.notificationModel.findByIdAndDelete(id).exec();
   }
 }

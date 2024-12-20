@@ -12,18 +12,21 @@ import {
 const UserInfo = ({
   user,
   isFollowed,
-  onFollowClick,
 }: {
   user: User;
   isFollowed?: boolean;
-  onFollowClick?: () => void;
+  onFollowChange?:boolean;
 }) => {
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(isFollowed);
   const [following, setFollowing] = useState<User[]>([]);
   const handleFollow = async () => {
     try {
-      await followUser(user._id);
-      setIsFollowing(true);
+      await followUser(user._id).then((res) => {
+        console.log(res);
+        if(res )
+        setIsFollowing(true);
+      }
+      );
     } catch (err) {
       console.log(err);
     }
@@ -37,13 +40,6 @@ const UserInfo = ({
       console.log(err);
     }
   };
-  const fetchFollowing = async () => {
-    getFollowing().then((res) => setFollowing(res.data));
-  };
-  useEffect(() => {
-    fetchFollowing();
-  }, []);
-
   return (
     <Card>
       <div className="flex px-6 py-4 flex-row gap-4 items-center w-full">
@@ -56,18 +52,24 @@ const UserInfo = ({
           <AvatarFallback>{user.username[0]}</AvatarFallback>
         </Avatar>
         <div>
-          <div className="font-bold">{user.displayName ?? user.username}</div>
+          <div className="font-bold">{user.username ?? user.displayName}</div>
           <div className="text-muted-foreground text-sm">
             @{user.displayName}
           </div>
         </div>
-        <Button
-          onClick={isFollowing ? handleUnfollow : handleFollow}
-          variant={isFollowing ? "outline" : "default"}
-          className="ml-auto"
-        >
-          {isFollowing ? "Unfollow" : "Follow"}
-        </Button>
+        {isFollowed ? (
+          <Button
+            onClick={handleUnfollow}
+            variant="outline"
+            className="ml-auto"
+          >
+            Unfollow
+          </Button>
+        ) : (
+          <Button onClick={handleFollow} variant="default" className="ml-auto">
+            Follow
+          </Button>
+        )}
       </div>
     </Card>
   );

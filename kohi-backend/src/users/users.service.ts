@@ -5,11 +5,13 @@ import { UtilsService } from '../utils/utils.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
   //CREATE USER
   async create(createUserDto: CreateUserDto) {
@@ -79,7 +81,31 @@ export class UsersService {
     console.log(updateUser);
     return updateUser;
   }
-  //search User
+  //Update Avatar
+  async updateAvatar(id: string, file: Express.Multer.File) {
+    const folder = process.env.CLOUDINARY_FOLDER_USER;
+    const uploadImages = await this.cloudinaryService.uploadFiles(
+      [file],
+      folder,
+    );
+    return this.userModel
+      .updateOne({ _id: id }, { avatar: uploadImages[0] })
+      .exec();
+  }
+
+  // Update wall image
+  async updateWall(id: string, file: Express.Multer.File) {
+    const folder = process.env.CLOUDINARY_FOLDER_USER;
+    const uploadImages = await this.cloudinaryService.uploadFiles(
+      [file],
+      folder,
+    );
+    return this.userModel
+      .updateOne({ _id: id }, { wall: uploadImages[0] })
+      .exec();
+  }
+
+  // search User
   async searchUser(query: string) {
     const users = await this.userModel.find({
       $or: [

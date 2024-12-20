@@ -1,6 +1,10 @@
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
-import { likePost, unLikePost } from "@/repository/PostsRepository";
+import {
+  countLikePost,
+  likePost,
+  unLikePost,
+} from "@/repository/PostsRepository";
 import {
   addBookMark,
   followUser,
@@ -36,12 +40,7 @@ import {
 } from "./ui/dropdown-menu";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { Separator } from "./ui/separator";
-import {
-  Link,
-  Navigate,
-  NavLink,
-  UNSAFE_ErrorResponseImpl,
-} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Carousel,
   CarouselContent,
@@ -60,22 +59,42 @@ function UserHoverCard({
   className?: string;
 }) {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const handleFollow = async () => {
-    try {
-      await followUser(user._id);
+  const { user: currentUser, setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (currentUser && currentUser.following?.includes(user._id)) {
       setIsFollowing(true);
-    } catch (err) {
-      console.log(err);
+    } else {
+      setIsFollowing(false);
     }
+  }, [currentUser, user._id]);
+
+  const handleFollow = async () => {
+    await followUser(user._id)
+      .then((res) => {
+        if (res && res.statusCode === 401) {
+          return navigate("/login");
+        }
+        if (res && res.statusCode === 400) {
+          return console.log(res.message);
+        }
+        setIsFollowing(true);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleUnfollow = async () => {
-    try {
-      console.log("Unfollow");
-      await unFollowUser(user._id);
-      setIsFollowing(false);
-    } catch (err) {
-      console.log(err);
-    }
+    await unFollowUser(user._id)
+      .then((res) => {
+        if (res && res.statusCode === 401) {
+          return navigate("/login");
+        }
+        setIsFollowing(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -107,10 +126,17 @@ function UserHoverCard({
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Button onClick={isFollowing ? handleUnfollow : handleFollow}>
-              <UserRoundPlus className="w-4 h-4 mr-2" />
-              {isFollowing ? "UnFriend" : "Add Friend"}
-            </Button>
+            {isFollowing ? (
+              <Button onClick={handleUnfollow}>
+                <UserRoundPlus className="w-4 h-4 mr-2" />
+                UnFriend
+              </Button>
+            ) : (
+              <Button onClick={handleFollow}>
+                <UserRoundPlus className="w-4 h-4 mr-2" />
+                Add Friend
+              </Button>
+            )}
             <Button variant="secondary">
               <MessagesSquare className="w-4 h-4 mr-2" />
               Message
@@ -135,20 +161,26 @@ export default function UserPost({
   );
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [isBookMarked, setIsBookMarked] = useState(false);
+
+  const fetchLike = async () => {
+    await countLikePost(post._id);
+  };
+  useEffect(() => {
+    fetchLike();
+  }, [user, post._id]);
+
   const handleLike = async () => {
     try {
-      await likePost(post._id);
+      await likePost(post._id).then(() => fetchLike());
       setIsLiked(true);
-      setLikeCount(likeCount + 1);
     } catch (err) {
       console.log(err);
     }
   };
   const handleUnlike = async () => {
     try {
-      await unLikePost(post._id);
+      await unLikePost(post._id).then(() => fetchLike());
       setIsLiked(false);
-      setLikeCount(likeCount - 1);
     } catch (err) {
       console.log(err);
     }

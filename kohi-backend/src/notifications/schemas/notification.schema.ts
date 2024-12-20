@@ -24,7 +24,7 @@ export class Notification {
   @Prop({ default: false })
   isRead: boolean;
 
-  @Prop({ default: Date.now() })
+  @Prop({ default: Date.now })
   createAt: Date;
 }
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

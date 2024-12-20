@@ -18,10 +18,10 @@ export class PostsService {
   ) {}
   async create(createPostDto: CreatePostDto, files?: Express.Multer.File[]) {
     if (files && files.length > 0) {
-      const folder = process.env.CLOUDINARY_FOLDER;
+      const folder = process.env.CLOUDINARY_FOLDER_POST;
       const uploadImages = await this.cloudinaryService.uploadFiles(
         files,
-        folder
+        folder,
       );
       createPostDto.media = uploadImages;
     }

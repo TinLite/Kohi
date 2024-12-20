@@ -22,9 +22,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     MongooseModule.forRoot('mongodb://localhost:27017/kohi'), // MongoDB
     ConfigModule.forRoot({
       isGlobal: true,
-    }), // Config
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'kohi-frontend', 'dist'), // Serving build file
     }),
     PostsModule,
     UsersModule,

@@ -12,6 +12,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import PostPage from "./components/post-detail";
 import { Toaster } from "./components/ui/sonner";
 import { useMediaQuery } from "./hooks/use-media-query";
+import Login from "./routes/auth/login";
+import Register from "./routes/auth/register";
 
 const router = createBrowserRouter([
   {
@@ -50,7 +52,15 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: '/',
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/",
     element: <MainLayout disableNavOnPhone />,
     children: [
       {
@@ -58,17 +68,20 @@ const router = createBrowserRouter([
         element: <MessagePage />,
       },
     ],
-  }
+  },
 ]);
 
 function App() {
-  const isWideScreen = useMediaQuery('(min-width: 768px');
+  const isWideScreen = useMediaQuery("(min-width: 768px");
 
   return (
     <UserProvider>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <RouterProvider router={router} />
-        <Toaster closeButton position={(isWideScreen ? "bottom-right" : "top-center")} />
+        <Toaster
+          closeButton
+          position={isWideScreen ? "bottom-right" : "top-center"}
+        />
       </ThemeProvider>
     </UserProvider>
   );

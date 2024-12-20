@@ -1,0 +1,19 @@
+meta {
+  name: UpdateAvt
+  type: http
+  seq: 8
+}
+
+patch {
+  url: http://localhost:3000/v1/api/users/avatar/66da6e96c6a33fb01ba8e20e/update
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:multipart-form {
+  file: @file(C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\2a9de95d959644927660d58a0a62fff2.jpg)
+}

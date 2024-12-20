@@ -8,6 +8,8 @@ import { UsersModule } from 'src/users/users.module';
 import { EventsModule } from 'src/events/events.module';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { MulterModule } from '@nestjs/platform-express';
+import * as multer from 'multer';
 
 /*
                            _
@@ -39,7 +41,10 @@ import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
     UsersModule,
     EventsModule,
     NotificationsModule,
-    CloudinaryModule
+    CloudinaryModule,
+    MulterModule.register({
+      storage: multer.memoryStorage(),
+    }),
   ],
   controllers: [PostsController],
   providers: [PostsService],

@@ -67,7 +67,7 @@ export async function followUser(userId: string) {
     }
   );
   if (!response.ok) {
-    throw new Error("Failed to follow user");
+    return response.json();
   }
 }
 export async function unFollowUser(userId: string) {
@@ -82,8 +82,8 @@ export async function unFollowUser(userId: string) {
       },
     }
   );
-  if (!response.ok) {
-    throw new Error("Failed to unfollow user");
+  if(!response.ok){
+    return response.json();
   }
 }
 export async function addBookMark(PostId: string) {
@@ -169,4 +169,21 @@ export async function getFollowing() {
       limit: number;
     };
   };
+}
+export async function updateAvatar(formData: FormData) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/users/avatar/:id/update`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+      body: formData,
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to update avatar");
+  }
 }

@@ -12,7 +12,7 @@ export class Comment {
   postId: string;
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' })
   replyTo?: Comment;
-  @Prop({ default: Date.now() })
+  @Prop({ default: Date.now })
   timeStamp: Date;
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
   likes: User[];

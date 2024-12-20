@@ -45,16 +45,14 @@ export class FollowsController {
     if (authorUser.following.includes(followUserId)) {
       throw new BadRequestException('User already followed');
     }
-    await this.followsService.followByUser(author, followUserId);
-
-    // const content = `User ${authorUser.displayName || authorUser.username} is now following you.`;
     const test = await this.notificationsService.createNotification(
       new NewFollowerNotificationDto({
         userId: new mongoose.Types.ObjectId(followUserId),
         otherUser: author,
       }),
     );
-    // console.log(test);
+     // console.log(test);
+    return await this.followsService.followByUser(author, followUserId);
   }
 
   @Delete('unfollow/:id')
@@ -76,7 +74,7 @@ export class FollowsController {
     if (notification) {
       await this.notificationsService.deleteNotification(notification._id);
     }
-    return this.followsService.unFollowByUser(author, followUserId);
+    return await this.followsService.unFollowByUser(author, followUserId);
   }
 
   @Get('list/followers')

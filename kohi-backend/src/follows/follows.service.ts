@@ -19,17 +19,11 @@ export class FollowsService {
       {
         $addToSet: { following: followUserId },
       },
-      {
-        new: true,
-      },
     );
     await this.userModel.findByIdAndUpdate(
       followUserId,
       {
         $addToSet: { followers: author },
-      },
-      {
-        new: true,
       },
     );
   }

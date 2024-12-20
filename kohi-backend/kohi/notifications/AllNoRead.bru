@@ -1,0 +1,15 @@
+meta {
+  name: AllNoRead
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:3000/v1/api/notifications/all/unread
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

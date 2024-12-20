@@ -11,7 +11,6 @@ import {
   createComment,
   listCommentsByPostId,
 } from "@/repository/comment-repository";
-import { Card } from "./ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const DetailPost = ({ post }: { post: Post }) => {

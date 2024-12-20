@@ -19,10 +19,23 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
   const [submittable, setSubmittable] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [content, setContent] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File[]>([]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(Array.from(e.target.files));
+    }
+  };
   const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append("content", content);
+    if (selectedFile) {
+      selectedFile.map((file) => {
+        formData.append("files", file);
+      });
+    }
     try {
-      await createPosts(content);
+      await createPosts(formData);
       setContent("");
       setSubmittable(false);
       setClicked(false);
@@ -31,7 +44,6 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
       console.log(err);
     }
   };
-
   return (
     <Card>
       <CardContent className="flex p-6 gap-6">
@@ -61,7 +73,13 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
       </CardContent>
       {clicked && (
         <CardFooter className="flex justify-end">
-          <Input type="file" className="file:text-foreground" capture/>
+          <Input
+            type="file"
+            className="file:text-foreground"
+            onChange={handleFileChange}
+            multiple
+            capture
+          />
           <Button disabled={!submittable} onClick={handleSubmit}>
             Submit
           </Button>
@@ -83,7 +101,7 @@ export default function PostList() {
   return (
     <>
       <div className="sticky flex md:hidden top-0 w-full bg-background border-b border-muted px-4 pt-2 pb-8">
-        <Link to='/' className="font-bold text-sm">
+        <Link to="/" className="font-bold text-sm">
           コー
           <br />
           ヒー

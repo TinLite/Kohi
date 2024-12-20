@@ -4,10 +4,10 @@ import {
   MonitorSmartphone,
   Moon,
   Palette,
-  Sun
-} from "lucide-react"
+  Sun,
+} from "lucide-react";
 
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "@/components/theme-provider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,29 +18,30 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
-import { useContext, useState } from "react"
-import { UserContext } from "@/context/user-context"
-import { DialogAlertLogout } from "./dialog/dialog-alert-logout"
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useContext, useState } from "react";
+import { UserContext } from "@/context/user-context";
+import { DialogAlertLogout } from "./dialog/dialog-alert-logout";
+import { useNavigate } from "react-router-dom";
 
 export function DropdownSetting({ children }: { children: React.ReactNode }) {
-  const { setTheme } = useTheme()
-  const { user, setUser } = useContext(UserContext)
+  const { setTheme } = useTheme();
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(UserContext);
 
-  const [alertOpen, setAlertOpen] = useState(false)
+  const [alertOpen, setAlertOpen] = useState(false);
 
   function logout() {
-    setAlertOpen(false)
-    localStorage.removeItem("backend_access_token")
-    setUser(null)
+    setAlertOpen(false);
+    localStorage.removeItem("backend_access_token");
+    navigate("/");
+    setUser(null);
   }
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {children}
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator /> */}
@@ -77,12 +78,19 @@ export function DropdownSetting({ children }: { children: React.ReactNode }) {
           </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled={user == null} onClick={() => setAlertOpen(true)}>
+        <DropdownMenuItem
+          disabled={user == null}
+          onClick={() => setAlertOpen(true)}
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Đăng xuất</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
-      <DialogAlertLogout open={alertOpen} onOpenChange={setAlertOpen} onConfirm={logout} />
+      <DialogAlertLogout
+        open={alertOpen}
+        onOpenChange={setAlertOpen}
+        onConfirm={logout}
+      />
     </DropdownMenu>
-  )
+  );
 }
