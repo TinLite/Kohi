@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Get, Param, Post, Query, Req } f
 import { EventsService } from 'src/events/events.service';
 import { ChatService } from './chat.service';
 import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
+import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { ChatParticipantRole } from './schemas/chat-channel.schema';
 
 @Controller('chat')
@@ -50,7 +51,7 @@ export class ChatController {
     }
 
     @Post('/channels/:channelId/messages/create')
-    async createMessage(@Param('channelId') channelId: string, @Body('content') content: string, @Req() req) {
+    async createMessage(@Param('channelId') channelId: string, @Body() {content}: CreateChatMessageDto, @Req() req) {
         if (!content.trim())
             throw new BadRequestException("Message is required");
         const message = await this.chatService.createMessage(channelId, req.user._id, content);
