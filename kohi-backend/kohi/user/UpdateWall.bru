@@ -6,10 +6,14 @@ meta {
 
 patch {
   url: http://localhost:3000/v1/api/users/wall/66da6e8bc6a33fb01ba8e208/update
-  body: none
+  body: multipartForm
   auth: bearer
 }
 
 auth:bearer {
   token: {{jwtToken}}
+}
+
+body:multipart-form {
+  file: @file(C:\Users\lequa\OneDrive\Hình ảnh\Saved Pictures\star.jpg)
 }

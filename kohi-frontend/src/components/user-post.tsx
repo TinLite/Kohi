@@ -147,7 +147,6 @@ function UserHoverCard({
     </HoverCard>
   );
 }
-
 export default function UserPost({
   post,
   onBookmarkUpdate,
@@ -161,7 +160,6 @@ export default function UserPost({
   );
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [isBookMarked, setIsBookMarked] = useState(false);
-
   const fetchLike = async () => {
     await countLikePost(post._id);
   };
@@ -243,7 +241,7 @@ export default function UserPost({
               @{post.author.username}
             </UserHoverCard>{" "}
             <Link to={`/post/detail/${post._id}`}>
-              - {post.createdAt.toLocaleString()}
+              - {post.createdAt.toLocaleString("vi-VN")}
             </Link>
           </div>
         </div>
@@ -295,23 +293,6 @@ export default function UserPost({
           <CarouselPrevious className="left-8 disabled:opacity-5" />
           <CarouselNext className="right-8 disabled:opacity-5" />
         </Carousel>
-        // <Carousel
-        //   // className="max-w-2xl w-screen"
-        //   opts={{
-        //     align: "start",
-        //   }}
-        // >
-        //   <CarouselContent>
-        //     {post.media?.map((media, index) => (
-        //       <CarouselItem>
-        //         <Card>
-        //           <CardContent>
-        //           </CardContent>
-        //         </Card>
-        //       </CarouselItem>
-        //     ))}
-        //   </CarouselContent>
-        // </Carousel>
       )}
       <Separator />
       <div className="flex justify-between gap-2 px-4 py-2">

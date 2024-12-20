@@ -1,4 +1,5 @@
 import { Post } from "@/types/post-type";
+import { get } from "node:http";
 
 export async function getGlobalLatestPosts() {
   const response = await fetch(
@@ -106,4 +107,31 @@ export async function getPostsById(postId: string) {
     }
   );
   return (await response.json()) as Post;
+}
+export async function getPostsByUserId() {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/profile/list`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  return (await response.json()) as Post[];
+}
+
+export async function getMediaByUserId() {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/profile/media`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  return response.json();
 }

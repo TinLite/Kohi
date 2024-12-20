@@ -8,6 +8,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostFlags } from './schemas/post.schema';
 import { UtilsService } from '../utils/utils.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import * as request from 'supertest';
 @Injectable()
 export class PostsService {
   constructor(
@@ -239,5 +240,27 @@ export class PostsService {
       total: formattedLike,
       userLiked: post.likes,
     };
+  }
+  async getProfilePosts(author: string) {
+    return this.postModel
+      .find({
+        author,
+        flags: { $nin: [PostFlags.HIDDEN] },
+      })
+      .populate('author')
+      .exec();
+  }
+  async getProfileMedia(author: string) {
+    const posts = await this.postModel
+      .find({
+        author,
+        flags: { $nin: [PostFlags.HIDDEN] },
+      })
+      .select('media')
+      .exec();
+    const media = posts.reduce((acc, post) => {
+      return acc.concat(post.media);
+    }, []);
+  return media;
   }
 }
