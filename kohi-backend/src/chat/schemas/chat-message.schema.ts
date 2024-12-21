@@ -14,6 +14,12 @@ export class ChatMessage {
 
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'ChatMessage',
+    })
+    replyTo: mongoose.Schema.Types.ObjectId | ChatMessage;
+
+    @Prop({
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     })
     senderID: User;
@@ -26,13 +32,8 @@ export class ChatMessage {
     })
     timeStamp: Date;
 
-    @Prop({
-        type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }]
-    })
-    readBy: User[];
+    @Prop()
+    isRecalled: boolean;
 }
 
 export const ChatMessageSchema = SchemaFactory.createForClass(ChatMessage);

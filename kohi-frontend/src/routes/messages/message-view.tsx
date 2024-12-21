@@ -1,61 +1,28 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UserContext } from "@/context/user-context";
-import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
-import { getChannelList, getChannelMessages, sendMessage } from "@/repository/chat-repository";
+import { getChannel, getChannelMessages, sendMessage } from "@/repository/chat-repository";
 import socket from "@/services/socket";
 import { ChatChannel, ChatChannelType, ChatMessage } from "@/types/chat-types";
 import { SocketEvent } from "@/types/socket-types";
-import { ChevronLeft, ImagePlus, Trash2 } from "lucide-react";
+import { ChevronLeft, CircleX, ImagePlus, ReplyIcon, Trash2 } from "lucide-react";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
-function MessageSelectionItem({ chatChannel, selected = false, onSelect }: { chatChannel: ChatChannel, selected?: boolean, onSelect?: () => void }) {
-    const { user } = useContext(UserContext);
-    let avatar = "https://i.pravatar.cc/300";
-    let channelName = chatChannel.name ?? chatChannel._id;
-    if (chatChannel.type === ChatChannelType.PRIVATE) {
-        const targetUser = chatChannel.participants.find(p => p.user._id !== user?._id)?.user;
-        if (targetUser) {
-            avatar = targetUser.avatar ?? avatar;
-            channelName = targetUser.displayName ?? `@${targetUser.username}` ?? channelName;
-        }
-    }
-    return (
-        <button
-            className={cn([
-                "w-full flex gap-4 px-4 py-2 mb-2 rounded-md border",
-                "hover:bg-accent",
-                selected ? "bg-muted" : ""
-            ])}
-            onClick={onSelect}
-        >
-            <Avatar>
-                <AvatarImage src={avatar} className="rounded-full" alt="User" />
-                <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <div className="flex-grow text-left text-sm">
-                <div className="flex justify-between">
-                    <span className="font-bold">{channelName}</span>
-                    <span className="pl-2 text-muted-foreground text-sm">3 giờ trước</span>
-                </div>
-                <div className="text-muted-foreground">Last message</div>
-            </div>
-        </button>
-    )
-}
-
-function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, message }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingTop?: boolean, message?: string }) {
+function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, message, onReply, isReplyingTo = false, replyTarget }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingTop?: boolean, message?: string, onReply?: () => void, isReplyingTo?: boolean, replyTarget?: ChatMessage }) {
     return (
         <div
             className={cn([
-                "flex gap-2 px-4",
+                "flex gap-2 px-4 group hover:bg-primary/5 transition-all bg-inherit",
                 (isMe ? "flex-row-reverse" : ""),
                 (noPaddingTop ? "mt-1" : "mt-4"),
+                (isReplyingTo ? "bg-primary/5 border-l-8 border-primary" : ""),
                 className
             ])}>
             {!isMe &&
@@ -68,7 +35,13 @@ function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, messa
                     }
                 </div>
             }
-            <div className="max-w-[50%]">
+            <div className="max-w-xl">
+                {
+                    replyTarget &&
+                    <div className={cn(`rounded-md mb-2 ml-12`)}>
+                        <div className="text-muted-foreground text-sm">Đang trả lời <span className="italic">{replyTarget.content}</span></div>
+                    </div>
+                }
                 {
                     name &&
                     <div className={cn(
@@ -76,30 +49,53 @@ function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, messa
                         (isMe ? "text-right" : "text-left")
                     )}>{name}</div>
                 }
-                <div className={cn(
-                    "rounded-md shadow",
-                    (isMe ? "bg-primary/10 border border-primary/20" : "bg-background")
-                )}>
-                    <div className="px-4 py-2">
-                        {
-                            message?.split('\n').map((line, index) => (
-                                <p key={index}>{line}</p>
-                            ))
-                        }
-                    </div>
-                    {
-                        image &&
-                        <div className="flex justify-center max-h-96 rounded-b-md bg-black">
-                            <img src={image} alt="Shared" className="object-contain rounded-b-md" />
+                <ContextMenu>
+                    <ContextMenuTrigger>
+                        <div className=
+                            {cn("flex gap-2 select-none",
+                                (isMe ? "flex-row-reverse" : ""))
+                            }>
+                            <div className={cn(
+                                "rounded-md shadow",
+                                (isMe ? "bg-primary/10 border border-primary/20" : "bg-background")
+                            )}>
+                                <div className="px-4 py-2">
+                                    {
+                                        message?.split('\n').map((line, index) => (
+                                            <p key={index}>{line}</p>
+                                        ))
+                                    }
+                                </div>
+                                {
+                                    image &&
+                                    <div className="flex justify-center max-h-96 rounded-b-md bg-black">
+                                        <img src={image} alt="Shared" className="object-contain rounded-b-md" />
+                                    </div>
+                                }
+                            </div>
+                            <div className="gap-2 opacity-0 group-hover:opacity-100">
+                                {
+                                    onReply &&
+                                    <Button size="icon" variant="ghost" onClick={onReply}>
+                                        <ReplyIcon className="opacity-50" />
+                                    </Button>
+                                }
+                            </div>
                         </div>
-                    }
-                </div>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <ContextMenuItem>Reply</ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem>Copy</ContextMenuItem>
+                        <ContextMenuItem>Recall</ContextMenuItem>
+                    </ContextMenuContent>
+                </ContextMenu>
             </div>
         </div>
     )
 }
 
-function MessageChannelView({ channel, className }: { channel: ChatChannel, className?: string }) {
+function MessageView({ channel, className }: { channel: ChatChannel, className?: string }) {
 
     const navigate = useNavigate();
 
@@ -120,6 +116,8 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
     const [avatar, setAvatar] = useState<string | undefined>(undefined);
     const { user } = useContext(UserContext);
     const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+
+    const [replyTarget, setReplyTarget] = useState<ChatMessage | null>(null);
 
     const [isScrolling, setIsScrolling] = useState(false);
 
@@ -166,15 +164,26 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
 
     const onSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log("Send message");
         const form = e.currentTarget as HTMLFormElement;
-        const input = form.querySelector('input') as HTMLInputElement;
+        // https://stackoverflow.com/a/36249012
+        const input = Array.from(form.querySelectorAll('input')).find(i => i.name === 'content') as HTMLInputElement;
         const message = input.value.trim();
         if (!message)
             return;
+        console.log(`Send message: ${message}`);
         input.value = '';
-        sendMessage(channel._id, message).then((newMessage) => {
-            setReducedMessage({ type: 'append', payload: [newMessage] });
-        });
+        setReplyTarget(null);
+        const data : {
+            content: string;
+            replyTo?: string;
+        } = {
+            content: message,
+        }
+        if (replyTarget) {
+            data["replyTo"] = replyTarget._id;
+        }
+        sendMessage(channel._id, data);
     }
 
     const onMessageScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -207,9 +216,12 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
     return (
         <div className={cn(className, "flex-grow flex h-screen flex-col")}>
             <div className="md:px-4 py-0.5 bg-background flex items-center">
-                <Button variant="ghost" onClick={() => navigate('/message')} size="icon">
+                <Link to="/message" className={buttonVariants({
+                    variant: "ghost",
+                    size: "icon"
+                })}>
                     <ChevronLeft />
-                </Button>
+                </Link>
                 <Avatar className="w-8 h-8 shadow mr-4">
                     <AvatarImage src={avatar} className="rounded-full" alt="User" />
                     <AvatarFallback>{channelName?.charAt(0) ?? '-'}</AvatarFallback>
@@ -227,6 +239,13 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
                         return (
                             <UserMessage
                                 className="last:pb-4"
+                                isReplyingTo={replyTarget?._id === message._id}
+                                replyTarget={message.replyTo}
+                                onReply={() => {
+                                    if (replyTarget?._id !== message._id) {
+                                        setReplyTarget(message);
+                                    }
+                                }}
                                 key={message._id}
                                 isMe={isMe}
                                 name={isMe ? undefined : message.senderID.displayName ?? message.senderID.username}
@@ -235,6 +254,9 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
                             />
                         )
                     })
+                }
+                {replyTarget &&
+                    <div className="py-6"></div>
                 }
             </ScrollArea>
 
@@ -259,74 +281,70 @@ function MessageChannelView({ channel, className }: { channel: ChatChannel, clas
                 </ScrollArea>
             </>}
 
-            <Separator />
-            <form onSubmit={onSendMessage} className="bg-background flex gap-2 px-4 py-2">
-                <input type="file" name="images" className="hidden" id="form-inp-upload-file" onChange={handleFileChange} accept="image/*" multiple />
-                <Button variant="ghost" size="icon" onClick={(e) => {
-                    e.preventDefault();
-                    openFileUploadSelector();
-                }}>
-                    <ImagePlus />
-                </Button>
-                <Input placeholder="Nhập tin nhắn..." className="flex-grow" />
-                <Button>Gửi</Button>
-            </form>
+            <div className="sticky bottom-0">
+                <div className={cn("absolute w-full -translate-y-full bg-muted border-t border-l border-r -ml-[1px] -mr-[1px] rounded-t-md -z-10 animate-in fade-in slide-in-from-bottom-8 items-center",
+                    replyTarget ? "flex" : "hidden"
+                )}>
+                    <h1 className="text-sm px-4 py-1">Đang trả lời
+                        {
+                            replyTarget?.senderID._id === user?._id ?
+                            <span> chính mình</span> :
+                            <span className="font-bold"> {replyTarget?.senderID.displayName ?? replyTarget?.senderID.username}</span>
+                        }
+                    </h1>
+                    <Button variant="ghost" size="icon" onClick={(e) => e.preventDefault()} className="text-muted-foreground hover:text-foreground ml-auto">
+                        <CircleX className="w-4 h-4 aspect-square" onClick={() => setReplyTarget(null)} />
+                    </Button>
+                </div>
+                <Separator />
+                <form onSubmit={onSendMessage} className="bg-background flex gap-2 px-4 py-2">
+                    <input type="file" name="images" className="hidden" id="form-inp-upload-file" onChange={handleFileChange} accept="image/*" multiple />
+                    <Button variant="ghost" size="icon" onClick={(e) => {
+                        e.preventDefault();
+                        openFileUploadSelector();
+                    }}>
+                        <ImagePlus />
+                    </Button>
+                    <Input placeholder="Nhập tin nhắn..." className="flex-grow" name="content" />
+                    <Button>Gửi</Button>
+                </form>
+            </div>
         </div>
     )
 }
 
-export default function MessagePage() {
-
-    const isOnPhone = useMediaQuery('(max-width: 768px)');
+export function PageMessageChannel() {
     const { channelID } = useParams();
+    const [channel, setChannel] = useState<ChatChannel | null>(null);
 
-    const [channels, setChannels] = useState<ChatChannel[]>([]);
-    const navigate = useNavigate();
-    const [selectedChannel, setSelectedChannel] = useState<ChatChannel | null>(null);
-    const { user } = useContext(UserContext);
-    useEffect(() => {
-        getChannelList().then(setChannels);
-    }, [user])
     useEffect(() => {
         if (channelID) {
-            setSelectedChannel(channels.find(c => c._id === channelID) ?? null);
-        } else {
-            setSelectedChannel(null);
+            getChannel(channelID).then(setChannel);
         }
-    }, [channelID, channels])
-    console.log(isOnPhone, channelID);
-    return (
-        <div className="flex flex-grow h-screen">
-            <div className={cn(
-                "bg-background flex flex-col h-screen w-96 max-w-[100vw]",
-                isOnPhone ? "flex-grow" : "",
-                isOnPhone && channelID ? "hidden" : ""
-            )}>
-                <div className="w-full px-4 py-2">
-                    <h1 className="text-xl font-bold">Tin nhắn</h1>
+    }, [channelID])
+
+    if (!channel) {
+        return (
+            <div className="flex-grow flex flex-col">
+                <div className="flex items-center px-4 py-1 bg-white gap-2">
+                    <Link to="/message" className={buttonVariants({
+                        variant: "ghost",
+                        size: "icon"
+                    })}>
+                        <ChevronLeft />
+                    </Link>
+                    <Skeleton className="w-7 aspect-square rounded-full" />
+                    <div className="flex-grow grid gap-2">
+                        <Skeleton className="rounded-full h-4" />
+                    </div>
+
                 </div>
                 <Separator />
-                <ScrollArea className="flex-grow flex flex-col items-stretch p-4">
-                    {
-                        channels.map((channel) => (
-                            <MessageSelectionItem
-                                key={channel._id}
-                                chatChannel={channel}
-                                selected={selectedChannel?._id === channel._id}
-                                onSelect={() => navigate(`/message/${channel._id}`)}
-                            />
-                        ))
-                    }
-                </ScrollArea>
+                <div className="flex-grow"></div>
             </div>
-            <Separator orientation="vertical" className={isOnPhone ? "hidden" : ""} />
-            {
-                selectedChannel ?
-                    <MessageChannelView channel={selectedChannel} /> :
-                    <div className={cn(isOnPhone && !channelID ? "hidden" : "flex-grow flex items-center justify-center")}>
-                        <h1 className="text-2xl text-muted-foreground">Chọn một cuộc trò chuyện</h1>
-                    </div>
-            }
-        </div>
-    );
+        )
+    } else
+        return (
+            <MessageView channel={channel!} />
+        )
 }

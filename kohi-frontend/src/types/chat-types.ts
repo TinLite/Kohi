@@ -51,6 +51,7 @@ export class ChatMessage {
         username: string;
         avatar?: string;
     };
+    replyTo?: ChatMessage;
     channelID: string;
     content: string;
     createdAt: Date;
@@ -62,12 +63,14 @@ export class ChatMessage {
             username: string;
             avatar?: string;
         },
+        replyTo: ChatMessage,
         channelID: string,
         content: string,
         createdAt: Date
     ) {
         this._id = _id;
         this.senderID = senderID;
+        this.replyTo = replyTo;
         this.channelID = channelID;
         this.content = content;
         this.createdAt = createdAt;
