@@ -263,4 +263,8 @@ export class PostsService {
     }, []);
   return media;
   }
+
+  async findPosts(filter: any) {
+    return this.postModel.find(filter).populate('author', 'username displayname').exec();
+  }
 }

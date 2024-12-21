@@ -69,9 +69,11 @@ const DetailPost = ({ post }: { post: Post }) => {
               OK
             </Button>
           </div>
-          {comments.map((comment) => (
-            <CommentItem key={comment._id} comment={comment} />
-          ))}
+          <div className="space-y-4">
+            {comments.map((comment) => (
+              <CommentItem key={comment._id} comment={comment} />
+            ))}
+          </div>
         </div>
       </div>
     </ScrollArea>

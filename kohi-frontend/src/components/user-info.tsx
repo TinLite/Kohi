@@ -17,8 +17,9 @@ const UserInfo = ({
   isFollowed?: boolean;
   onFollowChange?:boolean;
 }) => {
-  const [isFollowing, setIsFollowing] = useState(isFollowed);
+  const [isFollowing, setIsFollowing] = useState(isFollowed ?? false);
   const [following, setFollowing] = useState<User[]>([]);
+
   const handleFollow = async () => {
     try {
       await followUser(user._id).then((res) => {

@@ -63,7 +63,7 @@ const SearchUI = () => {
           <TabsTrigger value="people">People</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="posts" className="space-y-4">
+        <TabsContent value="posts" className="space-y-2">
           {error ? (
             <p>{error}</p>
           ) : posts.length > 0 ? (

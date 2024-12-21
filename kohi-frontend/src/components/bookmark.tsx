@@ -3,21 +3,10 @@ import { Input } from "./ui/input";
 import UserPost from "./user-post";
 import { Button } from "./ui/button";
 import { useContext, useEffect, useState } from "react";
-import { getBookMarks } from "@/repository/user-repository";
+import { getBookMarks, searchBookMarks } from "@/repository/user-repository";
 import { UserContext } from "@/context/user-context";
+import { ScrollArea } from "./ui/scroll-area";
 
-// const samplePost: Post = {
-//   _id: "1",
-//   author: {
-//     _id: "user1",
-//     username: "shadcn",
-//     displayName: "Shad CN",
-//     avatar: "https://example.com/avatar.jpg",
-//   },
-//   content: "This is a sample post content.",
-//   createdAt: new Date(),
-//   comments: 5,
-// };
 const friends = [
   { id: 1, name: "Bill Gates", username: "@BillGates" },
   { id: 2, name: "Gmail", username: "@gmail" },
@@ -26,43 +15,65 @@ const friends = [
 const BookMarkUI = () => {
   const { user } = useContext(UserContext);
   const [bookmarks, setBookmarks] = useState<Post[]>([]);
+  const [searchBookmarks, setSearchBookmarks] = useState<Post[]>([]);
+  const [query, setQuery] = useState("");
 
   const fetchBookmarks = async () => {
-    getBookMarks().then((post) => setBookmarks(post.data));
+    getBookMarks().then((post) => {
+      setBookmarks(post.data);
+      setSearchBookmarks(post.data);
+    });
   };
 
   useEffect(() => {
     fetchBookmarks();
   }, []);
-
+  useEffect(() => {
+    if (query === "") {
+      setSearchBookmarks(bookmarks);
+    } else {
+      searchBookMarks(query)
+        .then((result) => {
+          setSearchBookmarks(result);
+        })
+        .catch((error) => {
+          console.error("Error", error);
+        });
+    }
+  }, [query, bookmarks]);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  };
   return (
-    <div className="w-full mt-10 flex justify-center gap-2">
-      <div className="w-full max-w-xl">
-        <div className="flex items-center mb-6">
-          <Input
-            type="text"
-            placeholder="Tìm kiếm..."
-            //   // value={query}
-            //   onChange={handleKeyDown}
-            //   // onKeyDown={handleKeyDown}
-            className="bg-background"
-          />
-        </div>
-        <div className="space-y-4">
-          {bookmarks.length === 0 ? (
-            <p className="text-center">There are no saved posts</p>
-          ) : (
-            bookmarks.map((post) => (
-              <UserPost
-                key={post._id}
-                post={post}
-                onBookmarkUpdate={fetchBookmarks}
-              />
-            ))
-          )}
+    <ScrollArea className="w-full h-screen ">
+      <div className="mt-10 flex justify-center">
+        <div className="w-full max-w-2xl">
+          <div className="flex items-center mb-4 ">
+            <h1 className="text-2xl font-bold">Bookmarks</h1>
+          </div>
+          <div className="flex items-center mb-4">
+            <Input
+              type="text"
+              placeholder="Tìm kiếm..."
+              value={query}
+              onChange={handleSearchChange}
+              className="bg-background max-w-3xl"
+            />
+          </div>
+          <div className="space-y-4">
+            {searchBookmarks.length === 0 ? (
+              <p className="text-center">There are no saved posts</p>
+            ) : (
+              searchBookmarks.map((post) => (
+                <div key={post._id}>
+                  <UserPost post={post} onBookmarkUpdate={fetchBookmarks} />
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 };
 export default BookMarkUI;

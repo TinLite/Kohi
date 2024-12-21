@@ -39,7 +39,6 @@ export default function CommentItem({ comment }: { comment: Comment }) {
           <AvatarImage
             src="https://github.com/QuangTeoo.png"
             className="rounded-full"
-            // alt='https://github.com/QuangTeoo.png'
           />
           {/* <AvatarFallback>{comment.author.displayName.charAt(0) || 'U'}</AvatarFallback> */}
         </Avatar>

@@ -82,7 +82,7 @@ export async function unFollowUser(userId: string) {
       },
     }
   );
-  if(!response.ok){
+  if (!response.ok) {
     return response.json();
   }
 }
@@ -144,6 +144,23 @@ export async function getBookMarks() {
     };
   };
 }
+export async function searchBookMarks(query: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/users/profile/bookmarks/search?query=${query}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to search bookmarks");
+  }
+  return await response.json() as Post[];
+}
 export async function getFollowing() {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
@@ -170,11 +187,11 @@ export async function getFollowing() {
     };
   };
 }
-export async function updateAvatar(formData: FormData) {
+export async function updateAvatar(userId:string, formData: FormData) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/users/avatar/:id/update`,
+    }/users/avatar/${userId}/update`,
     {
       method: "PATCH",
       headers: {
@@ -186,4 +203,5 @@ export async function updateAvatar(formData: FormData) {
   if (!response.ok) {
     throw new Error("Failed to update avatar");
   }
+  return await response.json();
 }

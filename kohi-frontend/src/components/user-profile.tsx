@@ -6,9 +6,13 @@ import { Dialog, DialogTrigger, DialogContent } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "@/context/user-context";
-import { getProfile, updateUser } from "@/repository/user-repository";
+import {
+  getProfile,
+  updateAvatar,
+  updateUser,
+} from "@/repository/user-repository";
 import { get } from "node:http";
 import { Post } from "@/types/post-type";
 import {
@@ -27,6 +31,7 @@ const UserProfile = () => {
   const [media, setMedia] = useState<Post[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const { user, setUser } = useContext(UserContext);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     username: user?.username || "",
     displayName: user?.displayName || "",
@@ -70,7 +75,9 @@ const UserProfile = () => {
     getPostsByUserId().then(
       (data) => {
         setPosts(data);
-        const mediaPosts = data.filter(post => post.media && post.media.length > 0);
+        const mediaPosts = data.filter(
+          (post) => post.media && post.media.length > 0
+        );
         setMedia(mediaPosts);
       },
       (error) => {
@@ -78,7 +85,25 @@ const UserProfile = () => {
       }
     );
   }, [user]);
-
+  const handleAvatarClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  const handleAvatarChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file && user?._id) {
+      const formData = new FormData();
+      formData.append("file", file);
+      const updatedUser = await updateAvatar(user._id, formData)
+        .then(() => getProfile().then(setUser))
+        .catch((error) => {
+          console.error("Failed to update avatar", error);
+        });
+    }
+  };
   const [open, setOpen] = useState(false);
   return (
     <ScrollArea className="w-full h-screen ">
@@ -119,16 +144,26 @@ const UserProfile = () => {
                       />
                     </div>
                     <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
-                      <Avatar className="w-24 h-24 shadow-2xl">
+                      <Avatar
+                        className="w-24 h-24 shadow-2xl"
+                        onClick={handleAvatarClick}
+                      >
                         <AvatarImage
                           src={user?.avatar || user?.displayName}
                           alt="@shadcn"
                         />
                         <AvatarFallback>CN</AvatarFallback>
                       </Avatar>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                      />
                     </div>
                   </div>
-                  <div className="p-6 space-y-4 mt-8">
+                  <div className="p-6 space-y-2 mt-8">
                     <div className="space-y-2">
                       <Label htmlFor="username">Username</Label>
                       <Input
@@ -197,11 +232,11 @@ const UserProfile = () => {
                         }
                       ></Textarea>
                     </div>
-                  </div>
-                  <div className="flex justify-end space-x-4 p-6  ">
-                    <Button variant="default" onClick={handleSave}>
-                      Save{" "}
-                    </Button>
+                    <div className="flex justify-end space-x-4">
+                      <Button variant="default" onClick={handleSave}>
+                        Save{" "}
+                      </Button>
+                    </div>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -221,6 +256,7 @@ const UserProfile = () => {
           <Tabs defaultValue="posts">
             <TabsList className="flex ">
               <TabsTrigger value="posts">Posts</TabsTrigger>
+              <TabsTrigger value="reup">Reup</TabsTrigger>
               <TabsTrigger value="media">Media</TabsTrigger>
             </TabsList>
             <TabsContent value="posts">
@@ -231,6 +267,9 @@ const UserProfile = () => {
                   </div>
                 ))}
               </div>
+            </TabsContent>
+            <TabsContent value="reup">
+              <div className="mb-4">Sắp làm</div>
             </TabsContent>
             <TabsContent value="media">
               <div className="mb-4">

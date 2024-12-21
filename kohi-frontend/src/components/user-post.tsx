@@ -67,7 +67,7 @@ function UserHoverCard({
     } else {
       setIsFollowing(false);
     }
-  }, [currentUser, user._id]);
+  }, [currentUser, isFollowing]);
 
   const handleFollow = async () => {
     await followUser(user._id)
@@ -114,7 +114,7 @@ function UserHoverCard({
             <div>
               <div>
                 <span className="font-bold">
-                  {/* {user.displayName ?? user.username} */}
+                  {user.displayName ?? user.username}
                 </span>
                 <span className="pl-2 text-muted-foreground text-sm">
                   @{user.username}
@@ -160,16 +160,25 @@ export default function UserPost({
   );
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [isBookMarked, setIsBookMarked] = useState(false);
+
   const fetchLike = async () => {
-    await countLikePost(post._id);
+    await countLikePost(post._id)
+      .then((res) => {
+        setLikeCount(res.total);
+        console.log(res.total);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     fetchLike();
-  }, [user, post._id]);
+    [isLiked];
+  });
 
   const handleLike = async () => {
     try {
-      await likePost(post._id).then(() => fetchLike());
+      await likePost(post._id);
       setIsLiked(true);
     } catch (err) {
       console.log(err);
@@ -177,7 +186,7 @@ export default function UserPost({
   };
   const handleUnlike = async () => {
     try {
-      await unLikePost(post._id).then(() => fetchLike());
+      await unLikePost(post._id);
       setIsLiked(false);
     } catch (err) {
       console.log(err);

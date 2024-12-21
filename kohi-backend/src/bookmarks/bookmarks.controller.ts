@@ -84,7 +84,12 @@ export class BookmarksController {
     );
   }
   @Get('profile/bookmarks/search')
-  async searchBookMark(@Query('query') query: string) {
-    return this.postsService.searchBookMark(query);
+  async searchBookMark(@Query('query') query: string, @Req() req) {
+    const author = req.user._id;
+    const user = await this.usersService.findOne(author);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return this.bookmarksService.searchBookMark(query, author);
   }
 }

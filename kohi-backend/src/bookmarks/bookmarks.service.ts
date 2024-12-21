@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { PostsService } from '../posts/posts.service';
+import { Bookmark } from './schemas/bookmark.schema';
 
 @Injectable()
 export class BookmarkService {
@@ -56,5 +57,19 @@ export class BookmarkService {
         limit: limit,
       },
     };
+  }
+  async searchBookMark(query: string, userId: string) {
+    const user = await this.usersService.findOne(userId);
+    const bookmarks = user.bookmarks;
+    const users = await this.usersService.findByNameOrDisplayName(query);
+    const userIds = users.map((user) => user._id);
+    const posts = await this.postsService.findPosts({
+      _id: { $in: bookmarks },
+      $or: [
+        { content: { $regex: query, $options: 'i' } },
+        { author: { $in: userIds } },
+      ],
+    });
+    return posts;
   }
 }
