@@ -1,19 +1,22 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "@/App.css";
 import BookMarkUI from "@/components/bookmark";
 import SearchUI from "@/components/search";
-import UserProfile from "@/components/user-profile";
-import MainLayout from "@/layout/main-layout";
-import MessagePage from "@/routes/messages/message";
-import PostList from "@/routes/posts/post-list";
-import { UserProvider } from "@/context/user-context";
-import "./index.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import UserProfile from "@/components/user-profile";
+import { UserProvider } from "@/context/user-context";
+import MainLayout from "@/layout/main-layout";
+import PostList from "@/routes/posts/post-list";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PostPage from "./components/post-detail";
 import { Toaster } from "./components/ui/sonner";
 import { useMediaQuery } from "./hooks/use-media-query";
 import Login from "./routes/auth/login";
 import Register from "./routes/auth/register";
+import "./index.css";
+import MessageLayout from "./layout/sub-layouts/message-layout";
+import MessageViewDefault from "./routes/messages/message-default";
+import MessageViewNewChat from "./routes/messages/message-new";
+import { PageMessageChannel } from "./routes/messages/message-view";
 
 const router = createBrowserRouter([
   {
@@ -23,10 +26,6 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <PostList />,
-      },
-      {
-        path: "/message",
-        element: <MessagePage />,
       },
       {
         path: "/search",
@@ -63,9 +62,27 @@ const router = createBrowserRouter([
     path: "/",
     element: <MainLayout disableNavOnPhone />,
     children: [
+      // {
+      //   path: "/message/:channelID",
+      //   element: <MessagePage />,
+      // },
       {
-        path: "/message/:channelID",
-        element: <MessagePage />,
+        path: "/message/",
+        element: <MessageLayout />,
+        children: [
+          {
+            index: true,
+            element: <MessageViewDefault />
+          },
+          {
+            path: "new",
+            element: <MessageViewNewChat />
+          },
+          {
+            path: ":channelID",
+            element: <PageMessageChannel />
+          }
+        ]
       },
     ],
   },

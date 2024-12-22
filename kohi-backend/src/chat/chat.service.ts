@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { User } from 'src/users/schemas/user.schema';
+import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
+import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { ChatChannel } from './schemas/chat-channel.schema';
 import { ChatMessage } from './schemas/chat-message.schema';
-import { User } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class ChatService {
@@ -28,22 +29,22 @@ export class ChatService {
     return newChannel.save();
   }
 
-  async createMessage(channelId: ChatChannel | mongoose.Types.ObjectId | String, senderId: User | mongoose.Types.ObjectId | String, content: string) {
+  async createMessage(channelId: ChatChannel | mongoose.Types.ObjectId | String, senderId: User | mongoose.Types.ObjectId | String, createChatChannelDto: CreateChatMessageDto) {
     const newMessage = new this.chatMessageModel({
       channelID: channelId,
       senderID: senderId,
-      content,
+      ...createChatChannelDto,
     });
-    return (await newMessage.save()).populate({
+    return (await(await newMessage.save()).populate({
       path: 'senderID',
       select: 'username avatar displayName',
-    });
+    })).populate("replyTo", "content senderID isRecalled");
   }
 
   async getMessagesByChannelId(channelId: string, skip: number = 0, limit: number = 10) {
     return this.chatMessageModel.find({ channelID: channelId }).sort({ timeStamp: -1 }).skip(skip).limit(limit).populate({
       path: 'senderID',
       select: 'username avatar displayName',
-    });
+    }).populate("replyTo", "content senderID isRecalled");
   }
 }

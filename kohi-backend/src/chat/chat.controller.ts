@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Get, Param, Post, Query, Req } f
 import { EventsService } from 'src/events/events.service';
 import { ChatService } from './chat.service';
 import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
+import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { ChatParticipantRole } from './schemas/chat-channel.schema';
 
 @Controller('chat')
@@ -40,8 +41,13 @@ export class ChatController {
             throw new BadRequestException('Channel must have at least 2 participants');
         }
         const channel = await this.chatService.createChannel(createChatDto);
-        await this.chatService.createMessage(channel._id, currentUser, createChatDto.firstMessage);
+        await this.chatService.createMessage(channel._id, currentUser, {content: createChatDto.firstMessage});
         return channel;
+    }
+
+    @Get('/channels/:channelId')
+    async getChannel(@Param('channelId') channelId: string) {
+        return this.chatService.getChannelById(channelId);
     }
 
     @Get('/channels/:channelId/messages')
@@ -50,15 +56,11 @@ export class ChatController {
     }
 
     @Post('/channels/:channelId/messages/create')
-    async createMessage(@Param('channelId') channelId: string, @Body('content') content: string, @Req() req) {
-        if (!content.trim())
-            throw new BadRequestException("Message is required");
-        const message = await this.chatService.createMessage(channelId, req.user._id, content);
+    async createMessage(@Param('channelId') channelId: string, @Body() messageDto: CreateChatMessageDto, @Req() req) {
+        const message = await this.chatService.createMessage(channelId, req.user._id, messageDto);
         this.chatService.getChannelById(channelId).then(channel => {
             channel.participants.map(participant => {
-                if (participant.user != req.user._id) {
-                    this.eventsService.announceToUser(participant.user.toString(), 'chat:message:new', message);
-                }
+                this.eventsService.announceToUser(participant.user.toString(), 'chat:message:new', message);
             })
         });
         return message;
