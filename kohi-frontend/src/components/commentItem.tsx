@@ -9,7 +9,7 @@ import { MessageCircle, Repeat, ThumbsUp } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { Comment } from "../types/comment-type";
 import { Button } from "./ui/button";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import CommentUI from "./comment";
 import { Post } from "@/types/post-type";
