@@ -12,10 +12,12 @@ import {
   getProfile,
   updateAvatar,
   updateUser,
+  updateWall,
 } from "@/repository/user-repository";
 import { get } from "node:http";
 import { Post } from "@/types/post-type";
 import {
+  getListPostShare,
   getMediaByUserId,
   getPostsByUserId,
 } from "@/repository/PostsRepository";
@@ -30,8 +32,10 @@ const UserProfile = () => {
   ];
   const [media, setMedia] = useState<Post[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [postsShare, setPostsShare] = useState<Post[]>([]);
   const { user, setUser } = useContext(UserContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const wallInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     username: user?.username || "",
     displayName: user?.displayName || "",
@@ -85,9 +89,26 @@ const UserProfile = () => {
       }
     );
   }, [user]);
+  useEffect(() => {
+    getListPostShare().then(
+      (data) => {
+        console.log("sharepost" + data);
+        setPostsShare(data);
+      },
+      (error) => {
+        console.error("Failed to fetch posts", error);
+      }
+    );
+  }, [user]);
+
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+  const handleWallClick = () => {
+    if (wallInputRef.current) {
+      wallInputRef.current.click();
     }
   };
   const handleAvatarChange = async (
@@ -104,48 +125,66 @@ const UserProfile = () => {
         });
     }
   };
+
+  const handleWallChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file && user?._id) {
+      const formData = new FormData();
+      formData.append("file", file);
+      const updatedUser = await updateWall(user._id, formData)
+        .then(() => getProfile().then(setUser))
+        .catch((error) => {
+          console.error("Failed to update avatar", error);
+        });
+    }
+  };
   const [open, setOpen] = useState(false);
   return (
     <ScrollArea className="w-full h-screen ">
       <div className="max-w-6xl mx-auto flex justify-center">
         <div className="flex-grow max-w-2xl mt-6">
-          <div className="relative h-48">
+          <div className="relative h-64">
             <img
-              src={user?.wall || user?.displayName}
+              src={user?.wall}
               alt="Wall Image"
-              className="absolute top-0 left-0 w-full h-full object-cover"
+              className=" w-full h-full object-cover"
             />
             <div className="absolute bottom-0 w-full bg-gradient-to-t from-background h-full opacity-50"></div>
-            <div className="absolute top-24 left-6 ">
+            <div className="absolute top-36 left-6 ">
               <Avatar className="rounded-full border-4 border-gray-800 w-24 h-24">
-                <AvatarImage
-                  src={user?.avatar || user?.displayName}
-                  alt="@shadcn"
-                />
+                <AvatarImage src={user?.avatar} alt="@shadcn" />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             </div>
-            <div className="absolute top-32 left-36 text-white">
+            <div className="absolute top-44 left-36 text-white">
               <h1 className=" text-2xl font-bold">{user?.displayName}</h1>
-              <p className="">@{user?.username}</p>
+              <p className="text-black">@{user?.username}</p>
             </div>
-            <div className="absolute top-32 right-6">
+            <div className="absolute top-48 right-6">
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger>
                   <Button variant="secondary">Edit Profile</Button>
                 </DialogTrigger>
                 <DialogContent className="p-0 rounded-lg max-w-md mx-auto overflow-hidden">
-                  <div className="relative">
-                    <div className="h-32 ">
-                      <img
-                        src={user?.wall || user?.displayName}
-                        alt="Wall"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="absolute top-20 left-1/2 transform -translate-x-1/2">
+                  <div className="relative h-48">
+                    <img
+                      src={user?.wall || user?.displayName}
+                      alt="Wall"
+                      className="w-full h-full object-cover"
+                      onClick={handleWallClick}
+                    />
+                    <input
+                      type="file"
+                      className="hidden"
+                      ref={wallInputRef}
+                      accept="image/*"
+                      onChange={handleWallChange}
+                    />
+                    <div className="absolute top-24 left-2  ">
                       <Avatar
-                        className="w-24 h-24 shadow-2xl"
+                        className="rounded-full border-4 border-gray-800 w-24 h-24"
                         onClick={handleAvatarClick}
                       >
                         <AvatarImage
@@ -163,19 +202,7 @@ const UserProfile = () => {
                       />
                     </div>
                   </div>
-                  <div className="p-6 space-y-2 mt-8">
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Username</Label>
-                      <Input
-                        type="text"
-                        id="username"
-                        placeholder="Enter your username"
-                        value={formData.username}
-                        onChange={(e) =>
-                          setFormData({ ...formData, username: e.target.value })
-                        }
-                      />
-                    </div>
+                  <div className="pl-6 pr-6 pb-2 space-y-2 ">
                     <div className="space-y-2">
                       <Label htmlFor="displayName">Display Name</Label>
                       <Input
@@ -188,34 +215,6 @@ const UserProfile = () => {
                             ...formData,
                             displayName: e.target.value,
                           })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm">
-                        Email
-                      </Label>
-                      <Input
-                        type="email"
-                        id="email"
-                        placeholder="Enter your email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="sdt" className="text-sm">
-                        Phone
-                      </Label>
-                      <Input
-                        type="text"
-                        id="sdt"
-                        placeholder="Enter your phone number"
-                        value={formData.sdt}
-                        onChange={(e) =>
-                          setFormData({ ...formData, sdt: e.target.value })
                         }
                       />
                     </div>
@@ -253,10 +252,15 @@ const UserProfile = () => {
               Followers
             </p>
           </div>
+          <div>
+            {user?.bio && (
+              <p className="flex justify-center pb-2">{user.bio}</p>
+            )}
+          </div>
           <Tabs defaultValue="posts">
             <TabsList className="flex ">
               <TabsTrigger value="posts">Posts</TabsTrigger>
-              <TabsTrigger value="reup">Reup</TabsTrigger>
+              <TabsTrigger value="reup">Share</TabsTrigger>
               <TabsTrigger value="media">Media</TabsTrigger>
             </TabsList>
             <TabsContent value="posts">
@@ -269,7 +273,15 @@ const UserProfile = () => {
               </div>
             </TabsContent>
             <TabsContent value="reup">
-              <div className="mb-4">Sắp làm</div>
+              {postsShare.map((post) => (
+                <div className="mb-4" key={post._id}>
+                  {post.postShare ? (
+                    <UserPost post={post} />
+                  ) : (
+                    <div>No content available</div>
+                  )}
+                </div>
+              ))}
             </TabsContent>
             <TabsContent value="media">
               <div className="mb-4">

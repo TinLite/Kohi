@@ -204,6 +204,7 @@ export class CommentsController {
   }
 
   // get bình luận theo replyTo
+  @Public()
   @Get('list/reply/:id')
   async getCommentByReplyTo(
     @Param('id') commentId: string,

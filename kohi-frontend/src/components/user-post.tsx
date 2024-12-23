@@ -2,6 +2,7 @@ import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import {
   countLikePost,
+  createSharePost,
   likePost,
   unLikePost,
 } from "@/repository/PostsRepository";
@@ -105,7 +106,7 @@ function UserHoverCard({
           <div className="flex gap-4">
             <Avatar className="w-16 h-16">
               <AvatarImage
-                src={user.avatar}
+                src={user.avatar ?? user.displayName}
                 className="rounded-full"
                 alt={user.username}
               />
@@ -150,9 +151,13 @@ function UserHoverCard({
 export default function UserPost({
   post,
   onBookmarkUpdate,
+  hideComment,
+  className,
 }: {
   post: Post;
+  hideComment?: boolean;
   onBookmarkUpdate?: (newStatus: boolean) => void;
+  className?: string;
 }) {
   const { user, setUser } = useContext(UserContext);
   const [isLiked, setIsLiked] = useState(
@@ -223,8 +228,13 @@ export default function UserPost({
       console.log(err);
     }
   };
+  const handleClickQuote = async () => {
+    await createSharePost(post._id).then(() => {
+      getProfile().then(setUser);
+    });
+  };
   return (
-    <Card className="max-sm:rounded-none">
+    <Card className={cn("max-sm:rounded-none", className)}>
       <div className="flex px-6 pt-4 flex-row items-center">
         <UserHoverCard
           user={post.author}
@@ -232,7 +242,7 @@ export default function UserPost({
         >
           <Avatar className="w-8 h-8">
             <AvatarImage
-              src={post.author.avatar}
+              src={post.author.avatar ?? ""}
               className="rounded-full"
               alt="@shadcn"
             />
@@ -262,7 +272,7 @@ export default function UserPost({
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
         <p>
           {post.content
-            .split("\n")
+            ?.split("\n")
             .filter((v) => v)
             .map((v, i) => {
               return (
@@ -274,14 +284,17 @@ export default function UserPost({
             })}
         </p>
       </Link>
+      {post.postShare && (
+        <UserPost post={post.postShare} className="mx-4 mb-4" hideComment />
+      )}
       {post.media && post.media.length > 0 && (
         <Carousel
           opts={{
             align: "start",
           }}
-          className="w-screen max-w-2xl pb-4"
+          className="w-full max-w-2xl pb-4"
         >
-          <CarouselContent className="px-8">
+          <CarouselContent className="px-8 mr-4">
             {post.media?.map((media, index) => (
               <CarouselItem key={index} className="basis-1/3">
                 <div className="p-1">
@@ -303,75 +316,83 @@ export default function UserPost({
           <CarouselNext className="right-8 disabled:opacity-5" />
         </Carousel>
       )}
-      <Separator />
-      <div className="flex justify-between gap-2 px-4 py-2">
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center justify-center gap-2"
-            onClick={isLiked ? handleUnlike : handleLike}
-          >
-            <ThumbsUp
-              className={cn("w-4 h-4", isLiked ? "fill-primary" : "")}
-            />
-            {likeCount}
-          </Button>
-          <CommentUI postId={post._id} post={post} />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+      {!hideComment && (
+        <>
+          <Separator />
+          <div className="flex justify-between gap-2 px-4 py-2">
+            <div className="flex gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 className="flex items-center justify-center gap-2"
+                onClick={isLiked ? handleUnlike : handleLike}
               >
-                <Repeat className="h-4 w-4" />
+                <ThumbsUp
+                  className={cn("w-4 h-4", isLiked ? "fill-primary" : "")}
+                />
+                {likeCount}
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>Repost</DropdownMenuItem>
-              <DropdownMenuItem>Quote...</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+              <CommentUI postId={post._id} post={post} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <Repeat className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>Repost</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleClickQuote}>
+                    Quote...
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>Send via message to...</DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Share to...</DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem>Facebook</DropdownMenuItem>
+                        <DropdownMenuItem>Twitter</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Copy link</DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div className="flex gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 className="flex items-center justify-center gap-2"
+                onClick={
+                  isBookMarked ? handleRemoveBookmark : handleAddBookmark
+                }
               >
-                <Send className="h-4 w-4" />
+                <Bookmark
+                  className={cn("w-4 h-4", isBookMarked ? "fill-primary" : "")}
+                />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>Send via message to...</DropdownMenuItem>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Share to...</DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem>Facebook</DropdownMenuItem>
-                    <DropdownMenuItem>Twitter</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>Copy link</DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center justify-center gap-2"
-            onClick={isBookMarked ? handleRemoveBookmark : handleAddBookmark}
-          >
-            <Bookmark
-              className={cn("w-4 h-4", isBookMarked ? "fill-primary" : "")}
-            />
-          </Button>
-        </div>
-      </div>
+            </div>
+          </div>
+        </>
+      )}
     </Card>
   );
 }

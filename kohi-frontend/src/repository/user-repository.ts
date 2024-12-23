@@ -205,3 +205,21 @@ export async function updateAvatar(userId:string, formData: FormData) {
   }
   return await response.json();
 }
+export async function updateWall(userId:string, formData: FormData) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/users/wall/${userId}/update`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+      body: formData,
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to update wall");
+  }
+  return await response.json();
+}

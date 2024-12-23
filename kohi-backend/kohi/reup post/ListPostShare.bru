@@ -1,0 +1,15 @@
+meta {
+  name: ListPostShare
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:3000/v1/api/posts/profile/share
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

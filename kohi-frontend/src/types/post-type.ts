@@ -9,6 +9,7 @@ export class Post {
   updatedAt: Date;
   media: string[];
   likes?: String[];
+  postShare?: Post;
   constructor(
     _id: string,
     title: string,
@@ -17,7 +18,8 @@ export class Post {
     createdAt: Date,
     updatedAt: Date,
     media: string[],
-    likes?: String[]
+    likes?: String[],
+    postShare?: Post
   ) {
     this._id = _id;
     this.title = title;
@@ -27,5 +29,6 @@ export class Post {
     this.updatedAt = updatedAt;
     this.media = media;
     this.likes = likes;
+    this.postShare = postShare;
   }
 }

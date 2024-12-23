@@ -279,4 +279,12 @@ export class PostsController {
     }
     return this.postsService.getProfileMedia(requestUserId);
   }
+  @Get('profile/share')
+  async getProfileShares(@Request() request) {
+    const requestUserId = request.user._id;
+    if (!requestUserId) {
+      throw new NotFoundException('User not found');
+    }
+    return this.postsService.getProfileShares(requestUserId);
+  }
 }

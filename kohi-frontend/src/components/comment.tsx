@@ -6,19 +6,17 @@ import { Comment } from "@/types/comment-type";
 import { Post } from "@/types/post-type";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { MessageCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
+import { UserContext } from "@/context/user-context";
 
 const CommentUI = ({ postId, post }: { postId: string; post: Post }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const { user } = useContext(UserContext);
   const fetchComments = async () => {
     try {
       const response = await listCommentsByPostId(postId);
@@ -71,14 +69,15 @@ const CommentUI = ({ postId, post }: { postId: string; post: Post }) => {
               </div>
 
               <div className="text-muted-foreground text-sm">
-                @{post.author.username}- {new Date (post.createdAt).toLocaleString("vi-VN")}
+                @{post.author.username}-{" "}
+                {new Date(post.createdAt).toLocaleString("vi-VN")}
               </div>
             </div>
           </div>
           <div className="px-6 mb-4">
             <p>
               {post.content
-                .split("\n")
+                ?.split("\n")
                 .filter((v) => v)
                 .map((v, i) => {
                   return (
@@ -95,11 +94,13 @@ const CommentUI = ({ postId, post }: { postId: string; post: Post }) => {
             <div className="flex items-start gap-4">
               <Avatar className="w-8 h-8">
                 <AvatarImage
-                  src="https://github.com/shadcn.png"
+                  src={user?.avatar}
                   className="rounded-full"
                   alt="@shadcn"
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback>
+                  {user?.displayName?.charAt(0) || "CN"}
+                </AvatarFallback>
               </Avatar>
               <Textarea
                 className="resize-none p-0 border-0 focus-visible:ring-0 min-h-0"

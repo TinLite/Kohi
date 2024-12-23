@@ -5,6 +5,7 @@ import { User } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { PostsService } from '../posts/posts.service';
 import { Bookmark } from './schemas/bookmark.schema';
+import path from 'path';
 
 @Injectable()
 export class BookmarkService {
@@ -38,13 +39,26 @@ export class BookmarkService {
       .exec();
     const totalBookmark = bookmarks.bookmarks.length;
     const totalPage = Math.ceil(totalBookmark / limit);
-
     const listBookmark = await this.userModel
       .findById(userId)
       .populate({
         path: 'bookmarks',
         model: 'Post',
-        populate: { path: 'author', model: 'User', select: 'username' },
+        populate: [
+          {
+            path: 'author',
+            model: 'User',
+            select: 'username displayname avatar',
+          },
+          {
+            path: 'postShare',
+            populate: {
+              path: 'author',
+              model: 'User',
+              select: 'username displayname avatar',
+            },
+          },
+        ],
       })
       .select('bookmarks -_id')
       .exec();

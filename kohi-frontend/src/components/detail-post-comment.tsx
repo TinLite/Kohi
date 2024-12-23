@@ -1,6 +1,5 @@
 import { Post } from "@/types/post-type";
 import UserPost from "./user-post";
-import CommentItem from "./commentItem";
 import { Comment } from "@/types/comment-type";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -12,8 +11,8 @@ import {
   listCommentsByPostId,
 } from "@/repository/comment-repository";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-const DetailPost = ({ post }: { post: Post }) => {
+import CommentItem from "./commentItem";
+const DetailPost = ({ post }: { post: any }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
 
@@ -23,7 +22,6 @@ const DetailPost = ({ post }: { post: Post }) => {
       if (response && response.data) {
         setComments(response.data);
       } else {
-        // console.log( response)
         setComments([]);
       }
     } catch (err) {
@@ -31,6 +29,11 @@ const DetailPost = ({ post }: { post: Post }) => {
       setComments([]);
     }
   };
+
+  useEffect(() => {
+    fetchComments();
+  }, [post._id]);
+
   const handleCreateComment = async () => {
     if (!newComment.trim()) return;
     try {
@@ -41,42 +44,47 @@ const DetailPost = ({ post }: { post: Post }) => {
       console.error(err);
     }
   };
-  useEffect(() => {
-    fetchComments();
-  }, [post._id]);
+
+  const buildCommentTree = (comments: Comment[]) => {
+    const commentMap: { [key: string]: Comment[] } = {};
+    const rootComments: Comment[] = [];
+
+    comments.forEach((comment) => {
+      if (comment.replyTo) {
+        if (!commentMap[comment.replyTo]) {
+          commentMap[comment.replyTo] = [];
+        }
+        commentMap[comment.replyTo].push(comment);
+      } else {
+        rootComments.push(comment);
+      }
+    });
+    const addReplies = (comment: Comment) => {
+      if (commentMap[comment._id]) {
+        commentMap[comment._id].forEach(addReplies);
+      }
+    };
+
+    rootComments.forEach(addReplies);
+    return rootComments;
+  };
+
+  const commentTree = buildCommentTree(comments);
 
   return (
     <ScrollArea className="h-screen">
       <div className="space-y-6 py-6 max-w-2xl mx-auto">
         <UserPost post={post} />
-        <div className="space-y-6">
-          <div className="flex items-start gap-2">
-            <Avatar className="w-8 h-8">
-              <AvatarImage
-                src="https://github.com/QuangTeoo.png"
-                className="rounded-full"
-                alt="@shadcn"
-              />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            <Textarea
-              className="resize-none p-0 border-0 focus-visible:ring-0 min-h-0 flex-grow"
-              placeholder="Add a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <Button variant="default" onClick={handleCreateComment}>
-              OK
-            </Button>
-          </div>
-          <div className="space-y-4">
-            {comments.map((comment) => (
-              <CommentItem key={comment._id} comment={comment} />
-            ))}
-          </div>
-        </div>
+        {commentTree.map((comment) => (
+          <CommentItem
+            key={comment._id}
+            comment={comment}
+            allComments={comments}
+          />
+        ))}
       </div>
     </ScrollArea>
   );
 };
+
 export default DetailPost;

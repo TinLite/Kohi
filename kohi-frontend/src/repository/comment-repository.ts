@@ -21,6 +21,28 @@ export async function createComment(postId: string, content: string) {
     throw new Error("Failed to create comment");
   }
 }
+
+export async function replyToComment(replyTo: string, content: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/comments/reply/${replyTo}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+      body: JSON.stringify({
+        content: content,
+      }),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to reply comment");
+  }
+}
+
 export async function listCommentsByPostId(postId: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
@@ -77,4 +99,29 @@ export async function unLikeComment(commentId: string) {
   if (!response.ok) {
     throw new Error("Failed to unlike comment");
   }
+}
+export async function listCommentByReplyTo(replyTo:string){
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/comments/list/reply/${replyTo}`,
+    {
+      // headers: {
+      //   Authorization: `Bearer ${localStorage.backend_access_token}`,
+      // },
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch comments");
+  }
+  const data = await response.json();
+  return data as {
+    data: Comment[];
+    pagination: {
+      currentPage: number;
+      totalPage: number;
+      totalElement: number;
+      limit: number;
+    };
+  };
 }

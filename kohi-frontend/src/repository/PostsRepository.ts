@@ -135,3 +135,30 @@ export async function getMediaByUserId() {
   );
   return response.json();
 }
+export async function getListPostShare() {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/profile/share`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  return (await response.json()) as Post[];
+}
+export async function createSharePost(postId: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/detail/${postId}/share`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  return response.json();
+}

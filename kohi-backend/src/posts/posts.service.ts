@@ -9,6 +9,7 @@ import { Post, PostFlags } from './schemas/post.schema';
 import { UtilsService } from '../utils/utils.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import * as request from 'supertest';
+import path from 'path';
 @Injectable()
 export class PostsService {
   constructor(
@@ -37,6 +38,17 @@ export class PostsService {
     return this.postModel
       .find({ flags: { $nin: [PostFlags.HIDDEN] } })
       .populate('author')
+      .populate({
+        path: 'postShare',
+        select: 'content author',
+      })
+      .populate({
+        path: 'postShare',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      })
       .sort({ createdAt: -1 })
       .exec();
   }
@@ -74,7 +86,18 @@ export class PostsService {
         _id: id,
         flags: { $nin: [PostFlags.HIDDEN] },
       })
-      .populate('author');
+      .populate({
+        path: 'author',
+        select: 'username displayname avatar',
+      })
+      .populate({
+        path: 'postShare',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      })
+      .exec();
   }
   async findOneNoPopulate(id: string) {
     return this.postModel
@@ -242,12 +265,23 @@ export class PostsService {
     };
   }
   async getProfilePosts(author: string) {
-    return this.postModel
+    return await this.postModel
       .find({
         author,
         flags: { $nin: [PostFlags.HIDDEN] },
       })
-      .populate('author')
+      .populate({
+        path: 'author',
+        select: 'username displayname avatar',
+      })
+      .populate({
+        path: 'postShare',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      })
+      .sort({ createdAt: -1 })
       .exec();
   }
   async getProfileMedia(author: string) {
@@ -261,10 +295,35 @@ export class PostsService {
     const media = posts.reduce((acc, post) => {
       return acc.concat(post.media);
     }, []);
-  return media;
+    return media;
   }
 
   async findPosts(filter: any) {
-    return this.postModel.find(filter).populate('author', 'username displayname').exec();
+    return this.postModel
+      .find(filter)
+      .populate('author', 'username displayname')
+      .exec();
+  }
+  async getProfileShares(author: string) {
+    return this.postModel
+      .find({
+        postShare: { $exists: true },
+        author,
+        flags: { $nin: [PostFlags.HIDDEN] },
+      })
+      .populate('author')
+      .populate({
+        path: 'postShare',
+        select: 'content author',
+      })
+      .populate({
+        path: 'postShare',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 }

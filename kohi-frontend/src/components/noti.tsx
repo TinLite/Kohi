@@ -97,7 +97,7 @@ const UserNoti = ({
             ) : (
               <>
                 <DropdownMenuItem onClick={() => handleReadNotification(id)}>
-                  Đánh dấu chưa đọc
+                  Đánh dấu đã đọc
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleReadNotification(id)}>
                   Xóa

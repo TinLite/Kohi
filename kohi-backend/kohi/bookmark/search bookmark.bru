@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: http://localhost:3000/v1/api/users/profile/bookmarks/search
+  url: http://localhost:3000/v1/api/users/profile/bookmarks/search?query=teo
   body: none
   auth: bearer
+}
+
+params:query {
+  query: teo
 }
 
 auth:bearer {

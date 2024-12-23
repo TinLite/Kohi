@@ -103,7 +103,7 @@ export class CommentsService {
     const comment = await this.commentModel
       .find({
         postId: postId,
-        replyTo: null,
+        // replyTo: null,
       })
       .populate('author', 'username avatar displayName')
       .exec();
