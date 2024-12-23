@@ -47,4 +47,29 @@ export class ChatService {
       select: 'username avatar displayName',
     }).populate("replyTo", "content senderID isRecalled");
   }
+
+  async getMessagesByChannelIdAndBefore(channelId: string, before: Date, limit: number = 10) {
+    return this.chatMessageModel.find({ channelID: channelId, timeStamp: { $lt: before } }).sort({ timeStamp: -1 }).limit(limit).populate({
+      path: 'senderID',
+      select: 'username avatar displayName',
+    }).populate("replyTo", "content senderID isRecalled");
+  }
+
+  async getMessagesByIds(messageIds: string[]) {
+    return this.chatMessageModel.find({ _id: { $in: messageIds } }).populate({
+      path: 'senderID',
+      select: 'username avatar displayName',
+    }).populate("replyTo", "content senderID isRecalled");
+  }
+
+  async getMessageById(messageId: string) {
+    return this.chatMessageModel.findById(messageId).populate({
+      path: 'senderID',
+      select: 'username avatar displayName',
+    }).populate("replyTo", "content senderID isRecalled");
+  }
+
+  async recallMessage(messageId: string) {
+    return this.chatMessageModel.findByIdAndUpdate(messageId, { isRecalled: true, content: "" });
+  }
 }

@@ -71,3 +71,15 @@ export async function sendMessage(channelId: string, data: {
     }
     return await response.json() as ChatMessage;
 }
+
+async function recallMesssage(channelId: string, messageId: string) {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages/${messageId}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${localStorage.backend_access_token}`,
+        },
+    });
+    if (!response.ok) {
+        throw new Error("Failed to recall message");
+    }
+}

@@ -29,9 +29,7 @@ socket.on("disconnect", (reason) => {
 socket.onAny((event, ...args) => {
   console.log("Hi chat");
   if (import.meta.env.DEV) {
-    toast.message(`[DEBUG] Socket msg: ${event}`, {
-      description: JSON.stringify(args),
-    });
+    console.log("[DEBUG] Socket", event, args);
   }
 });
 
