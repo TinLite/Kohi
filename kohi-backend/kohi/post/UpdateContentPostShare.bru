@@ -1,0 +1,21 @@
+meta {
+  name: UpdateContentPostShare
+  type: http
+  seq: 14
+}
+
+patch {
+  url: http://localhost:3000/v1/api/posts/detail/6768e96f2cd7171014b20cf9/updateshare
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:json {
+  {
+    "content":"aaaaaa"
+  }
+}

@@ -112,10 +112,12 @@ export class PostsController {
   ) {
     const requestUserId = request.user._id;
     const post = await this.postsService.findOne(id);
+    console.log(post.author, requestUserId);
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    if (post.author.toString() !== requestUserId) {
+    // @ts-expect-error
+    if (post.author._id.toString() !== requestUserId) {
       throw new UnauthorizedException(
         'You are not allowed to update this post',
       );
@@ -130,16 +132,17 @@ export class PostsController {
     }
     const requestUserId = request.user._id;
     const post = await this.postsService.findOne(id);
+    console.log(post.author, requestUserId);
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    // TODO Add admin role check
-    if (post.author.toString() !== requestUserId) {
+    // @ts-expect-error
+    if (post.author._id.toString() !== requestUserId) {
       throw new UnauthorizedException(
         'You are not allowed to delete this post',
       );
     }
-    this.postsService.remove(id);
+    return this.postsService.deletePost(id);
   }
 
   @Post('detail/:id/like')
@@ -221,7 +224,8 @@ export class PostsController {
     if (!post.postShare) {
       throw new NotFoundException('Post not shared');
     }
-    if (post.author.toString() !== authorId) {
+    // @ts-expect-error
+    if (post.author._id.toString() !== authorId) {
       throw new UnauthorizedException(
         'You are not allowed to delete this post',
       );
@@ -236,11 +240,16 @@ export class PostsController {
     @Request() request,
   ) {
     const post = await this.postsService.findOne(postId);
+    console.log(postId, updatePostShareDto);
     const author = request.user._id;
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    if (post.author.toString() !== author) {
+    // if(!post.postShare) {
+    //   throw new NotFoundException('Post not shared');
+    // }
+    // @ts-expect-error
+    if (post.author._id.toString() !== author) {
       throw new UnauthorizedException(
         'You are not allowed to update this post',
       );

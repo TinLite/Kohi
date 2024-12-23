@@ -19,7 +19,6 @@ export class CloudinaryController {
     const folder = process.env.CLOUDINARY_FOLDER_USER;
     return this.cloudinaryService.uploadFile(file, folder);
   }
-
   @Public()
   @Post('imgs')
   @UseInterceptors(FilesInterceptor('files', 15))

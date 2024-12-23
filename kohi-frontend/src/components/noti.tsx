@@ -120,8 +120,8 @@ const UserNoti = ({
             <TabsTrigger value="all">Tất cả</TabsTrigger>
             <TabsTrigger value="unread">Chưa đọc</TabsTrigger>
           </TabsList>
-          <ScrollArea className="flex-1 py-2">
-            <TabsContent value="all">
+          <TabsContent value="all">
+            <ScrollArea className="overflow-y-auto h-[500px] pr-2">
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <NotificationItem
@@ -151,8 +151,10 @@ const UserNoti = ({
                   Không có thông báo nào.
                 </p>
               )}
-            </TabsContent>
-            <TabsContent value="unread">
+            </ScrollArea>
+          </TabsContent>
+          <TabsContent value="unread">
+            <ScrollArea className="overflow-y-auto h-[500px]">
               {notifications.filter((noti) => noti.isRead === false).length >
               0 ? (
                 notifications
@@ -183,14 +185,9 @@ const UserNoti = ({
                   Không có thông báo nào chưa đọc.
                 </p>
               )}
-            </TabsContent>
-          </ScrollArea>
+            </ScrollArea>
+          </TabsContent>
           <Separator />
-          <div className="p-4">
-            <Button variant="outline" className="w-full">
-              Xem thông báo trước đó
-            </Button>
-          </div>
         </Tabs>
       </SheetContent>
     </Sheet>

@@ -133,7 +133,12 @@ export class PostsService {
       },
     );
   }
-
+  async deletePost(id: string) {
+    return this.postModel.findOneAndDelete({
+      _id: id,
+      flags: { $nin: [PostFlags.HIDDEN] },
+    });
+  }
   async addLike(id: string, author: string) {
     await this.postModel
       .findOneAndUpdate(
@@ -220,6 +225,13 @@ export class PostsService {
     const post = await this.postModel
       .find()
       .populate('author')
+      .populate({
+        path: 'postShare',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      })
       .or([
         { content: { $regex: query, $options: 'i' } },
         {
@@ -239,6 +251,13 @@ export class PostsService {
     const posts = await this.postModel
       .find()
       .populate('author')
+      .populate({
+        path: 'postShare',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      })
       .or([
         { content: { $regex: query, $options: 'i' } },
         { author: { $in: authorIds } },
@@ -302,6 +321,13 @@ export class PostsService {
     return this.postModel
       .find(filter)
       .populate('author', 'username displayname')
+      .populate({
+        path: 'postShare',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      })
       .exec();
   }
   async getProfileShares(author: string) {

@@ -83,7 +83,7 @@ export class BookmarkService {
         { content: { $regex: query, $options: 'i' } },
         { author: { $in: userIds } },
       ],
-    });
+    })
     return posts;
   }
 }

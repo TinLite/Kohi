@@ -5,16 +5,26 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   createComment,
   listCommentsByPostId,
 } from "@/repository/comment-repository";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import CommentItem from "./commentItem";
-const DetailPost = ({ post }: { post: any }) => {
+import { UserContext } from "@/context/user-context";
+const DetailPost = ({
+  post,
+  onUpdateShare,
+  onEditPost,
+}: {
+  post: Post;
+  onUpdateShare?: () => void;
+  onEditPost?: () => void;
+}) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const { user } = useContext(UserContext);
 
   const fetchComments = async () => {
     try {
@@ -29,10 +39,15 @@ const DetailPost = ({ post }: { post: any }) => {
       setComments([]);
     }
   };
-
+  const handleReplyComment = () => {
+    fetchComments();
+  };
+  const handleDeleteComment = () => {
+    fetchComments();
+  };
   useEffect(() => {
     fetchComments();
-  }, [post._id]);
+  }, [post._id, onUpdateShare]);
 
   const handleCreateComment = async () => {
     if (!newComment.trim()) return;
@@ -74,12 +89,18 @@ const DetailPost = ({ post }: { post: any }) => {
   return (
     <ScrollArea className="h-screen">
       <div className="space-y-6 py-6 max-w-2xl mx-auto">
-        <UserPost post={post} />
+        <UserPost
+          post={post}
+          showEditPost={user?._id == post.author._id}
+          onEditPost={onEditPost}
+        />
         {commentTree.map((comment) => (
           <CommentItem
             key={comment._id}
             comment={comment}
             allComments={comments}
+            onReply={handleReplyComment}
+            onDeleteComment={handleDeleteComment}
           />
         ))}
       </div>

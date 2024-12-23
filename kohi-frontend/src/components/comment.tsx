@@ -13,7 +13,15 @@ import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
 import { UserContext } from "@/context/user-context";
 
-const CommentUI = ({ postId, post }: { postId: string; post: Post }) => {
+const CommentUI = ({
+  postId,
+  post,
+  onCreatedComment,
+}: {
+  postId: string;
+  post: Post;
+  onCreatedComment?: () => void;
+}) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const { user } = useContext(UserContext);
@@ -23,7 +31,6 @@ const CommentUI = ({ postId, post }: { postId: string; post: Post }) => {
       if (response && response.data && Array.isArray(response.data)) {
         setComments(response.data);
       } else {
-        // console.log( response);
         setComments([]);
       }
     } catch (err) {
@@ -34,11 +41,13 @@ const CommentUI = ({ postId, post }: { postId: string; post: Post }) => {
   useEffect(() => {
     fetchComments();
   }, [postId]);
+
   const handleCreateComment = async () => {
     if (!newComment.trim()) return;
     try {
       await createComment(postId, newComment);
       setNewComment("");
+      onCreatedComment?.();
       fetchComments();
     } catch (err) {
       console.error(err);

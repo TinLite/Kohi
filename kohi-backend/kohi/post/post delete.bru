@@ -5,17 +5,11 @@ meta {
 }
 
 delete {
-  url: http://localhost:3000/v1/api/posts/detail/{{postId}}/delete
-  body: json
+  url: http://localhost:3000/v1/api/posts/detail/6768c135e658ed60b4b5531a/delete
+  body: none
   auth: bearer
 }
 
 auth:bearer {
   token: {{jwtToken}}
-}
-
-body:json {
-  {
-    "content": "Hello anh em 2"
-  }
 }

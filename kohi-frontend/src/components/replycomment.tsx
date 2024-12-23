@@ -8,8 +8,9 @@ import { UserContext } from "@/context/user-context";
 import { Separator } from "./ui/separator";
 import { replyToComment } from "@/repository/comment-repository";
 import { useNavigate } from "react-router-dom";
-export default function ReplyComment({ comment }: { comment: Comment }) {
+export default function ReplyComment({ comment,onReply}: { comment: Comment,onReply?:()=>void }) {
   const { user } = useContext(UserContext);
+  const [isOpenReply, setIsOpenReply] = useState(false);
   const [replyComment, setReplyComment] = useState("");
   const navigate = useNavigate();
   const handleReplyComment = async () => {
@@ -17,12 +18,15 @@ export default function ReplyComment({ comment }: { comment: Comment }) {
     try {
       await replyToComment(comment._id, replyComment);
       setReplyComment("");
+      setIsOpenReply(false);
+      onReply?.();
+      // navigate(0);
     } catch (err) {
       console.error(err);
     }
   };
   return (
-    <Dialog>
+    <Dialog open={isOpenReply} onOpenChange={setIsOpenReply}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
           Reply

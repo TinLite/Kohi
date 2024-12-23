@@ -90,6 +90,8 @@ export class BookmarksController {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return this.bookmarksService.searchBookMark(query, author);
+    const data = await this.bookmarksService.searchBookMark(query, author);
+    console.log(data);
+    return data;
   }
 }

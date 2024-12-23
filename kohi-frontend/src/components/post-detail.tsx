@@ -8,19 +8,19 @@ const PostPage = () => {
   const { id } = useParams();
   const [post, setPost] = useState<Post | null>(null);
 
-  useEffect(() => {
+  const fetchPost = async () => {
     if (id) {
-      const fetchPost = async () => {
-        try {
-          const response = await getPostsById(id);
-          // console.log(response);
-          setPost(response);
-        } catch (err) {
-          console.error("Error fetching post:", err);
-        }
-      };
-      fetchPost();
+      try {
+        const response = await getPostsById(id);
+        // console.log(response);
+        setPost(response);
+      } catch (err) {
+        console.error("Error fetching post:", err);
+      }
     }
+  };
+  useEffect(() => {
+    fetchPost();
   }, []);
 
   if (!post) {
@@ -28,7 +28,7 @@ const PostPage = () => {
   }
   return (
     <div>
-      <DetailPost post={post} />
+      <DetailPost post={post} onEditPost={fetchPost} />
     </div>
   );
 };

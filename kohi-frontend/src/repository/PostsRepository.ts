@@ -1,5 +1,6 @@
 import { Post } from "@/types/post-type";
 import { get } from "node:http";
+import path from 'path';
 
 export async function getGlobalLatestPosts() {
   const response = await fetch(
@@ -29,6 +30,65 @@ export async function createPosts(formData: FormData) {
   );
   if (!response.ok) {
     throw new Error("Failed to create post");
+  }
+  return await response.json();
+}
+export async function updatePostsShare(postId: string, content: string) {
+  console.log("Hi", postId, content);
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/detail/${postId}/updateshare`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to update post");
+  }
+  return await response.json();
+}
+export async function updatePost(postId: string, content: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/detail/${postId}/update`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to update post");
+  }
+  return await response.json();
+
+}
+export async function createSharePostQuote(postId: string, content: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/detail/${postId}/share`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to share post");
   }
   return await response.json();
 }
@@ -155,6 +215,20 @@ export async function createSharePost(postId: string) {
     }/posts/detail/${postId}/share`,
     {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  return response.json();
+}
+export async function deletePost(postId: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/detail/${postId}/delete`,
+    {
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${localStorage.backend_access_token}`,
       },

@@ -29,18 +29,22 @@ const BookMarkUI = () => {
     fetchBookmarks();
   }, []);
   useEffect(() => {
-    if (query === "") {
-      setSearchBookmarks(bookmarks);
-    } else {
-      searchBookMarks(query)
-        .then((result) => {
-          setSearchBookmarks(result);
-        })
-        .catch((error) => {
-          console.error("Error", error);
-        });
-    }
+    const timer = setTimeout(() => {
+      if (query === "") {
+        setSearchBookmarks(bookmarks);
+      } else {
+        searchBookMarks(query)
+          .then((result) => {
+            setSearchBookmarks(result);
+          })
+          .catch((error) => {
+            console.error("Error", error);
+          });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
   }, [query, bookmarks]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
@@ -66,7 +70,11 @@ const BookMarkUI = () => {
             ) : (
               searchBookmarks.map((post) => (
                 <div key={post._id}>
-                  <UserPost post={post} onBookmarkUpdate={fetchBookmarks} />
+                  <UserPost
+                    post={post}
+                    onBookmarkUpdate={fetchBookmarks}
+                    showEditPost={user?._id == post.author._id}
+                  />
                 </div>
               ))
             )}

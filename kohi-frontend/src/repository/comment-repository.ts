@@ -100,7 +100,7 @@ export async function unLikeComment(commentId: string) {
     throw new Error("Failed to unlike comment");
   }
 }
-export async function listCommentByReplyTo(replyTo:string){
+export async function listCommentByReplyTo(replyTo: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
@@ -124,4 +124,20 @@ export async function listCommentByReplyTo(replyTo:string){
       limit: number;
     };
   };
+}
+export async function deleteComment(commentId: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/comments/delete/${commentId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to delete comment");
+  }
 }

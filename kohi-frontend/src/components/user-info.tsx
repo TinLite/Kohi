@@ -12,35 +12,40 @@ import {
 const UserInfo = ({
   user,
   isFollowed,
+  onFollowChange,
 }: {
   user: User;
   isFollowed?: boolean;
-  onFollowChange?:boolean;
+  onFollowChange?: () => void;
 }) => {
   const [isFollowing, setIsFollowing] = useState(isFollowed ?? false);
   const [following, setFollowing] = useState<User[]>([]);
 
   const handleFollow = async () => {
-    try {
-      await followUser(user._id).then((res) => {
-        console.log(res);
-        if(res )
+    await followUser(user._id)
+      .then(() => {
         setIsFollowing(true);
-      }
-      );
-    } catch (err) {
-      console.log(err);
-    }
+        onFollowChange?.();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleUnfollow = async () => {
-    try {
-      console.log("Unfollow");
-      await unFollowUser(user._id);
-      setIsFollowing(false);
-    } catch (err) {
-      console.log(err);
-    }
+    await unFollowUser(user._id)
+      .then(() => {
+        setIsFollowing(false);
+        onFollowChange?.();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
+  useEffect(() => {
+    if (isFollowed !== undefined) {
+      setIsFollowing(isFollowed);
+    }
+  }, [isFollowed]);
   return (
     <Card>
       <div className="flex px-6 py-4 flex-row gap-4 items-center w-full">
@@ -58,7 +63,7 @@ const UserInfo = ({
             @{user.displayName}
           </div>
         </div>
-        {isFollowed ? (
+        {isFollowing ? (
           <Button
             onClick={handleUnfollow}
             variant="outline"

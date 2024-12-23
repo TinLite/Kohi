@@ -75,7 +75,7 @@ const UserProfile = () => {
       console.error("Cannot update profile.");
     }
   };
-  useEffect(() => {
+  const fetchPosts = async () => {
     getPostsByUserId().then(
       (data) => {
         setPosts(data);
@@ -88,8 +88,14 @@ const UserProfile = () => {
         console.error("Failed to fetch posts", error);
       }
     );
-  }, [user]);
+  };
   useEffect(() => {
+    fetchPosts();
+  }, [user]);
+  const handleEditPost = () => {
+    fetchPosts();
+  };
+  const fetchPostsShare = async () => {
     getListPostShare().then(
       (data) => {
         console.log("sharepost" + data);
@@ -99,8 +105,16 @@ const UserProfile = () => {
         console.error("Failed to fetch posts", error);
       }
     );
+  };
+  useEffect(() => {
+    fetchPostsShare();
   }, [user]);
-
+  const handleEditPostShare = () => {
+    fetchPostsShare();
+  };
+  const handleDeletePost = async () => {
+    fetchPosts();
+  };
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -267,7 +281,13 @@ const UserProfile = () => {
               <div className="md:mb-0 mb-16">
                 {posts.map((post) => (
                   <div className="mb-4" key={post._id}>
-                    <UserPost post={post} />
+                    <UserPost
+                      post={post}
+                      showEditPost={user?._id == post.author._id}
+                      onEditPost={handleEditPost}
+                      onUpdateShare={handleEditPostShare}
+                      onDelete={handleDeletePost}
+                    />
                   </div>
                 ))}
               </div>
@@ -276,7 +296,12 @@ const UserProfile = () => {
               {postsShare.map((post) => (
                 <div className="mb-4" key={post._id}>
                   {post.postShare ? (
-                    <UserPost post={post} />
+                    <UserPost
+                      post={post}
+                      showEditPost={user?._id == post.author._id}
+                      onUpdateShare={handleEditPostShare}
+                      onDelete={handleDeletePost}
+                    />
                   ) : (
                     <div>No content available</div>
                   )}

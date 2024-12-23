@@ -49,15 +49,19 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "./ui/carousel";
+import UserPostShareQuote from "./user-post-share-Quote";
+import { UserPostOption } from "./user-post-option";
 
 function UserHoverCard({
   children,
   user,
   className,
+  onFollowChange,
 }: {
   children?: React.ReactNode;
   user: User;
   className?: string;
+  onFollowChange?: () => void;
 }) {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const { user: currentUser, setUser } = useContext(UserContext);
@@ -68,7 +72,7 @@ function UserHoverCard({
     } else {
       setIsFollowing(false);
     }
-  }, [currentUser, isFollowing]);
+  }, [currentUser, user._id]);
 
   const handleFollow = async () => {
     await followUser(user._id)
@@ -78,8 +82,17 @@ function UserHoverCard({
         }
         if (res && res.statusCode === 400) {
           return console.log(res.message);
+        } else {
+          setIsFollowing(true);
+          setUser((prevUser) => {
+            if (!prevUser) return prevUser;
+            return {
+              ...prevUser,
+              following: [...(prevUser.following || []), user._id],
+            };
+          });
         }
-        setIsFollowing(true);
+        onFollowChange?.();
       })
       .catch((err) => {
         console.log(err);
@@ -90,8 +103,18 @@ function UserHoverCard({
       .then((res) => {
         if (res && res.statusCode === 401) {
           return navigate("/login");
+        } else {
+          setIsFollowing(false);
+          setUser((prevUser) => {
+            if (!prevUser) return prevUser;
+            return {
+              ...prevUser,
+              following:
+                prevUser.following?.filter((id) => id !== user._id) || [],
+            };
+          });
         }
-        setIsFollowing(false);
+        onFollowChange?.();
       })
       .catch((err) => {
         console.log(err);
@@ -151,26 +174,46 @@ function UserHoverCard({
 export default function UserPost({
   post,
   onBookmarkUpdate,
+  onDelete,
+  onRepost,
+  onShareQuote,
+  onUpdateShare,
+  onEditPost,
+  onFollowChange,
   hideComment,
+  showEditPost,
   className,
 }: {
   post: Post;
   hideComment?: boolean;
+  onDelete?: () => void;
+  onRepost?: () => void;
+  onShareQuote?: () => void;
+  onUpdateShare?: () => void;
+  onEditPost?: () => void;
+  onFollowChange?: () => void;
+  showEditPost?: boolean;
   onBookmarkUpdate?: (newStatus: boolean) => void;
   className?: string;
 }) {
   const { user, setUser } = useContext(UserContext);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [isLiked, setIsLiked] = useState(
     post.likes?.includes(user ? user._id : "") ?? 0
   );
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [isBookMarked, setIsBookMarked] = useState(false);
-
+  const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
+  const handleOpenQuoteDialog = () => {
+    setIsQuoteDialogOpen(true);
+  };
+  const handleCloseQuoteDialog = () => {
+    setIsQuoteDialogOpen(false);
+  };
   const fetchLike = async () => {
     await countLikePost(post._id)
       .then((res) => {
         setLikeCount(res.total);
-        console.log(res.total);
       })
       .catch((err) => {
         console.log(err);
@@ -178,8 +221,7 @@ export default function UserPost({
   };
   useEffect(() => {
     fetchLike();
-    [isLiked];
-  });
+  }, [isLiked]);
 
   const handleLike = async () => {
     try {
@@ -215,7 +257,6 @@ export default function UserPost({
       console.log(err);
     }
   };
-
   const handleRemoveBookmark = async () => {
     try {
       await unBookMark(post._id);
@@ -228,37 +269,69 @@ export default function UserPost({
       console.log(err);
     }
   };
-  const handleClickQuote = async () => {
+  const handleClickRepost = async () => {
     await createSharePost(post._id).then(() => {
+      onRepost?.();
       getProfile().then(setUser);
     });
   };
+  const handleEditPost = () => {
+    onEditPost?.();
+  }
   return (
     <Card className={cn("max-sm:rounded-none", className)}>
       <div className="flex px-6 pt-4 flex-row items-center">
-        <UserHoverCard
-          user={post.author}
-          className="self-stretch grid place-items-center pr-4"
-        >
-          <Avatar className="w-8 h-8">
-            <AvatarImage
-              src={post.author.avatar ?? ""}
-              className="rounded-full"
-              alt="@shadcn"
-            />
-            <AvatarFallback>{post.author.username[0]}</AvatarFallback>
-          </Avatar>
-        </UserHoverCard>
+        {user?._id !== post.author._id ? (
+          <UserHoverCard
+            user={post.author}
+            className="self-stretch grid place-items-center pr-4"
+            onFollowChange={onFollowChange}
+          >
+            <Avatar className="w-8 h-8">
+              <AvatarImage
+                src={post.author.avatar ?? ""}
+                className="rounded-full"
+                alt={post.author.displayName}
+              />
+              <AvatarFallback>
+                {post.author.displayName?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+          </UserHoverCard>
+        ) : (
+          <div className="self-stretch grid place-items-center pr-4">
+            <Avatar className="w-8 h-8">
+              <AvatarImage
+                src={post.author.avatar ?? ""}
+                className="rounded-full"
+                alt={post.author.displayName}
+              />
+              <AvatarFallback>
+                {post.author.displayName?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        )}
         <div className="">
-          <UserHoverCard user={post.author}>
+          {user?._id !== post.author._id ? (
+            <UserHoverCard user={post.author}>
+              <div className="font-bold">
+                {post.author.displayName ?? post.author.username}
+              </div>
+            </UserHoverCard>
+          ) : (
             <div className="font-bold">
               {post.author.displayName ?? post.author.username}
             </div>
-          </UserHoverCard>
+          )}
           <div className="text-muted-foreground text-sm">
-            <UserHoverCard user={post.author}>
-              @{post.author.username}
-            </UserHoverCard>{" "}
+            {user?._id !== post.author._id ? (
+              <UserHoverCard user={post.author}>
+                @{post.author.username}
+              </UserHoverCard>
+            ) : (
+              <span>@{post.author.username}</span>
+            )}
             <Link to={`/post/detail/${post._id}`}>
               - {post.createdAt.toLocaleString("vi-VN")}
             </Link>
@@ -268,6 +341,14 @@ export default function UserPost({
           to={`/post/detail/${post._id}`}
           className="block flex-grow self-stretch"
         />
+        {showEditPost && (
+          <UserPostOption
+            post={post}
+            onDelete={onDelete}
+            onUpdateShare={onUpdateShare}
+            onEditPost={handleEditPost}
+          />
+        )}
       </div>
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
         <p>
@@ -332,7 +413,9 @@ export default function UserPost({
                 />
                 {likeCount}
               </Button>
-              <CommentUI postId={post._id} post={post} />
+              <div>
+                <CommentUI postId={post._id} post={post} />
+              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -344,9 +427,11 @@ export default function UserPost({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem>Repost</DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleClickQuote}>
-                    Quote...
+                  <DropdownMenuItem onClick={handleClickRepost}>
+                    Repost
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleOpenQuoteDialog}>
+                    Quote
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -389,6 +474,12 @@ export default function UserPost({
                   className={cn("w-4 h-4", isBookMarked ? "fill-primary" : "")}
                 />
               </Button>
+              <UserPostShareQuote
+                isOpen={isQuoteDialogOpen}
+                onClose={handleCloseQuoteDialog}
+                onShareQuote={onShareQuote}
+                post={post}
+              />
             </div>
           </div>
         </>

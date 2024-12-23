@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import UserPost from "@/components/user-post";
+import { UserContext } from "@/context/user-context";
 import {
   createPosts,
   getGlobalLatestPosts,
 } from "@/repository/PostsRepository";
 import { Post } from "@/types/post-type";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 function PostCreate({ onSubmit }: { onSubmit: () => void }) {
@@ -90,6 +91,7 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
 }
 
 export default function PostList() {
+  const { user } = useContext(UserContext);
   function refreshPost() {
     getGlobalLatestPosts().then(setPosts);
   }
@@ -114,7 +116,15 @@ export default function PostList() {
               <div className="space-y-6 py-6 md:mb-0 mb-12 xl:pr-4">
                 <PostCreate onSubmit={refreshPost} />
                 {posts.map((post) => (
-                  <UserPost post={post} key={post._id} />
+                  <UserPost
+                    post={post}
+                    key={post._id}
+                    showEditPost={user?._id == post.author._id}
+                    onDelete={refreshPost}
+                    onRepost={refreshPost}
+                    onUpdateShare={refreshPost}
+                    onShareQuote={refreshPost}
+                  />
                 ))}
               </div>
             </ScrollArea>
