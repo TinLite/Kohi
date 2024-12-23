@@ -1,9 +1,14 @@
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
@@ -11,11 +16,12 @@ import { getChannel, getChannelMessages, sendMessage } from "@/repository/chat-r
 import socket from "@/services/socket";
 import { ChatChannel, ChatChannelType, ChatMessage } from "@/types/chat-types";
 import { SocketEvent } from "@/types/socket-types";
-import { ChevronLeft, CircleX, ImagePlus, ReplyIcon, Trash2 } from "lucide-react";
+import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, PanelRightOpen, PenLine, ReplyIcon, Trash2 } from "lucide-react";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
-function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, message, onReply, isReplyingTo = false, replyTarget }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingTop?: boolean, message?: string, onReply?: () => void, isReplyingTo?: boolean, replyTarget?: ChatMessage }) {
+function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, message, onReply, isReplyingTo = false, replyTarget, onRecall = () => {} }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingTop?: boolean, message?: string, onReply?: () => void, isReplyingTo?: boolean, replyTarget?: ChatMessage, onRecall?: () => void }) {
     return (
         <div
             className={cn([
@@ -84,14 +90,158 @@ function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, messa
                         </div>
                     </ContextMenuTrigger>
                     <ContextMenuContent>
-                        <ContextMenuItem>Reply</ContextMenuItem>
+                        <ContextMenuItem onClick={() => onReply && onReply()}>Reply</ContextMenuItem>
                         <ContextMenuSeparator />
-                        <ContextMenuItem>Copy</ContextMenuItem>
-                        <ContextMenuItem>Recall</ContextMenuItem>
+                        <ContextMenuItem onClick={() => navigator.clipboard.writeText(message ?? "").then(() => toast.success("Copied message to clipboard"))}>Copy</ContextMenuItem>
+                        <ContextMenuItem onClick={() => onRecall && onRecall()}>Recall</ContextMenuItem>
                     </ContextMenuContent>
                 </ContextMenu>
             </div>
         </div>
+    )
+}
+
+function DialogEditChannelAvatar({ channel, open, onOpenChange }: { channel: ChatChannel, open: boolean, onOpenChange: () => void }) {
+    const [channelName, setChannelName] = useState(channel.name);
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Update new avatar for this chat channel</DialogTitle>
+                    <DialogDescription>Avatar will also be changed for everyone else in the chat.</DialogDescription>
+                </DialogHeader>
+                    <img src="https://cataas.com/cat" className="aspect-square object-cover rounded-full w-screen max-w-36 mx-auto"/>
+                <Input type="file" />
+                <DialogFooter>
+                    <Button variant="outline" type="reset" onClick={(e) => {
+                        e.preventDefault();
+                        onOpenChange();
+                    }}>Discard</Button>
+                    <Button>Submit</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+function DialogEditChannelName({ channel, open, onOpenChange }: { channel: ChatChannel, open: boolean, onOpenChange: () => void }) {
+    const [channelName, setChannelName] = useState(channel.name);
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Change this channel's name</DialogTitle>
+                    <DialogDescription>Change display name of this channel.<br />The name will also be changed for everyone else in the chat.</DialogDescription>
+                </DialogHeader>
+                <div className="grid">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="chat-channel-name-new-edit" className="text-right">Channel name</Label>
+                        <Input
+                            className="col-span-3"
+                            id="chat-channel-name-new-edit"
+                            onChange={(e) => setChannelName(e.currentTarget.value)}
+                            value={channelName}
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" type="reset" onClick={(e) => {
+                        e.preventDefault();
+                        onOpenChange();
+                    }}>Discard</Button>
+                    <Button>Submit</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+function SheetChannelSettings({ channel, open, onOpenChange }: { channel: ChatChannel, open: boolean, onOpenChange: () => void }) {
+    const [editChannelNameOpen, setEditChannelNameOpen] = useState(false);
+    const [editChannelAvatarOpen, setEditChannelAvatarOpen] = useState(false);
+    return (
+        <>
+            <DialogEditChannelName channel={channel} open={editChannelNameOpen} onOpenChange={() => setEditChannelNameOpen(false)} />
+            <DialogEditChannelAvatar channel={channel} open={editChannelAvatarOpen} onOpenChange={() => setEditChannelAvatarOpen(false)} />
+            <Sheet open={open} onOpenChange={onOpenChange}>
+                <SheetContent className="w-full">
+                    <SheetHeader className="mb-4">
+                        <SheetTitle>{channel.name ?? "lmao"}</SheetTitle>
+                        <SheetDescription>Chat channel setting</SheetDescription>
+                    </SheetHeader>
+                    <div className="flex gap-2 flex-col">
+                        <Accordion type="single" collapsible className="w-full text-left">
+                            <AccordionItem value="item-chat-setting">
+                                <AccordionTrigger>General chat setting</AccordionTrigger>
+                                <AccordionContent className="flex flex-col gap-2 align-middle">
+                                    <Button variant="outline" className="justify-start gap-3" onClick={() => setEditChannelNameOpen(true)}><PenLine className="w-5 h-5" strokeWidth={2} /> Change chat name</Button>
+                                    <Button variant="outline" className="justify-start gap-3" onClick={() => setEditChannelAvatarOpen(true)}><ImageUp className="w-5 h-5" strokeWidth={2} /> Change cover</Button>
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="item-chat-participants">
+                                <AccordionTrigger>Participants</AccordionTrigger>
+                                <AccordionContent className="flex flex-col gap-2 align-middle">
+                                    {
+                                        channel.participants.map((participant) => (
+                                            <div className="flex items-center gap-2">
+                                                <Avatar>
+                                                    <AvatarImage src={participant.user.avatar} />
+                                                    <AvatarFallback>@</AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <h1 className="font-bold">{participant.user.displayName ?? participant.user.username}</h1>
+                                                    <h4 className="text-xs text-muted-foreground">Joined on</h4>
+                                                </div>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="ml-auto"><Ellipsis /></Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent side="left">
+                                                        <DropdownMenuItem><span className="text-destructive hover:text-destructive">Remove participant</span></DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        ))
+                                    }
+                                    {/* <Button variant="outline" className="justify-start gap-3"><PenLine className="w-5 h-5" strokeWidth={2} /> Change chat name</Button>
+                                <Button variant="outline" className="justify-start gap-3"><ImageUp className="w-5 h-5" strokeWidth={2} /> Change cover</Button> */}
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="item-chat-participants">
+                                <AccordionTrigger>Participants</AccordionTrigger>
+                                <AccordionContent className="flex flex-col gap-2 align-middle">
+                                    {
+                                        channel.participants.map((participant) => (
+                                            <div className="flex items-center gap-2">
+                                                <Avatar>
+                                                    <AvatarImage src={participant.user.avatar} />
+                                                    <AvatarFallback>@</AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <h1 className="font-bold">{participant.user.displayName ?? participant.user.username}</h1>
+                                                    <h4 className="text-xs text-muted-foreground">Joined on</h4>
+                                                </div>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="ml-auto"><Ellipsis /></Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent side="left">
+                                                        <DropdownMenuItem><span className="text-destructive hover:text-destructive">Remove participant</span></DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+                                        ))
+                                    }
+                                    {/* <Button variant="outline" className="justify-start gap-3"><PenLine className="w-5 h-5" strokeWidth={2} /> Change chat name</Button>
+                                <Button variant="outline" className="justify-start gap-3"><ImageUp className="w-5 h-5" strokeWidth={2} /> Change cover</Button> */}
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                        <Button variant="destructive" className="justify-start gap-3 w-full"><DoorOpen className="w-5 h-5" strokeWidth={2} /> Leave chat</Button>
+                    </div>
+                </SheetContent>
+            </Sheet>
+        </>
     )
 }
 
@@ -112,6 +262,8 @@ function MessageView({ channel, className }: { channel: ChatChannel, className?:
                 return action.payload;
         }
     }, []);
+    const [channelSettingStatus, setChannelSettingStatus] = useState(false);
+
     const [channelName, setChannelName] = useState<string | undefined>(channel.name);
     const [avatar, setAvatar] = useState<string | undefined>(undefined);
     const { user } = useContext(UserContext);
@@ -174,7 +326,7 @@ function MessageView({ channel, className }: { channel: ChatChannel, className?:
         console.log(`Send message: ${message}`);
         input.value = '';
         setReplyTarget(null);
-        const data : {
+        const data: {
             content: string;
             replyTo?: string;
         } = {
@@ -215,6 +367,7 @@ function MessageView({ channel, className }: { channel: ChatChannel, className?:
 
     return (
         <div className={cn(className, "flex-grow flex h-screen flex-col")}>
+            <SheetChannelSettings channel={channel} onOpenChange={() => setChannelSettingStatus(false)} open={channelSettingStatus} />
             <div className="md:px-4 py-0.5 bg-background flex items-center">
                 <Link to="/message" className={buttonVariants({
                     variant: "ghost",
@@ -230,6 +383,9 @@ function MessageView({ channel, className }: { channel: ChatChannel, className?:
                     <h1 className="font-bold">Display Name <span className="font-normal text-muted-foreground">@username</span></h1>
                     <h4 className="text-xs">Online</h4>
                 </div>
+                <Button variant="ghost" size="icon" onClick={() => setChannelSettingStatus(true)} className="ml-auto">
+                    <PanelRightOpen strokeWidth={1.5} />
+                </Button>
             </div>
             <Separator />
             <ScrollArea ref={scrollAreaRef} onScroll={onMessageScroll} className="flex-grow flex flex-col-reverse">
@@ -288,8 +444,8 @@ function MessageView({ channel, className }: { channel: ChatChannel, className?:
                     <h1 className="text-sm px-4 py-1">Đang trả lời
                         {
                             replyTarget?.senderID._id === user?._id ?
-                            <span> chính mình</span> :
-                            <span className="font-bold"> {replyTarget?.senderID.displayName ?? replyTarget?.senderID.username}</span>
+                                <span> chính mình</span> :
+                                <span className="font-bold"> {replyTarget?.senderID.displayName ?? replyTarget?.senderID.username}</span>
                         }
                     </h1>
                     <Button variant="ghost" size="icon" onClick={(e) => e.preventDefault()} className="text-muted-foreground hover:text-foreground ml-auto">

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { EventsService } from 'src/events/events.service';
 import { ChatService } from './chat.service';
 import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
@@ -47,7 +47,7 @@ export class ChatController {
 
     @Get('/channels/:channelId')
     async getChannel(@Param('channelId') channelId: string) {
-        return this.chatService.getChannelById(channelId);
+        return (await this.chatService.getChannelById(channelId)).populate('participants.user');
     }
 
     @Get('/channels/:channelId/messages')
@@ -64,5 +64,14 @@ export class ChatController {
             })
         });
         return message;
+    }
+    
+    @Delete('/channels/:channelId/messages/:messageId')
+    async recallMessage(@Param('channelId') channelId: string, @Param('messageId') messageId: string, @Req() req) {
+        const message = (await this.chatService.getMessageById(messageId)).depopulate('senderID');
+        if (message.senderID.toString()! !== req.user._id) {
+            throw new BadRequestException('You are not allowed to remove this message');
+        }
+        return this.chatService.recallMessage(messageId);
     }
 }
