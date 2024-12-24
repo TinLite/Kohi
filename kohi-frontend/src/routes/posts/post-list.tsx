@@ -128,9 +128,9 @@ export default function PostList() {
                 ))}
               </div>
             </ScrollArea>
-            <div className="hidden xl:block">
+            {/* <div className="hidden xl:block">
               <FriendSide />
-            </div>
+            </div> */}
           </div>
         </div>
         <ButtonScrollToTop />

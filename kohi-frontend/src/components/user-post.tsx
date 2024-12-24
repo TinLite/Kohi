@@ -135,19 +135,21 @@ function UserHoverCard({
               />
               <AvatarFallback>{user.username[0]}</AvatarFallback>
             </Avatar>
-            <div>
+            <Link to={`/profile/${user._id}`} className="flex-grow">
               <div>
-                <span className="font-bold">
-                  {user.displayName ?? user.username}
-                </span>
-                <span className="pl-2 text-muted-foreground text-sm">
-                  @{user.username}
-                </span>
+                <div>
+                  <span className="font-bold">
+                    {user.displayName ?? user.username}
+                  </span>
+                  <span className="pl-2 text-muted-foreground text-sm">
+                    @{user.username}
+                  </span>
+                </div>
+                <div className="text-sm">
+                  {user.bio ?? "Một người dùng Ko-Hi"}
+                </div>
               </div>
-              <div className="text-sm">
-                {user.bio ?? "Một người dùng Ko-Hi"}
-              </div>
-            </div>
+            </Link>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {isFollowing ? (
@@ -204,6 +206,7 @@ export default function UserPost({
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [isBookMarked, setIsBookMarked] = useState(false);
   const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
+  const navigate = useNavigate();
   const handleOpenQuoteDialog = () => {
     setIsQuoteDialogOpen(true);
   };
@@ -221,15 +224,19 @@ export default function UserPost({
   };
   useEffect(() => {
     fetchLike();
-  }, [isLiked]);
+  }, []);
 
   const handleLike = async () => {
-    try {
-      await likePost(post._id);
-      setIsLiked(true);
-    } catch (err) {
-      console.log(err);
-    }
+    await likePost(post._id)
+      .then(() => {
+        setIsLiked(true);
+      })
+      .catch((err) => {
+        if (err.statusCode === 401) {
+          alert("You need to login to like this post");
+          navigate("/login");
+        }
+      });
   };
   const handleUnlike = async () => {
     try {
@@ -277,7 +284,7 @@ export default function UserPost({
   };
   const handleEditPost = () => {
     onEditPost?.();
-  }
+  };
   return (
     <Card className={cn("max-sm:rounded-none", className)}>
       <div className="flex px-6 pt-4 flex-row items-center">
@@ -333,7 +340,7 @@ export default function UserPost({
               <span>@{post.author.username}</span>
             )}
             <Link to={`/post/detail/${post._id}`}>
-              - {post.createdAt.toLocaleString("vi-VN")}
+              - {new Date(post.createdAt).toLocaleString()}
             </Link>
           </div>
         </div>
@@ -351,19 +358,7 @@ export default function UserPost({
         )}
       </div>
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
-        <p>
-          {post.content
-            ?.split("\n")
-            .filter((v) => v)
-            .map((v, i) => {
-              return (
-                <span key={i}>
-                  {v}
-                  <br />
-                </span>
-              );
-            })}
-        </p>
+        <p className="hyphens-auto w-fit">{post.content}</p>
       </Link>
       {post.postShare && (
         <UserPost post={post.postShare} className="mx-4 mb-4" hideComment />

@@ -18,7 +18,11 @@ import UserNoti from "./noti";
 import { SheetSetting } from "./sheet-settings";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
-export default function SideNav({disableNavOnPhone = false}: {disableNavOnPhone?: boolean}) {
+export default function SideNav({
+  disableNavOnPhone = false,
+}: {
+  disableNavOnPhone?: boolean;
+}) {
   const { user } = useContext(UserContext);
 
   const isOnPhone = useMediaQuery("(max-width: 720px)");
@@ -28,7 +32,12 @@ export default function SideNav({disableNavOnPhone = false}: {disableNavOnPhone?
   const [notiOpen, setNotiOpen] = useState(false);
 
   return (
-    <aside className={cn("fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4", isOnPhone && disableNavOnPhone ? "hidden" : "")}>
+    <aside
+      className={cn(
+        "fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4",
+        isOnPhone && disableNavOnPhone ? "hidden" : ""
+      )}
+    >
       <div className="md:min-h-screen flex flex-col md:justify-between gap-4 px-2 md:py-4">
         <Link to="/" className="hidden md:flex items-end px-4 gap-2 font-bold">
           <div>
@@ -81,7 +90,7 @@ export default function SideNav({disableNavOnPhone = false}: {disableNavOnPhone?
 
             <span className="hidden md:block">Message</span>
           </NavLink>
-          <UserNoti open={notiOpen} onOpenChange={setNotiOpen}/>
+          <UserNoti open={notiOpen} onOpenChange={setNotiOpen} />
           <button
             onClick={() => setNotiOpen(true)}
             className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
@@ -118,7 +127,7 @@ export default function SideNav({disableNavOnPhone = false}: {disableNavOnPhone?
               <Avatar className="w-6 h-6">
                 <AvatarImage
                   src={user.avatar}
-                  className="rounded-full"
+                  className="rounded-full "
                   alt={`@${user.username}`}
                 />
                 <AvatarFallback>{user.username[0]}</AvatarFallback>
@@ -135,15 +144,22 @@ export default function SideNav({disableNavOnPhone = false}: {disableNavOnPhone?
           )}
         </nav>
         <DropdownSetting>
-          <button className={cn("hidden md:flex",
-            "h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
-          )}>
+          <button
+            className={cn(
+              "hidden md:flex",
+              "h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+            )}
+          >
             <Settings />
             <span className="hidden md:block">Setting</span>
           </button>
         </DropdownSetting>
       </div>
-      <SheetSetting open={settingOpen} onOpenChange={setSettingOpen} side="left" />
+      <SheetSetting
+        open={settingOpen}
+        onOpenChange={setSettingOpen}
+        side="left"
+      />
     </aside>
   );
 }

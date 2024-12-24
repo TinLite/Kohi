@@ -35,24 +35,6 @@ const SearchUI = () => {
       setError("Bạn cần nhập từ khóa tìm kiếm");
     }
   }, [query]);
-  // const handleSearch = async (query: string) => {
-  //   if (query.trim() !== "") {
-  //     setError(null);
-  //     try {
-  //       const resultPosts: Post[] = await searchPosts(query);
-  //       setPosts(resultPosts);
-  //       const resultUsers: User[] = await searchUsers(query);
-  //       setUsers(resultUsers);
-  //     } catch (err) {
-  //       setError("Không thể tìm kiếm");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   } else {
-  //     setPosts([]);
-  //     setError("You cần nhập từ khóa tìm kiếm");
-  //   }
-  // };
   const handleSearch = async (query: string) => {
     setError(null);
     try {

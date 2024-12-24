@@ -272,25 +272,25 @@ export class PostsController {
     }
     return await this.postsService.countLikes(id);
   }
-  @Get('profile/list')
-  async getProfilePosts(@Request() request) {
-    const requestUserId = request.user._id;
+  @Get('profile/list/:id?')
+  async getProfilePosts(@Request() request, @Param('id') id?: string) {
+    const requestUserId = id ?? request.user._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
     }
     return this.postsService.getProfilePosts(requestUserId);
   }
-  @Get('profile/media')
-  async getProfileMedia(@Request() request) {
-    const requestUserId = request.user._id;
+  @Get('profile/media/:id?')
+  async getProfileMedia(@Request() request, @Param('id') id?: string) {
+    const requestUserId = id ?? request.user._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
     }
     return this.postsService.getProfileMedia(requestUserId);
   }
-  @Get('profile/share')
-  async getProfileShares(@Request() request) {
-    const requestUserId = request.user._id;
+  @Get('profile/share/:id?')
+  async getProfileShares(@Request() request, @Param('id') id?: string) {
+    const requestUserId = id ?? request.user._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
     }

@@ -24,7 +24,7 @@ export class NotificationsService {
     delete notification.__v;
     this.eventsService.announceToUser(
       notificationDto.userId,
-      'notification',
+      'notification:follow:newfollow',
       notification,
     );
     console.log(notification);
@@ -35,7 +35,7 @@ export class NotificationsService {
     delete notificationPost.__v;
     this.eventsService.announceToUser(
       notification.userId,
-      'notification',
+      'notification:post:newpost',
       notificationPost,
     );
     console.log('Notification sent to user ' + notification.userId);
@@ -46,7 +46,7 @@ export class NotificationsService {
     delete notificationLikePost.__v;
     this.eventsService.announceToUser(
       notification.userId,
-      'notification',
+      'notification:post:likepost',
       notificationLikePost,
     );
     console.log('Notification sent to user ' + notification.userId);
@@ -59,7 +59,7 @@ export class NotificationsService {
     delete notificationComment.__v;
     this.eventsService.announceToUser(
       notification.userId,
-      'notification',
+      'notification:comment:newcomment',
       notificationComment,
     );
     console.log('Notification sent to user ' + notification.userId);
@@ -73,7 +73,7 @@ export class NotificationsService {
     delete notificationLikeComment.__v;
     this.eventsService.announceToUser(
       notification.userId,
-      'notification',
+      'notification:comment:likecomment',
       notificationLikeComment,
     );
     console.log('Notification sent to user ' + notification.userId);

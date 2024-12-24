@@ -1,6 +1,6 @@
 import { Post } from "@/types/post-type";
 import { get } from "node:http";
-import path from 'path';
+import path from "path";
 
 export async function getGlobalLatestPosts() {
   const response = await fetch(
@@ -71,7 +71,6 @@ export async function updatePost(postId: string, content: string) {
     throw new Error("Failed to update post");
   }
   return await response.json();
-
 }
 export async function createSharePostQuote(postId: string, content: string) {
   const response = await fetch(
@@ -168,11 +167,11 @@ export async function getPostsById(postId: string) {
   );
   return (await response.json()) as Post;
 }
-export async function getPostsByUserId() {
+export async function getPostsByUserId(id = "") {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/posts/profile/list`,
+    }/posts/profile/list/${id}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.backend_access_token}`,
@@ -182,11 +181,11 @@ export async function getPostsByUserId() {
   return (await response.json()) as Post[];
 }
 
-export async function getMediaByUserId() {
+export async function getMediaByUserId(id = "") {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/posts/profile/media`,
+    }/posts/profile/media/${id}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.backend_access_token}`,
@@ -195,11 +194,11 @@ export async function getMediaByUserId() {
   );
   return response.json();
 }
-export async function getListPostShare() {
+export async function getListPostShare(id="") {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/posts/profile/share`,
+    }/posts/profile/share/${id}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.backend_access_token}`,

@@ -8,6 +8,7 @@ import {
   getFollowing,
   unFollowUser,
 } from "@/repository/user-repository";
+import { Link } from "react-router-dom";
 
 const UserInfo = ({
   user,
@@ -49,20 +50,22 @@ const UserInfo = ({
   return (
     <Card>
       <div className="flex px-6 py-4 flex-row gap-4 items-center w-full">
-        <Avatar className="w-8 h-8">
-          <AvatarImage
-            src={user.avatar}
-            className="rounded-full"
-            alt="@shadcn"
-          />
-          <AvatarFallback>{user.username[0]}</AvatarFallback>
-        </Avatar>
-        <div>
-          <div className="font-bold">{user.username ?? user.displayName}</div>
-          <div className="text-muted-foreground text-sm">
-            @{user.displayName}
+        <Link to={`/profile/${user._id}`} className="flex items-center space-x-4">
+          <Avatar className="w-8 h-8">
+            <AvatarImage
+              src={user.avatar}
+              className="rounded-full"
+              alt="@shadcn"
+            />
+            <AvatarFallback>{user.username[0]}</AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-bold">{user.username ?? user.displayName}</div>
+            <div className="text-muted-foreground text-sm">
+              @{user.displayName}
+            </div>
           </div>
-        </div>
+        </Link>
         {isFollowing ? (
           <Button
             onClick={handleUnfollow}

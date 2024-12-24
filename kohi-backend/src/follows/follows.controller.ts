@@ -51,8 +51,8 @@ export class FollowsController {
         otherUser: author,
       }),
     );
-     // console.log(test);
-    return await this.followsService.followByUser(author, followUserId);
+    // console.log(test);
+    return this.followsService.followByUser(author, followUserId);
   }
 
   @Delete('unfollow/:id')
@@ -74,7 +74,7 @@ export class FollowsController {
     if (notification) {
       await this.notificationsService.deleteNotification(notification._id);
     }
-    return await this.followsService.unFollowByUser(author, followUserId);
+    return this.followsService.unFollowByUser(author, followUserId);
   }
 
   @Get('list/followers')
@@ -115,7 +115,11 @@ export class FollowsController {
     ) {
       throw new NotFoundException('Page or limit not found');
     }
-    return await this.followsService.getFollowing(userId, currentPage, currentLimit);
+    return await this.followsService.getFollowing(
+      userId,
+      currentPage,
+      currentLimit,
+    );
   }
 
   @Get('following')

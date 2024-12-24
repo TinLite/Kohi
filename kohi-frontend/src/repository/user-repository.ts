@@ -159,7 +159,7 @@ export async function searchBookMarks(query: string) {
   if (!response.ok) {
     throw new Error("Failed to search bookmarks");
   }
-  return await response.json() as Post[];
+  return (await response.json()) as Post[];
 }
 export async function getFollowing() {
   const response = await fetch(
@@ -187,7 +187,7 @@ export async function getFollowing() {
     };
   };
 }
-export async function updateAvatar(userId:string, formData: FormData) {
+export async function updateAvatar(userId: string, formData: FormData) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
@@ -205,7 +205,7 @@ export async function updateAvatar(userId:string, formData: FormData) {
   }
   return await response.json();
 }
-export async function updateWall(userId:string, formData: FormData) {
+export async function updateWall(userId: string, formData: FormData) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
@@ -222,4 +222,21 @@ export async function updateWall(userId:string, formData: FormData) {
     throw new Error("Failed to update wall");
   }
   return await response.json();
+}
+export async function getProfileUser(id: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/users/profile/${id}/detail`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to get profile user");
+  }
+  return (await response.json()) as User;
 }

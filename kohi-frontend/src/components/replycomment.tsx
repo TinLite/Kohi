@@ -20,7 +20,6 @@ export default function ReplyComment({ comment,onReply}: { comment: Comment,onRe
       setReplyComment("");
       setIsOpenReply(false);
       onReply?.();
-      // navigate(0);
     } catch (err) {
       console.error(err);
     }

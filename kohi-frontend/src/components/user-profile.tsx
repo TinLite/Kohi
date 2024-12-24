@@ -158,35 +158,56 @@ const UserProfile = () => {
   return (
     <ScrollArea className="w-full h-screen ">
       <div className="max-w-6xl mx-auto flex justify-center">
-        <div className="flex-grow max-w-2xl mt-6">
-          <div className="relative h-64">
+        <div className="flex-grow max-w-2xl ">
+          <div className="aspect-[5/1] w-full">
             <img
               src={user?.wall}
               alt="Wall Image"
-              className=" w-full h-full object-cover"
+              className=" w-full h-full object-cover mt-6 rounded-xl"
             />
-            <div className="absolute bottom-0 w-full bg-gradient-to-t from-background h-full opacity-50"></div>
-            <div className="absolute top-36 left-6 ">
-              <Avatar className="rounded-full border-4 border-gray-800 w-24 h-24">
-                <AvatarImage src={user?.avatar} alt="@shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="absolute top-44 left-36 text-white">
-              <h1 className=" text-2xl font-bold">{user?.displayName}</h1>
-              <p className="text-black">@{user?.username}</p>
-            </div>
-            <div className="absolute top-48 right-6">
+            <div className="flex items-end gap-4 mt-6">
+              <div className="flex">
+                <Avatar className="w-full h-28">
+                  <AvatarImage src={user?.avatar} alt="@shadcn" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="">
+                <h1 className=" text-2xl font-bold">{user?.displayName}</h1>
+                <div className="flex">
+                  <p className="">@{user?.username}</p>
+                </div>
+                <div>
+                  <div className="">
+                    <p className="text-gray-500">
+                      {user?.createAt?.toDateString()}
+                    </p>
+                    <p className="text-gray-500">
+                      <span className="font-bold">
+                        {user?.following?.length}
+                      </span>{" "}
+                      Following
+                      <span className="font-bold ml-4">
+                        {user?.followers?.length}
+                      </span>{" "}
+                      Followers
+                    </p>
+                  </div>
+                  {user?.bio && (
+                    <p className="text-muted-foreground">{user.bio}</p>
+                  )}
+                </div>
+              </div>
               <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger>
-                  <Button variant="secondary">Edit Profile</Button>
+                <DialogTrigger className="ml-auto mr-4">
+                  <Button variant="outline">Edit Profile</Button>
                 </DialogTrigger>
                 <DialogContent className="p-0 rounded-lg max-w-md mx-auto overflow-hidden">
                   <div className="relative h-48">
                     <img
                       src={user?.wall || user?.displayName}
                       alt="Wall"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover  "
                       onClick={handleWallClick}
                     />
                     <input
@@ -255,22 +276,6 @@ const UserProfile = () => {
               </Dialog>
             </div>
           </div>
-          <div className="p-4">
-            <p className="text-gray-500">{user?.createAt?.toDateString()}</p>
-            <p className="text-gray-500">
-              <span className="font-bold">{user?.following?.length}</span>{" "}
-              Following
-              <span className="font-bold ml-4">
-                {user?.followers?.length}
-              </span>{" "}
-              Followers
-            </p>
-          </div>
-          <div>
-            {user?.bio && (
-              <p className="flex justify-center pb-2">{user.bio}</p>
-            )}
-          </div>
           <Tabs defaultValue="posts">
             <TabsList className="flex ">
               <TabsTrigger value="posts">Posts</TabsTrigger>
@@ -279,34 +284,42 @@ const UserProfile = () => {
             </TabsList>
             <TabsContent value="posts">
               <div className="md:mb-0 mb-16">
-                {posts.map((post) => (
-                  <div className="mb-4" key={post._id}>
-                    <UserPost
-                      post={post}
-                      showEditPost={user?._id == post.author._id}
-                      onEditPost={handleEditPost}
-                      onUpdateShare={handleEditPostShare}
-                      onDelete={handleDeletePost}
-                    />
-                  </div>
-                ))}
+                {posts.length > 0 ? (
+                  posts.map((post) => (
+                    <div className="mb-4" key={post._id}>
+                      <UserPost
+                        post={post}
+                        showEditPost={user?._id == post.author._id}
+                        onEditPost={handleEditPost || handleEditPostShare}
+                        onUpdateShare={handleEditPostShare}
+                        onDelete={handleDeletePost}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p>No posts available.</p>
+                )}
               </div>
             </TabsContent>
             <TabsContent value="reup">
-              {postsShare.map((post) => (
-                <div className="mb-4" key={post._id}>
-                  {post.postShare ? (
-                    <UserPost
-                      post={post}
-                      showEditPost={user?._id == post.author._id}
-                      onUpdateShare={handleEditPostShare}
-                      onDelete={handleDeletePost}
-                    />
-                  ) : (
-                    <div>No content available</div>
-                  )}
-                </div>
-              ))}
+              {postsShare.length > 0 ? (
+                postsShare.map((post) => (
+                  <div className="mb-4" key={post._id}>
+                    {post.postShare ? (
+                      <UserPost
+                        post={post}
+                        showEditPost={user?._id == post.author._id}
+                        onUpdateShare={handleEditPostShare}
+                        onDelete={handleDeletePost}
+                      />
+                    ) : (
+                      <div>No content available</div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p>No shared posts available.</p>
+              )}
             </TabsContent>
             <TabsContent value="media">
               <div className="mb-4">
@@ -314,32 +327,6 @@ const UserProfile = () => {
               </div>
             </TabsContent>
           </Tabs>
-        </div>
-        <div className="hidden xl:block w-full max-w-xs p-4">
-          <div className="mb-4">
-            <Input
-              placeholder="Search..."
-              className="bg-background"
-              type="text"
-            />
-          </div>
-          <div className="p-4 rounded-lg bg-background ">
-            <h3 className="text-lg font-semibold mb-2">Friends</h3>
-            {friends.map((friend) => (
-              <div
-                key={friend.id}
-                className=" flex items-center justify-between mb-2"
-              >
-                <div>
-                  <p className="font-medium">{friend.name}</p>
-                  <p className="text-muted-foreground">{friend.username}</p>
-                </div>
-                <Button variant="default" size="sm">
-                  Follow
-                </Button>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </ScrollArea>

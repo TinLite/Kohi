@@ -44,7 +44,12 @@ const BookMarkUI = () => {
     }, 500);
     return () => clearTimeout(timer);
   }, [query, bookmarks]);
-
+  const handleEditPost = () => {
+    fetchBookmarks();
+  };
+  const handleEditPostShare = () => {
+    fetchBookmarks();
+  };
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
@@ -74,6 +79,8 @@ const BookMarkUI = () => {
                     post={post}
                     onBookmarkUpdate={fetchBookmarks}
                     showEditPost={user?._id == post.author._id}
+                    onEditPost={handleEditPost}
+                    onUpdateShare={handleEditPostShare}
                   />
                 </div>
               ))

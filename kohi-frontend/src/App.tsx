@@ -17,6 +17,7 @@ import MessageLayout from "./layout/sub-layouts/message-layout";
 import MessageViewDefault from "./routes/messages/message-default";
 import MessageViewNewChat from "./routes/messages/message-new";
 import { PageMessageChannel } from "./routes/messages/message-view";
+import ProfileFriend from "./components/profile-friend";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
           {
             index: true,
             element: <UserProfile />,
+          },
+          {
+            path: ":id",
+            element: <ProfileFriend />,
           },
         ],
       },
@@ -72,17 +77,17 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <MessageViewDefault />
+            element: <MessageViewDefault />,
           },
           {
             path: "new",
-            element: <MessageViewNewChat />
+            element: <MessageViewNewChat />,
           },
           {
             path: ":channelID",
-            element: <PageMessageChannel />
-          }
-        ]
+            element: <PageMessageChannel />,
+          },
+        ],
       },
     ],
   },

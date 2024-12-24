@@ -90,20 +90,12 @@ const UserNoti = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {type === true ? (
-              <DropdownMenuItem onClick={() => handleDeleteNotification(id)}>
-                Xóa
-              </DropdownMenuItem>
-            ) : (
-              <>
-                <DropdownMenuItem onClick={() => handleReadNotification(id)}>
-                  Đánh dấu đã đọc
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleReadNotification(id)}>
-                  Xóa
-                </DropdownMenuItem>
-              </>
-            )}
+            <DropdownMenuItem onClick={() => handleReadNotification(id)}>
+              Đánh dấu đã đọc
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDeleteNotification(id)}>
+              Xóa
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -122,7 +114,7 @@ const UserNoti = ({
           </TabsList>
           <TabsContent value="all">
             <ScrollArea className="overflow-y-auto h-[500px] pr-2">
-              {notifications.length > 0 ? (
+              {user && notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <NotificationItem
                     key={notification._id}
@@ -139,9 +131,7 @@ const UserNoti = ({
                         ? `${notification.otherUser.displayName} đã thích bình luận của bạn`
                         : "Thông báo khác"
                     }
-                    time={new Date(notification.createAt).toLocaleString(
-                      "vi-VN"
-                    )}
+                    time={new Date(notification.createAt).toLocaleString()}
                     type={notification.isRead}
                     id={notification._id}
                   />
