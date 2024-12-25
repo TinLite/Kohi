@@ -8,6 +8,7 @@ import { NewPostNotificationDto } from './dto/new-post-notification.dto';
 import { LikePostNotificationDto } from './dto/new-likepost-notification.dto';
 import { NewCommentNotificationDto } from './dto/new-comment-notification.dto';
 import { LIKECommentNotificationDto } from './dto/new-likecomment-notification.dto';
+import { NewReplyCommentNotificationDto } from './dto/new-reply-comment-notification.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -78,7 +79,16 @@ export class NotificationsService {
     );
     console.log('Notification sent to user ' + notification.userId);
   }
-
+  async createNotificationReplyComment(notification:NewReplyCommentNotificationDto){
+    const notificationReplyComment = await this.notificationModel.create(notification);
+    delete notificationReplyComment.__v;
+    this.eventsService.announceToUser(
+      notification.userId,
+      'notification:comment:replycomment',
+      notificationReplyComment,
+    );
+    console.log('Notification sent to user ' + notification.userId);
+  }
   async findAllNotificationByUserId(id) {
     return await this.notificationModel
       .find({

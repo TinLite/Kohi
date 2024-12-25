@@ -22,6 +22,7 @@ import { Public } from 'src/auth/authmeta';
 import { NewCommentNotificationDto } from 'src/notifications/dto/new-comment-notification.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { LIKECommentNotificationDto } from 'src/notifications/dto/new-likecomment-notification.dto';
+import { NewReplyCommentNotificationDto } from 'src/notifications/dto/new-reply-comment-notification.dto';
 
 @Controller('comments')
 export class CommentsController {
@@ -98,6 +99,18 @@ export class CommentsController {
       throw new NotFoundException('Comment not found');
     }
     const postId = commentOld.postId;
+    const authorID = commentOld.author;
+    if (authorID != author) {
+      const notification =
+        await this.notificationsService.createNotificationReplyComment(
+          new NewReplyCommentNotificationDto({
+            userId: authorID,
+            otherUser: author,
+            post: postId,
+            comment: commentId,
+          }),
+        );
+    }
     return this.commentsService.replyComment(
       postId,
       commentId,

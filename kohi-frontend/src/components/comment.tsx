@@ -40,7 +40,7 @@ const CommentUI = ({
   };
   useEffect(() => {
     fetchComments();
-  }, [postId]);
+  }, []);
 
   const handleCreateComment = async () => {
     if (!newComment.trim()) return;

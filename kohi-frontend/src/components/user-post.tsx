@@ -51,6 +51,7 @@ import {
 } from "./ui/carousel";
 import UserPostShareQuote from "./user-post-share-Quote";
 import { UserPostOption } from "./user-post-option";
+import { on } from "node:process";
 
 function UserHoverCard({
   children,
@@ -182,6 +183,7 @@ export default function UserPost({
   onUpdateShare,
   onEditPost,
   onFollowChange,
+  onUpdateLike,
   hideComment,
   showEditPost,
   className,
@@ -194,6 +196,7 @@ export default function UserPost({
   onUpdateShare?: () => void;
   onEditPost?: () => void;
   onFollowChange?: () => void;
+  onUpdateLike?: () => void;
   showEditPost?: boolean;
   onBookmarkUpdate?: (newStatus: boolean) => void;
   className?: string;
@@ -203,7 +206,7 @@ export default function UserPost({
   const [isLiked, setIsLiked] = useState(
     post.likes?.includes(user ? user._id : "") ?? 0
   );
-  const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
+  // const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [isBookMarked, setIsBookMarked] = useState(false);
   const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
   const navigate = useNavigate();
@@ -213,23 +216,12 @@ export default function UserPost({
   const handleCloseQuoteDialog = () => {
     setIsQuoteDialogOpen(false);
   };
-  const fetchLike = async () => {
-    await countLikePost(post._id)
-      .then((res) => {
-        setLikeCount(res.total);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-  useEffect(() => {
-    fetchLike();
-  }, []);
 
   const handleLike = async () => {
     await likePost(post._id)
       .then(() => {
         setIsLiked(true);
+        onUpdateLike?.();
       })
       .catch((err) => {
         if (err.statusCode === 401) {
@@ -242,6 +234,7 @@ export default function UserPost({
     try {
       await unLikePost(post._id);
       setIsLiked(false);
+      onUpdateLike?.();
     } catch (err) {
       console.log(err);
     }
@@ -340,7 +333,7 @@ export default function UserPost({
               <span>@{post.author.username}</span>
             )}
             <Link to={`/post/detail/${post._id}`}>
-              - {new Date(post.createdAt).toLocaleString()}
+              - {new Date(post.createdAt).toLocaleString("vi-VN")}
             </Link>
           </div>
         </div>
@@ -406,7 +399,7 @@ export default function UserPost({
                 <ThumbsUp
                   className={cn("w-4 h-4", isLiked ? "fill-primary" : "")}
                 />
-                {likeCount}
+                {post.likes?.length || 0}
               </Button>
               <div>
                 <CommentUI postId={post._id} post={post} />

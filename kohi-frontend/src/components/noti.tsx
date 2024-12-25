@@ -105,12 +105,12 @@ const UserNoti = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side={side} className="w-[350px] flex flex-col">
         <SheetHeader className="px-4">
-          <SheetTitle className="text-lg">Thông báo</SheetTitle>
+          <SheetTitle className="text-lg">Notifications</SheetTitle>
         </SheetHeader>
         <Tabs defaultValue="all" className="flex-1">
           <TabsList className="px-4">
-            <TabsTrigger value="all">Tất cả</TabsTrigger>
-            <TabsTrigger value="unread">Chưa đọc</TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="unread">Unread</TabsTrigger>
           </TabsList>
           <TabsContent value="all">
             <ScrollArea className="overflow-y-auto h-[500px] pr-2">
@@ -120,18 +120,20 @@ const UserNoti = ({
                     key={notification._id}
                     title={
                       notification.type === "NEW_FOLLOWER"
-                        ? `${notification.otherUser.displayName} đã theo dõi bạn`
+                        ? `${notification.otherUser.displayName} started following you`
                         : notification.type === "LIKE_POST"
-                        ? `${notification.otherUser.displayName} đã thích bài viết của bạn`
+                        ? `${notification.otherUser.displayName} liked your post`
                         : notification.type === "NEW_POST"
-                        ? `${notification.otherUser.displayName} đã đăng một bài viết mới`
+                        ? `${notification.otherUser.displayName} posted a new post`
                         : notification.type === "NEW_COMMENT"
-                        ? `${notification.otherUser.displayName} đã bình luận về bài viết của bạn`
+                        ? `${notification.otherUser.displayName} commented on your post`
                         : notification.type === "LIKE_COMMENT"
-                        ? `${notification.otherUser.displayName} đã thích bình luận của bạn`
-                        : "Thông báo khác"
+                        ? `${notification.otherUser.displayName} liked your comment`
+                        : notification.type === "NEW_REPLY_COMMENT"
+                        ? `${notification.otherUser.displayName} replied to your comment`
+                        : "Other notification"
                     }
-                    time={new Date(notification.createAt).toLocaleString()}
+                    time={new Date(notification.createAt).toLocaleString("Vi-VN")}
                     type={notification.isRead}
                     id={notification._id}
                   />
@@ -165,7 +167,7 @@ const UserNoti = ({
                           ? `${notification.otherUser.displayName} đã thích bình luận của bạn`
                           : "Thông báo khác"
                       }
-                      time={new Date(notification.createAt).toLocaleString()}
+                      time={new Date(notification.createAt).toLocaleString("Vi-VN")}
                       id={notification._id}
                       type={notification.isRead}
                     />

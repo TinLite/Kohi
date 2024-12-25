@@ -84,6 +84,9 @@ const SearchUI = () => {
                   key={post._id}
                   post={post}
                   onFollowChange={handleFollowChange}
+                  onUpdateLike={() => {
+                    handleSearch(query);
+                  }}
                 />
               ))
             ) : (

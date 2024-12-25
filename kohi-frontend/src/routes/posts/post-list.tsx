@@ -124,6 +124,7 @@ export default function PostList() {
                     onRepost={refreshPost}
                     onUpdateShare={refreshPost}
                     onShareQuote={refreshPost}
+                    onUpdateLike={refreshPost}
                   />
                 ))}
               </div>

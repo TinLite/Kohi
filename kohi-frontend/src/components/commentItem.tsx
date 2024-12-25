@@ -5,6 +5,7 @@ import {
   likeComment,
   listCommentsByPostId,
   unLikeComment,
+  updateComment,
 } from "@/repository/comment-repository";
 import {
   MessageCircle,
@@ -28,17 +29,21 @@ import {
 import CommentUI from "./comment";
 import { Post } from "@/types/post-type";
 import ReplyComment from "./replycomment";
+import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "./ui/dialog";
+import { Textarea } from "./ui/textarea";
 
 const CommentItem = ({
   comment,
   allComments,
   onReply,
   onDeleteComment,
+  onUpdateComment,
 }: {
   comment: Comment;
   allComments: Comment[];
   onReply?: () => void;
   onDeleteComment?: () => void;
+  onUpdateComment?: () => void;
 }) => {
   const { user } = useContext(UserContext);
   const [isLiked, setIsLiked] = useState(
@@ -47,6 +52,8 @@ const CommentItem = ({
   const [total, setTotal] = useState(comment.likes?.length ?? 0);
   const [replies, setReplies] = useState<Comment[]>([]);
   const [showReplies, setShowReplies] = useState(false);
+  const [content, setContent] = useState(comment.content);
+  const [isEditing, setIsEditing] = useState(false);
   const toggleLikeComment = async () => {
     if (isLiked) {
       await unLikeComment(comment._id);
@@ -69,6 +76,20 @@ const CommentItem = ({
     await deleteComment(comment._id)
       .then(() => {
         onDeleteComment?.();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+  const handleEdit = () => {
+    setIsEditing(true);
+    setContent(comment.content);
+  };
+  const handleupdateComment = async () => {
+    await updateComment(comment._id, content)
+      .then(() => {
+        onUpdateComment?.();
+        setIsEditing(false);
       })
       .catch((error) => {
         console.error(error);
@@ -97,19 +118,25 @@ const CommentItem = ({
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <EllipsisVertical />
-                </Button>
+                {user?._id === comment.author._id && (
+                  <Button variant="ghost" size="icon">
+                    <EllipsisVertical />
+                  </Button>
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Sửa
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={removeComment}>
-                  <Trash className="mr-2 h-4 w-4" />
-                  Xóa
-                </DropdownMenuItem>
+                {user?._id === comment.author._id && (
+                  <DropdownMenuItem onClick={handleEdit}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Sửa
+                  </DropdownMenuItem>
+                )}
+                {user?._id === comment.author._id && (
+                  <DropdownMenuItem onClick={removeComment}>
+                    <Trash className="mr-2 h-4 w-4" />
+                    Xóa
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -145,10 +172,24 @@ const CommentItem = ({
               allComments={allComments}
               onReply={onReply}
               onDeleteComment={onDeleteComment}
+              onUpdateComment={onUpdateComment}
             />
           ))}
         </div>
       )}
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <DialogContent>
+          <DialogTitle className="text-lg font-bold mb-4">
+            Edit Comment
+          </DialogTitle>
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="resize-none focus-visible:ring-0 min-h-0"
+          />
+          <Button onClick={handleupdateComment}>Save</Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

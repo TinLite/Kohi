@@ -98,7 +98,7 @@ export class CommentsService {
     return this.commentModel.findById(commentId).exec();
   }
   //Get all bình luận theo bài viết
-  async getCommentByPostId(postId: string, page: number, limit: number) {
+  async getCommentByPostId(postId, page: number, limit: number) {
     const skip = (page - 1) * limit;
     const comment = await this.commentModel
       .find({
@@ -106,6 +106,15 @@ export class CommentsService {
         // replyTo: null,
       })
       .populate('author', 'username avatar displayName')
+      .populate({
+        path: 'postId',
+        select: 'title content author', 
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      })
+      .sort({ createdAt: -1 })
       .exec();
     const totalComment = await this.commentModel
       .countDocuments({ postId })

@@ -75,6 +75,7 @@ const UserProfile = () => {
       console.error("Cannot update profile.");
     }
   };
+
   const fetchPosts = async () => {
     getPostsByUserId().then(
       (data) => {
@@ -112,8 +113,12 @@ const UserProfile = () => {
   const handleEditPostShare = () => {
     fetchPostsShare();
   };
-  const handleDeletePost = async () => {
+  const handleDeletePost = () => {
     fetchPosts();
+  };
+  const handleLikePost = () => {
+    fetchPosts();
+    fetchPostsShare();
   };
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
@@ -293,6 +298,7 @@ const UserProfile = () => {
                         onEditPost={handleEditPost || handleEditPostShare}
                         onUpdateShare={handleEditPostShare}
                         onDelete={handleDeletePost}
+                        onUpdateLike={handleLikePost}
                       />
                     </div>
                   ))
@@ -311,6 +317,7 @@ const UserProfile = () => {
                         showEditPost={user?._id == post.author._id}
                         onUpdateShare={handleEditPostShare}
                         onDelete={handleDeletePost}
+                        onUpdateLike={handleLikePost}
                       />
                     ) : (
                       <div>No content available</div>

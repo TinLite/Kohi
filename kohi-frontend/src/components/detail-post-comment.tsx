@@ -45,6 +45,12 @@ const DetailPost = ({
   const handleDeleteComment = () => {
     fetchComments();
   };
+  const handleUpdateComment = () => {
+    fetchComments();
+  };
+  const handleLikePost = () => {
+    fetchComments();
+  };
   useEffect(() => {
     fetchComments();
   }, [post._id, onUpdateShare]);
@@ -93,6 +99,8 @@ const DetailPost = ({
           post={post}
           showEditPost={user?._id == post.author._id}
           onEditPost={onEditPost}
+          onUpdateShare={onUpdateShare}
+          onUpdateLike={handleLikePost}
         />
         {commentTree.map((comment) => (
           <CommentItem
@@ -101,6 +109,7 @@ const DetailPost = ({
             allComments={comments}
             onReply={handleReplyComment}
             onDeleteComment={handleDeleteComment}
+            onUpdateComment={handleUpdateComment}
           />
         ))}
       </div>

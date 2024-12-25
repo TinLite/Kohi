@@ -5,7 +5,7 @@ export class Comment {
   _id: string;
   author: User;
   content: string;
-  postId: Post;
+  postId: string;
   replyTo?: string;
   timeStamp?: Date;
   likes?: string[];
@@ -13,7 +13,7 @@ export class Comment {
     _id: string,
     author: User,
     content: string,
-    postId: Post,
+    postId: string,
     replyTo?: string,
     timeStamp?: Date,
     likes?: string[]

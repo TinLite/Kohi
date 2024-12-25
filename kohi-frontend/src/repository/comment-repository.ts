@@ -21,6 +21,26 @@ export async function createComment(postId: string, content: string) {
     throw new Error("Failed to create comment");
   }
 }
+export async function updateComment(commentId: string, content: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/comments/update/${commentId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+      body: JSON.stringify({
+        content: content,
+      }),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to update comment");
+  }
+}
 
 export async function replyToComment(replyTo: string, content: string) {
   const response = await fetch(
