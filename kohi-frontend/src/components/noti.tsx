@@ -133,7 +133,9 @@ const UserNoti = ({
                         ? `${notification.otherUser.displayName} replied to your comment`
                         : "Other notification"
                     }
-                    time={new Date(notification.createAt).toLocaleString("Vi-VN")}
+                    time={new Date(notification.createAt).toLocaleString(
+                      "Vi-VN"
+                    )}
                     type={notification.isRead}
                     id={notification._id}
                   />
@@ -156,18 +158,22 @@ const UserNoti = ({
                       key={notification._id}
                       title={
                         notification.type === "NEW_FOLLOWER"
-                          ? `${notification.otherUser.displayName} đã theo dõi bạn`
+                          ? `${notification.otherUser.displayName} started following you`
                           : notification.type === "LIKE_POST"
-                          ? `${notification.otherUser.displayName} đã thích bài viết của bạn`
+                          ? `${notification.otherUser.displayName} liked your post`
                           : notification.type === "NEW_POST"
-                          ? `${notification.otherUser.displayName} đã đăng một bài viết mới`
+                          ? `${notification.otherUser.displayName} posted a new post`
                           : notification.type === "NEW_COMMENT"
-                          ? `${notification.otherUser.displayName} đã bình luận về bài viết của bạn`
+                          ? `${notification.otherUser.displayName} commented on your post`
                           : notification.type === "LIKE_COMMENT"
-                          ? `${notification.otherUser.displayName} đã thích bình luận của bạn`
-                          : "Thông báo khác"
+                          ? `${notification.otherUser.displayName} liked your comment`
+                          : notification.type === "NEW_REPLY_COMMENT"
+                          ? `${notification.otherUser.displayName} replied to your comment`
+                          : "Other notification"
                       }
-                      time={new Date(notification.createAt).toLocaleString("Vi-VN")}
+                      time={new Date(notification.createAt).toLocaleString(
+                        "Vi-VN"
+                      )}
                       id={notification._id}
                       type={notification.isRead}
                     />
