@@ -206,7 +206,6 @@ export default function UserPost({
   const [isLiked, setIsLiked] = useState(
     post.likes?.includes(user ? user._id : "") ?? 0
   );
-  // const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [isBookMarked, setIsBookMarked] = useState(false);
   const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
   const navigate = useNavigate();
@@ -219,25 +218,31 @@ export default function UserPost({
 
   const handleLike = async () => {
     await likePost(post._id)
-      .then(() => {
+      .then((response) => {
         setIsLiked(true);
         onUpdateLike?.();
+        if (response.statusCode === 401) {
+          navigate("/login");
+          // onUpdateLike?.();
+        }
       })
       .catch((err) => {
-        if (err.statusCode === 401) {
-          alert("You need to login to like this post");
-          navigate("/login");
-        }
+        console.log(err);
       });
   };
-  const handleUnlike = async () => {
-    try {
-      await unLikePost(post._id);
-      setIsLiked(false);
-      onUpdateLike?.();
-    } catch (err) {
-      console.log(err);
-    }
+  const handleUnlike = () => {
+    unLikePost(post._id)
+      .then((response) => {
+        setIsLiked(false);
+        onUpdateLike?.();
+        if (response.statusCode === 401) {
+          // onUpdateLike?.();
+          navigate("/login");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -247,24 +252,32 @@ export default function UserPost({
   }, [user, post._id]);
   const handleAddBookmark = async () => {
     try {
-      await addBookMark(post._id);
-      setIsBookMarked(true);
-      getProfile().then(setUser);
-      if (onBookmarkUpdate) {
-        onBookmarkUpdate(true);
-      }
+      await addBookMark(post._id).then((res) => {
+        if (res.statusCode === 401) {
+          return navigate("/login");
+        }
+        setIsBookMarked(true);
+        getProfile().then(setUser);
+        if (onBookmarkUpdate) {
+          onBookmarkUpdate(true);
+        }
+      });
     } catch (err) {
       console.log(err);
     }
   };
   const handleRemoveBookmark = async () => {
     try {
-      await unBookMark(post._id);
-      setIsBookMarked(false);
-      getProfile().then(setUser);
-      if (onBookmarkUpdate) {
-        onBookmarkUpdate(false);
-      }
+      await unBookMark(post._id).then((res) => {
+        if (res.statusCode === 401) {
+          return navigate("/login");
+        }
+        setIsBookMarked(false);
+        getProfile().then(setUser);
+        if (onBookmarkUpdate) {
+          onBookmarkUpdate(false);
+        }
+      });
     } catch (err) {
       console.log(err);
     }

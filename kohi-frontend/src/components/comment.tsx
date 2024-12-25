@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
 import { UserContext } from "@/context/user-context";
+import { useNavigate } from "react-router-dom";
 
 const CommentUI = ({
   postId,
@@ -25,6 +26,7 @@ const CommentUI = ({
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const { user } = useContext(UserContext);
+  const navigate = useNavigate();
   const fetchComments = async () => {
     try {
       const response = await listCommentsByPostId(postId);
@@ -42,16 +44,23 @@ const CommentUI = ({
     fetchComments();
   }, []);
 
-  const handleCreateComment = async () => {
+  const handleCreateComment = () => {
     if (!newComment.trim()) return;
-    try {
-      await createComment(postId, newComment);
-      setNewComment("");
-      onCreatedComment?.();
-      fetchComments();
-    } catch (err) {
-      console.error(err);
-    }
+    createComment(postId, newComment)
+      .then((response) => {
+        if (response.statusCode === 401) {
+          navigate("/login");
+        } else if (response.error) {
+          alert(response.message || "Có lỗi xảy ra. Vui lòng thử lại.");
+        } else {
+          setNewComment("");
+          onCreatedComment?.();
+          fetchComments();
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
   return (
     <div>

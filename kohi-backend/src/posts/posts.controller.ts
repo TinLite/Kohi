@@ -170,7 +170,9 @@ export class PostsController {
         );
       return test;
     }
-    return liked;
+    return {
+      message: 'Post liked successfully',
+    };
   }
 
   @Delete('detail/:id/unlike')
@@ -191,7 +193,12 @@ export class PostsController {
     if (Notification) {
       await this.notificationsService.deleteNotification(Notification._id);
     }
-    return this.postsService.removeLike(id, requestUserId);
+    const unliked = this.postsService.removeLike(id, requestUserId);
+    return {
+      message: 'Post unliked successfully',
+      postId: id,
+      userId: requestUserId,
+    };
   }
 
   @Post('detail/:postId/share')

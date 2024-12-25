@@ -120,9 +120,7 @@ export async function likePost(postId: string) {
       },
     }
   );
-  if (!response.ok) {
-    return response.json();
-  }
+  return response.json();
 }
 export async function unLikePost(postId: string) {
   const response = await fetch(
@@ -136,9 +134,7 @@ export async function unLikePost(postId: string) {
       },
     }
   );
-  if (!response.ok) {
-    return response.json();
-  }
+  return response.json();
 }
 export async function countLikePost(postId: string) {
   const response = await fetch(
@@ -194,7 +190,7 @@ export async function getMediaByUserId(id = "") {
   );
   return response.json();
 }
-export async function getListPostShare(id="") {
+export async function getListPostShare(id = "") {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX

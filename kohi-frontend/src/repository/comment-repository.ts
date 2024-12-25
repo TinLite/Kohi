@@ -18,8 +18,9 @@ export async function createComment(postId: string, content: string) {
     }
   );
   if (!response.ok) {
-    throw new Error("Failed to create comment");
+    return response.json();
   }
+  return response.json();
 }
 export async function updateComment(commentId: string, content: string) {
   const response = await fetch(

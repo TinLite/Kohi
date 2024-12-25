@@ -16,6 +16,7 @@ import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import { UsersService } from 'src/users/users.service';
 import { PostsService } from 'src/posts/posts.service';
 import mongoose, { mongo } from 'mongoose';
+import { retry } from 'rxjs';
 
 @Controller('users/')
 export class BookmarksController {
@@ -39,7 +40,10 @@ export class BookmarksController {
     if (user.bookmarks.includes(post)) {
       throw new NotFoundException('Post already bookmarked');
     }
-    return this.bookmarksService.addBookMark(author, postId);
+    const added = this.bookmarksService.addBookMark(author, postId);
+    return {
+      message: 'Bookmark added',
+    };
   }
 
   @Delete('profile/bookmark/remove/:id')
@@ -53,7 +57,10 @@ export class BookmarksController {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    this.bookmarksService.removeBookMark(author, postId);
+    const deleted = this.bookmarksService.removeBookMark(author, postId);
+    return {
+      message: 'Bookmark removed',
+    };
   }
 
   @Get('profile/bookmark')

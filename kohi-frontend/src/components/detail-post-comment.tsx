@@ -13,6 +13,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import CommentItem from "./commentItem";
 import { UserContext } from "@/context/user-context";
+import { useNavigate } from "react-router-dom";
+import { getPostsById } from "@/repository/PostsRepository";
 const DetailPost = ({
   post,
   onUpdateShare,
@@ -24,8 +26,9 @@ const DetailPost = ({
 }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [newPost, setNewPost] = useState(post);
   const { user } = useContext(UserContext);
-
+  const navigate = useNavigate();
   const fetchComments = async () => {
     try {
       const response = await listCommentsByPostId(post._id);
@@ -39,6 +42,18 @@ const DetailPost = ({
       setComments([]);
     }
   };
+  const fetchPost = async () => {
+    await getPostsById(post._id)
+      .then((data) => {
+        setNewPost(data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+  const handleNewPost = async () => {
+    fetchPost();
+  };
   const handleReplyComment = () => {
     fetchComments();
   };
@@ -48,24 +63,12 @@ const DetailPost = ({
   const handleUpdateComment = () => {
     fetchComments();
   };
-  const handleLikePost = () => {
-    fetchComments();
-  };
   useEffect(() => {
     fetchComments();
   }, [post._id, onUpdateShare]);
-
-  const handleCreateComment = async () => {
-    if (!newComment.trim()) return;
-    try {
-      await createComment(post._id, newComment);
-      setNewComment("");
-      fetchComments();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+  useEffect(() => {
+    fetchPost();
+  }, [post._id]);
   const buildCommentTree = (comments: Comment[]) => {
     const commentMap: { [key: string]: Comment[] } = {};
     const rootComments: Comment[] = [];
@@ -96,11 +99,11 @@ const DetailPost = ({
     <ScrollArea className="h-screen">
       <div className="space-y-6 py-6 max-w-2xl mx-auto">
         <UserPost
-          post={post}
+          post={newPost}
           showEditPost={user?._id == post.author._id}
           onEditPost={onEditPost}
           onUpdateShare={onUpdateShare}
-          onUpdateLike={handleLikePost}
+          onUpdateLike={handleNewPost}
         />
         {commentTree.map((comment) => (
           <CommentItem

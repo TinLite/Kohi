@@ -98,9 +98,7 @@ export async function addBookMark(PostId: string) {
       },
     }
   );
-  if (!response.ok) {
-    throw new Error("Failed to add bookmark");
-  }
+  return response.json();
 }
 export async function unBookMark(PostId: string) {
   const response = await fetch(
@@ -114,9 +112,7 @@ export async function unBookMark(PostId: string) {
       },
     }
   );
-  if (!response.ok) {
-    throw new Error("Failed to unbookmark");
-  }
+  return  response.json();
 }
 export async function getBookMarks() {
   const response = await fetch(
