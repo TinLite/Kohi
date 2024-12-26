@@ -1,5 +1,6 @@
 import { Moon, Sun } from "lucide-react"
 
+import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -7,15 +8,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useTheme } from "@/components/theme-provider"
+import { cn } from "@/lib/utils"
 
-export function ModeToggle() {
+export function ModeToggle({className} : {className?: string}) {
   const { setTheme } = useTheme()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="transition-colors">
+        <Button variant="outline" className={cn("transition-colors", className)}>
           <span className="flex dark:hidden gap-2 items-center">
             <Sun className="inline h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             Sáng

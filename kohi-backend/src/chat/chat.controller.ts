@@ -17,11 +17,12 @@ export class ChatController {
     ) { }
 
     @Get('/channels')
-    async getChannels(@Req() req, @Query('participants') participants: string[] = []) {
-        if (participants.length === 0) {
+    async getChannels(@Req() req, @Query('participants') participants?: string) {
+        if (!participants) {
             return this.chatService.getChannelsByUserId(req.user._id);
         }
-        return this.chatService.getChannelsByParticipants([...participants, req.user._id]);
+        const arr = participants.split(",")
+        return this.chatService.getChannelsByParticipants([...arr, req.user._id]);
     }
 
     @Post('/channels/create')

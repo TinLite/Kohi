@@ -1,5 +1,6 @@
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
+import { getChannelList } from "@/repository/chat-repository";
 import {
   createSharePost,
   likePost,
@@ -36,6 +37,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "./ui/carousel";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +50,9 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
+import { Textarea } from "./ui/textarea";
 import { UserPostOption } from "./user-post-option";
 import UserPostShareQuote from "./user-post-share-Quote";
 
@@ -65,6 +69,7 @@ function UserHoverCard({
 }) {
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const { user: currentUser, setUser } = useContext(UserContext);
+  const [isCreateDMOpen, setIsCreateDMOpen] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
     if (currentUser && currentUser.following?.includes(user._id)) {
@@ -121,56 +126,84 @@ function UserHoverCard({
       });
   };
 
+  function messageBtnHandler() {
+    getChannelList([user._id]).then((channels) => {
+      if (channels.length > 0) {
+        navigate(`/message/${channels[0]._id}`);
+      } else {
+
+      }
+    });
+  }
+
   return (
-    <HoverCard>
-      <HoverCardTrigger className={className}>{children}</HoverCardTrigger>
-      <HoverCardContent className="w-80 max-w-full">
-        <div className="space-y-4">
-          <div className="flex gap-4">
-            <Avatar className="w-16 h-16">
-              <AvatarImage
-                src={user.avatar ?? user.displayName}
-                className="rounded-full"
-                alt={user.username}
-              />
-              <AvatarFallback>{user.username[0]}</AvatarFallback>
-            </Avatar>
-            <Link to={`/profile/${user._id}`} className="flex-grow">
-              <div>
+    <>
+      <Dialog open={isCreateDMOpen} onOpenChange={() => setIsCreateDMOpen(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Start a DM</DialogTitle>
+            <DialogDescription>
+              You and this user will be able to chat privately.
+            </DialogDescription>
+          </DialogHeader>
+          <Label htmlFor="message">Message</Label>
+          <Textarea />
+          <DialogFooter>
+            <Button variant="secondary">Cancel</Button>
+            <Button>Send</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <HoverCard>
+        <HoverCardTrigger className={className}>{children}</HoverCardTrigger>
+        <HoverCardContent className="w-80 max-w-full">
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <Avatar className="w-16 h-16">
+                <AvatarImage
+                  src={user.avatar ?? user.displayName}
+                  className="rounded-full"
+                  alt={user.username}
+                />
+                <AvatarFallback>{user.username[0]}</AvatarFallback>
+              </Avatar>
+              <Link to={`/profile/${user._id}`} className="flex-grow">
                 <div>
-                  <span className="font-bold">
-                    {user.displayName ?? user.username}
-                  </span>
-                  <span className="pl-2 text-muted-foreground text-sm">
-                    @{user.username}
-                  </span>
+                  <div>
+                    <span className="font-bold">
+                      {user.displayName ?? user.username}
+                    </span>
+                    <span className="pl-2 text-muted-foreground text-sm">
+                      @{user.username}
+                    </span>
+                  </div>
+                  <div className="text-sm">
+                    {user.bio ?? "Một người dùng Ko-Hi"}
+                  </div>
                 </div>
-                <div className="text-sm">
-                  {user.bio ?? "Một người dùng Ko-Hi"}
-                </div>
-              </div>
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {isFollowing ? (
-              <Button onClick={handleUnfollow}>
-                <UserRoundPlus className="w-4 h-4 mr-2" />
-                UnFriend
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {isFollowing ? (
+                <Button onClick={handleUnfollow}>
+                  <UserRoundPlus className="w-4 h-4 mr-2" />
+                  UnFriend
+                </Button>
+              ) : (
+                <Button onClick={handleFollow}>
+                  <UserRoundPlus className="w-4 h-4 mr-2" />
+                  Add Friend
+                </Button>
+              )}
+              <Button variant="secondary" onClick={messageBtnHandler}>
+                <MessagesSquare className="w-4 h-4 mr-2" />
+                Message
               </Button>
-            ) : (
-              <Button onClick={handleFollow}>
-                <UserRoundPlus className="w-4 h-4 mr-2" />
-                Add Friend
-              </Button>
-            )}
-            <Button variant="secondary">
-              <MessagesSquare className="w-4 h-4 mr-2" />
-              Message
-            </Button>
+            </div>
           </div>
-        </div>
-      </HoverCardContent>
-    </HoverCard>
+        </HoverCardContent>
+      </HoverCard>
+    </>
   );
 }
 export default function UserPost({
@@ -367,7 +400,7 @@ export default function UserPost({
         <p className="hyphens-auto break-all">{post.content.split("\n").map((v, i, arr) => {
           return <span key={i}>{v}{i < arr.length - 1 && <br />}</span>
         })}</p>
-        
+
       </Link>
       {post.postShare && (
         <UserPost post={post.postShare} className="mx-4 mb-4" hideComment />

@@ -1,29 +1,27 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   BadRequestException,
-  Query,
+  Body,
+  Controller,
+  Delete,
+  Get,
   NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Query,
   Req,
-  ForbiddenException,
-  Logger,
-  UseInterceptors,
   UploadedFile,
+  UseInterceptors
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
+import { Roles } from 'src/auth/role.decorator';
+import { Public } from '../auth/authmeta';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import mongoose from 'mongoose';
-import { Public } from '../auth/authmeta';
-import { Roles } from 'src/auth/role.decorator';
 import { Role } from './schemas/user.schema';
-import { elementAt } from 'rxjs';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { UsersService } from './users.service';
 // import { FollowsService } from './follows.service';
 // import { BookmarkService } from './bookmarks.service';
 // import { PostsService } from 'src/posts/posts.service';
@@ -90,6 +88,26 @@ export class UsersController {
     }
 
     await this.usersService.updateUser(id, updateUserDto);
+  }
+
+  // update password
+  @Patch('profile/:id/password')
+  async updatePassword(
+    @Param('id') id: string,
+    @Body('oldPassword') oldPassword: string,
+    @Body('newPassword') newPassword: string,
+    @Req() req,
+  ) {
+    if (id == 'me') {
+      id = req.user._id;
+    }
+
+    const user = await this.usersService.findOneWithPassword(id);
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      throw new BadRequestException('Old password is incorrect');
+    }
+    await this.usersService.updatePassword(id, newPassword);
   }
 
   @UseInterceptors(FileInterceptor('file'))

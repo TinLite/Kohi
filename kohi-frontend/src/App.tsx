@@ -8,16 +8,20 @@ import MainLayout from "@/layout/main-layout";
 import PostList from "@/routes/posts/post-list";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PostPage from "./components/post-detail";
+import ProfileFriend from "./components/profile-friend";
 import { Toaster } from "./components/ui/sonner";
 import { useMediaQuery } from "./hooks/use-media-query";
+import "./index.css";
+import { LayoutSetting } from "./layout/setting-layout";
+import MessageLayout from "./layout/sub-layouts/message-layout";
 import Login from "./routes/auth/login";
 import Register from "./routes/auth/register";
-import "./index.css";
-import MessageLayout from "./layout/sub-layouts/message-layout";
 import MessageViewDefault from "./routes/messages/message-default";
 import MessageViewNewChat from "./routes/messages/message-new";
 import { PageMessageChannel } from "./routes/messages/message-view";
-import ProfileFriend from "./components/profile-friend";
+import { PageSettingApp } from "./routes/settings/SettingApp";
+import { PageSettingPassword } from "./routes/settings/SettingPassword";
+import { PageSettingUser } from "./routes/settings/SettingUser";
 
 const router = createBrowserRouter([
   {
@@ -91,6 +95,24 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: 'settings',
+    element: <LayoutSetting />,
+    children: [
+      {
+        index: true,
+        element: <PageSettingUser />
+      },
+      {
+        path: 'password',
+        element: <PageSettingPassword />
+      },
+      {
+        path: 'app',
+        element: <PageSettingApp />
+      }
+    ]
+  }
 ]);
 
 function App() {

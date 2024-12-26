@@ -1,7 +1,14 @@
 import { ChatChannel, ChatMessage } from "@/types/chat-types";
 
 export async function getChannelList(participants: string[] = []) {
-    const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/`, {
+    let url = `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels`;
+    if (participants.length > 0) {
+        const data = new URLSearchParams({
+            participants: participants.join(','),
+        }).toString();
+        url += `?participants=${participants.join(',')}`;
+    }
+    const data = await fetch(url, {
         headers: {
             Authorization: `Bearer ${localStorage.backend_access_token}`,
         },

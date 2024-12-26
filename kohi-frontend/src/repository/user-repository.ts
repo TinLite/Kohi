@@ -236,3 +236,23 @@ export async function getProfileUser(id: string) {
   }
   return (await response.json()) as User;
 }
+
+export async function updatePassword(oldPassword: string, newPassword: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/users/profile/${"me"}/password`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.backend_access_token}`,
+      },
+      body: JSON.stringify({ oldPassword, newPassword }),
+    }
+  );
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message ?? "Failed to update password");
+  }
+}

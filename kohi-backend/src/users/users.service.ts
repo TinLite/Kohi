@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UtilsService } from '../utils/utils.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
@@ -34,6 +34,12 @@ export class UsersService {
       _id: newUser._id,
     };
   }
+
+  async updatePassword(id: string, password: string) {
+    const hashPass = await new UtilsService().hashPassword(password);
+    return this.userModel.updateOne({ _id: id }, { password: hashPass }).exec();
+  }
+
   // GET ALL USER
   async findAllUser(page: number, limit: number) {
     const skip = (page - 1) * limit;
@@ -59,7 +65,11 @@ export class UsersService {
   }
   //GET ONE user
   async findOne(id: string): Promise<User> {
-    return await this.userModel.findById(id).select('+bio +email +sdt').exec();
+    return this.userModel.findById(id).select('+bio +email +sdt');
+  }
+
+  async findOneWithPassword(id: string): Promise<User> {
+    return this.userModel.findById(id).select('+password');
   }
 
   async findAllById(id: string[]) {
