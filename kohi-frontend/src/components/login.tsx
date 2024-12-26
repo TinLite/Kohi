@@ -1,4 +1,16 @@
+import { UserContext } from "@/context/user-context";
+import { getUserId, login, register } from "@/repository/authentication-repository";
+import { getProfile } from "@/repository/user-repository";
+import { TabsContent } from "@radix-ui/react-tabs";
 import { useContext, useRef, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+} from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -8,24 +20,11 @@ import {
   SheetDescription,
   SheetFooter,
   SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+  SheetTitle
 } from "./ui/sheet";
-import { getUserId, login, register } from "@/repository/authentication-repository";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-} from "./ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { TabsContent } from "@radix-ui/react-tabs";
-import { UserContext } from "@/context/user-context";
-import { getProfile } from "@/repository/user-repository";
 
-const LoginSheet = ({ children }: { children: React.ReactNode }) => {
+const LoginSheet = ({ open, onOpenChange }: { open?: boolean, onOpenChange?: () => void }) => {
   const { setUser } = useContext(UserContext);
 
   const [submitting, setSubmitting] = useState(false);
@@ -48,7 +47,7 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
     //   setErrorMessage("");
     // }
     if (!account || !password) {
-      setErrorMessage("Vui lòng điền đầy đủ thông tin");
+      setErrorMessage("Please fill in all fields");
       setOpenAlert(true);
       setSubmitting(false);
       return;
@@ -59,10 +58,11 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
         const userId = await getUserId();
         setUser(await getProfile(userId));
         setOpenAlert(false);
+        onOpenChange?.();
       }
     } catch (e) {
       setErrorMessage(
-        "Đăng nhập thất bại. Hãy kiểm tra lại tài khoản và mật khẩu."
+        "Failed to login. Please check your information."
       );
       setOpenAlert(true);
       console.error(e);
@@ -80,13 +80,13 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
     passwordRef.current!.value = "";
     repeatPasswordRef.current!.value = "";
     if (!username || !email || !password || !repeatPassword) {
-      setErrorMessage("Vui lòng điền đầy đủ thông tin");
+      setErrorMessage("Please fill in all fields");
       setOpenAlert(true);
       setSubmitting(false);
       return;
     }
     if (password !== repeatPassword) {
-      setErrorMessage("Mật khẩu không khớp");
+      setErrorMessage("Retypted password does not match");
       setOpenAlert(true);
       setSubmitting(false);
       return;
@@ -100,7 +100,7 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (e) {
       setErrorMessage(
-        "Đăng ký thất bại. Hãy kiểm tra lại thông tin."
+        "Failed to register. Please check your information."
       );
       setOpenAlert(true);
       console.error(e);
@@ -112,29 +112,28 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
     <>
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>
-          <AlertDialogHeader>Không thể đăng nhập</AlertDialogHeader>
+          <AlertDialogHeader>Unable to login</AlertDialogHeader>
           <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
           <AlertDialogFooter>
             <AlertDialogAction>OK</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <Sheet>
-        <SheetTrigger asChild>{children}</SheetTrigger>
+      <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
           side="left"
           className="w-full mx-auto justify-center items-center"
         >
           <Tabs defaultValue="login" className="pt-4">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Đăng nhập</TabsTrigger>
-              <TabsTrigger value="signup">Đăng ký</TabsTrigger>
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Register</TabsTrigger>
             </TabsList>
             <TabsContent value="login">
               <SheetHeader className="mt-4">
-                <SheetTitle>Đăng nhập</SheetTitle>
+                <SheetTitle>Login</SheetTitle>
                 <SheetDescription>
-                  Đăng nhập để bày tỏ ý kiến của bạn
+                  Login to your account
                 </SheetDescription>
               </SheetHeader>
               <div className="w-full grid gap-4 py-4">
@@ -150,11 +149,11 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
                 </div>
                 <div>
                   <Label>
-                    Mật khẩu:
+                    Password:
                     <Input
                       ref={passwordRef}
                       type="password"
-                      placeholder="Nhập mật khẩu"
+                      placeholder="Type your password"
                     />
                   </Label>
                 </div>
@@ -165,55 +164,55 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
                   onClick={loginSubmitHandler}
                   disabled={submitting}
                 >
-                  Đăng nhập
+                  Login
                 </Button>
               </SheetFooter>
             </TabsContent>
             <TabsContent value="signup">
               <SheetHeader className="mt-4">
-                <SheetTitle>Đăng ký</SheetTitle>
+                <SheetTitle>Register new account</SheetTitle>
                 <SheetDescription>
-                  Đăng ký tài khoản nếu bạn chưa có
+                  Let's create a new account
                 </SheetDescription>
               </SheetHeader>
               <div className="w-full grid gap-4 py-4">
                 <div>
                   <Label>
-                    Tên người dùng:
+                    Username:
                     <Input
                       ref={accountRef}
                       type="text"
-                      placeholder="jeff..."
+                      placeholder="HuTao"
                     />
                   </Label>
                 </div>
                 <div>
                   <Label>
-                    Nhập email:
+                    Email:
                     <Input
                       ref={emailRef}
                       type="text"
-                      placeholder="Nhập email dùng để đăng nhập"
+                      placeholder="contact@wangsheng-funeral-parlor.genimp"
                     />
                   </Label>
                 </div>
                 <div>
                   <Label>
-                    Mật khẩu:
+                    Password:
                     <Input
                       ref={passwordRef}
                       type="password"
-                      placeholder="Nhập mật khẩu"
+                      placeholder="Your secret password"
                     />
                   </Label>
                 </div>
                 <div>
                   <Label>
-                    Xác nhận mật khẩu:
+                    Repeat password:
                     <Input
                       ref={repeatPasswordRef}
                       type="password"
-                      placeholder="Nhập mật khẩu xác nhận"
+                      placeholder="Must be the same as above"
                     />
                   </Label>
                 </div>
@@ -224,7 +223,7 @@ const LoginSheet = ({ children }: { children: React.ReactNode }) => {
                   onClick={reigsterSubmitHandler}
                   disabled={submitting}
                 >
-                  Đăng ký
+                  Register
                 </Button>
               </SheetFooter>
             </TabsContent>

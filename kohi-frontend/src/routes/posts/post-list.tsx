@@ -1,5 +1,4 @@
 import { ButtonScrollToTop } from "@/components/button-scroll-to-top";
-import FriendSide from "@/components/friend-side";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,12 +14,15 @@ import { Post } from "@/types/post-type";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 function PostCreate({ onSubmit }: { onSubmit: () => void }) {
   const [submittable, setSubmittable] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [content, setContent] = useState("");
   const [selectedFile, setSelectedFile] = useState<File[]>([]);
+
+  const { user, setLoginFormOpen } = useContext(UserContext)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -34,6 +36,11 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
       selectedFile.map((file) => {
         formData.append("files", file);
       });
+    }
+    if (!user) {
+      toast.error("Please login to post");
+      setLoginFormOpen(true);
+      return;
     }
     try {
       await createPosts(formData);
@@ -50,11 +57,11 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
       <CardContent className="flex p-6 gap-6">
         <Avatar className="w-8 h-8">
           <AvatarImage
-            src="https://github.com/shadcn.png"
+            src={user?.avatar ?? ""}
             className="rounded-full"
-            alt="@shadcn"
+            alt={`@${user?.username ?? "user"}`}
           />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarFallback>@</AvatarFallback>
         </Avatar>
         <Textarea
           className="resize-y p-0 border-0 focus-visible:ring-0 min-h-0"
@@ -62,6 +69,7 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
           value={content}
           onInput={(e) => {
             const value = e.currentTarget.value;
+            e.currentTarget.style.height = "auto";
             e.currentTarget.style.height = e.currentTarget.scrollHeight + "px";
             let isSubmittable = value.trim().length > 0;
             setSubmittable(isSubmittable);
@@ -73,7 +81,7 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
         ></Textarea>
       </CardContent>
       {clicked && (
-        <CardFooter className="flex justify-end">
+        <CardFooter className="flex justify-end gap-4">
           <Input
             type="file"
             className="file:text-foreground"

@@ -25,5 +25,13 @@ export class CloudinaryService {
     const uploadResults = await Promise.all(uploadPromises);
     return uploadResults.map(result => result.secure_url);
   }
-  
+
+  async deleteFile(publicId: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      cloudinary.uploader.destroy(publicId, (error, result) => {
+        if (error) return reject(error);
+        resolve();
+      });
+    });
+  }
 }

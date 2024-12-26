@@ -1,4 +1,5 @@
 import { UserContext } from "@/context/user-context";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import {
@@ -13,17 +14,15 @@ import {
 import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { DropdownSetting } from "./dropdown-setting";
-import LoginSheet from "./login";
 import UserNoti from "./noti";
 import { SheetSetting } from "./sheet-settings";
-import { useMediaQuery } from "@/hooks/use-media-query";
 
 export default function SideNav({
   disableNavOnPhone = false,
 }: {
   disableNavOnPhone?: boolean;
 }) {
-  const { user } = useContext(UserContext);
+  const { user, setLoginFormOpen } = useContext(UserContext);
 
   const isOnPhone = useMediaQuery("(max-width: 720px)");
 
@@ -77,6 +76,12 @@ export default function SideNav({
           </NavLink>
           <NavLink
             to="/message"
+            onClick={(e) => {
+              if (!user) {
+                setLoginFormOpen(true);
+                e.preventDefault();
+              }
+            }}
             className={({ isActive }) =>
               [
                 "flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors",
@@ -87,7 +92,6 @@ export default function SideNav({
             }
           >
             <MessageSquareMore />
-
             <span className="hidden md:block">Message</span>
           </NavLink>
           <UserNoti open={notiOpen} onOpenChange={setNotiOpen} />
@@ -135,12 +139,10 @@ export default function SideNav({
               <span className="hidden md:block">Profile</span>
             </NavLink>
           ) : (
-            <LoginSheet>
-              <button className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground">
-                <LogIn />
-                <span className="hidden md:block">Login</span>
-              </button>
-            </LoginSheet>
+            <button className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground" onClick={() => setLoginFormOpen(true)}>
+              <LogIn />
+              <span className="hidden md:block">Login</span>
+            </button>
           )}
         </nav>
         <DropdownSetting>

@@ -1,6 +1,4 @@
 import { Post } from "@/types/post-type";
-import { get } from "node:http";
-import path from "path";
 
 export async function getGlobalLatestPosts() {
   const response = await fetch(

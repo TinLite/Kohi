@@ -55,6 +55,7 @@ export class ChatMessage {
     channelID: string;
     content: string;
     createdAt: Date;
+    isRecalled: boolean = false;
     constructor(
         _id: string,
         senderID: {

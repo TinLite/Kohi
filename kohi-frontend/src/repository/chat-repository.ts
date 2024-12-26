@@ -42,6 +42,31 @@ export async function getChannel(channelId: string) {
     return await data.json() as ChatChannel;
 }
 
+export async function updateChannel(channelId: string, data: {
+    name?: string;
+    avatar?: File;
+}) {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+        if (value instanceof File) {
+            formData.append(key, value);
+        } else if (value !== undefined) {
+            formData.append(key, value);
+        }
+    });
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}`, {
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${localStorage.backend_access_token}`,
+        },
+        body: formData,
+    });
+    if (!response.ok) {
+        throw new Error("Failed to update chat channel");
+    }
+    return await response.json() as ChatChannel;
+}
+
 export async function getChannelMessages(channelId: string) {
     const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages`, {
         headers: {
@@ -72,7 +97,7 @@ export async function sendMessage(channelId: string, data: {
     return await response.json() as ChatMessage;
 }
 
-async function recallMesssage(channelId: string, messageId: string) {
+export async function recallMesssage(channelId: string, messageId: string) {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages/${messageId}`, {
         method: 'DELETE',
         headers: {

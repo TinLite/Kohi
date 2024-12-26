@@ -4,6 +4,7 @@ import mongoose, { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
+import { UpdateChatChannelDto } from './dto/update-chat-channel.dto';
 import { ChatChannel } from './schemas/chat-channel.schema';
 import { ChatMessage } from './schemas/chat-message.schema';
 
@@ -19,6 +20,10 @@ export class ChatService {
 
   async getChannelById(channelId: string) {
     return this.chatChannelModel.findById(channelId);
+  }
+
+  async updateChannel(channelId: string, updateDto: UpdateChatChannelDto) {
+    return this.chatChannelModel.findByIdAndUpdate(channelId, updateDto, { new: true });
   }
 
   async createChannel(createChatDto: CreateChatChannelDto) {
@@ -70,6 +75,6 @@ export class ChatService {
   }
 
   async recallMessage(messageId: string) {
-    return this.chatMessageModel.findByIdAndUpdate(messageId, { isRecalled: true, content: "" });
+    return this.chatMessageModel.findByIdAndUpdate(messageId, { isRecalled: true, content: "" }, { new: true }).populate("senderID");
   }
 }

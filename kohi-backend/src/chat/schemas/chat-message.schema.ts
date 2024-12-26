@@ -20,7 +20,8 @@ export class ChatMessage {
 
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        select: 'username avatar displayName',
     })
     senderID: User;
 

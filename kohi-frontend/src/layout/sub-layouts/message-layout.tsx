@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { ChatProvider } from "@/context/chat-context";
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import { getChannelList } from "@/repository/chat-repository";
@@ -47,22 +48,18 @@ function MessageSelectionItem({ chatChannel, selected = false, onSelect }: { cha
 
 export default function MessageLayout() {
     const { channelID } = useParams();
+    const { user } = useContext(UserContext);
 
     const [channels, setChannels] = useState<ChatChannel[]>([]);
     const navigate = useNavigate();
-    const [selectedChannel, setSelectedChannel] = useState<ChatChannel | null>(null);
 
-    const { user } = useContext(UserContext);
     useEffect(() => {
+        if (!user) {
+            if (channels.length > 0) setChannels([]);
+            return;
+        }; 
         getChannelList().then(setChannels);
-    }, [user])
-    useEffect(() => {
-        if (channelID) {
-            setSelectedChannel(channels.find(c => c._id === channelID) ?? null);
-        } else {
-            setSelectedChannel(null);
-        }
-    }, [channelID, channels])
+    }, [user?._id]);
     return (
         <div className="flex flex-grow h-screen">
             <div className={cn(
@@ -86,7 +83,7 @@ export default function MessageLayout() {
                             <MessageSelectionItem
                                 key={channel._id}
                                 chatChannel={channel}
-                                selected={selectedChannel?._id === channel._id}
+                                selected={channelID === channel._id}
                                 onSelect={() => navigate(`/message/${channel._id}`)}
                             />
                         ))
@@ -94,7 +91,9 @@ export default function MessageLayout() {
                 </ScrollArea>
             </div>
             <Separator orientation="vertical" className="max-md:hidden" />
-            <Outlet />
+            <ChatProvider channelId={channelID}>
+                <Outlet />
+            </ChatProvider>
         </div>
     );
 }

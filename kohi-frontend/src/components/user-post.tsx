@@ -1,10 +1,9 @@
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import {
-  countLikePost,
   createSharePost,
   likePost,
-  unLikePost,
+  unLikePost
 } from "@/repository/PostsRepository";
 import {
   addBookMark,
@@ -24,10 +23,18 @@ import {
   UserRoundPlus,
 } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import CommentUI from "./comment";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "./ui/carousel";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,17 +48,8 @@ import {
 } from "./ui/dropdown-menu";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { Separator } from "./ui/separator";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "./ui/carousel";
-import UserPostShareQuote from "./user-post-share-Quote";
 import { UserPostOption } from "./user-post-option";
-import { on } from "node:process";
+import UserPostShareQuote from "./user-post-share-Quote";
 
 function UserHoverCard({
   children,
@@ -364,7 +362,10 @@ export default function UserPost({
         )}
       </div>
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
-        <p className="hyphens-auto w-fit">{post.content}</p>
+        <p className="hyphens-auto break-all">{post.content.split("\n").map((v, i, arr) => {
+          return <span key={i}>{v}{i < arr.length - 1 && <br />}</span>
+        })}</p>
+        
       </Link>
       {post.postShare && (
         <UserPost post={post.postShare} className="mx-4 mb-4" hideComment />
