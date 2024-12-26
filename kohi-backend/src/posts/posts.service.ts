@@ -140,37 +140,30 @@ export class PostsService {
     });
   }
   async addLike(id: string, author: string) {
-    await this.postModel
-      .findOneAndUpdate(
-        {
-          _id: id,
-          flags: { $nin: [PostFlags.HIDDEN] },
-        },
-        {
-          $push: { likes: author },
-        },
-        {
-          new: true,
-        },
-      )
-      .exec();
+    return await this.postModel.findOneAndUpdate(
+      {
+        _id: id,
+        flags: { $nin: [PostFlags.HIDDEN] },
+      },
+      {
+        $push: { likes: author },
+      },
+    );
   }
 
   async removeLike(id: string, author) {
-    await this.postModel
-      .findOneAndUpdate(
-        {
-          _id: id,
-          flags: { $nin: [PostFlags.HIDDEN] },
-        },
-        {
-          $pull: { likes: author },
-        },
-        {
-          new: true,
-        },
-      )
-      .exec();
+    return this.postModel.findOneAndUpdate(
+      {
+        _id: id,
+        flags: { $nin: [PostFlags.HIDDEN] },
+      },
+      {
+        $pull: { likes: author },
+      },
+      // {
+      //   new: true,
+      // },
+    );
   }
   async exists(id: string) {
     return this.postModel

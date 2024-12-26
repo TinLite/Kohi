@@ -31,6 +31,8 @@ import { Post } from "@/types/post-type";
 import ReplyComment from "./replycomment";
 import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
+import { toast } from "sonner";
+import { DateTime } from "luxon";
 
 const CommentItem = ({
   comment,
@@ -45,7 +47,7 @@ const CommentItem = ({
   onDeleteComment?: () => void;
   onUpdateComment?: () => void;
 }) => {
-  const { user } = useContext(UserContext);
+  const { user, setLoginFormOpen } = useContext(UserContext);
   const [isLiked, setIsLiked] = useState(
     comment.likes?.includes(user ? user._id : "") ?? 0
   );
@@ -56,9 +58,19 @@ const CommentItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const toggleLikeComment = async () => {
     if (isLiked) {
+      if (!user) {
+        toast.error("Please login to post");
+        setLoginFormOpen(true);
+        return;
+      }
       await unLikeComment(comment._id);
       setTotal(total - 1);
     } else {
+      if (!user) {
+        toast.error("Please login to post");
+        setLoginFormOpen(true);
+        return;
+      }
       await likeComment(comment._id);
       setTotal(total + 1);
     }
@@ -75,6 +87,11 @@ const CommentItem = ({
   const removeComment = async () => {
     await deleteComment(comment._id)
       .then(() => {
+        if (!user) {
+          toast.error("Please login to post");
+          setLoginFormOpen(true);
+          return;
+        }
         onDeleteComment?.();
       })
       .catch((error) => {
@@ -88,6 +105,11 @@ const CommentItem = ({
   const handleupdateComment = async () => {
     await updateComment(comment._id, content)
       .then(() => {
+        if (!user) {
+          toast.error("Please login to post");
+          setLoginFormOpen(true);
+          return;
+        }
         onUpdateComment?.();
         setIsEditing(false);
       })
@@ -115,6 +137,11 @@ const CommentItem = ({
                 {comment.author.displayName}
               </p>
               <p className="text-gray-700">{comment.content}</p>
+              <p className="text-sm text-muted-foreground">
+                {comment.timeStamp
+                  ? DateTime.fromISO(comment.timeStamp.toString()).toRelative()
+                  : ""}
+              </p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

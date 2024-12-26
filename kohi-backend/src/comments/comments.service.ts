@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PostsService } from 'src/posts/posts.service';
+import { timeStamp } from 'console';
 
 @Injectable()
 export class CommentsService {
@@ -75,7 +76,7 @@ export class CommentsService {
 
   //Like comments
   async likeComment(commentId: string, author: string) {
-    await this.commentModel.findByIdAndUpdate(
+    return await this.commentModel.findByIdAndUpdate(
       commentId,
       { $push: { likes: author } },
       { new: true },
@@ -83,7 +84,7 @@ export class CommentsService {
   }
   //Remove like comments
   async removeLike(commentId: string, author: string) {
-    await this.commentModel.findByIdAndUpdate(
+    return this.commentModel.findByIdAndUpdate(
       commentId,
       { $pull: { likes: author } },
       { new: true },
@@ -91,7 +92,7 @@ export class CommentsService {
   }
   //Delete bình luận
   async deleteComment(commentId: string, author: string) {
-    await this.commentModel.findByIdAndDelete(commentId);
+    return this.commentModel.findByIdAndDelete(commentId);
   }
   //Get 1 bình luận
   async getOneComment(commentId: string) {
@@ -108,13 +109,13 @@ export class CommentsService {
       .populate('author', 'username avatar displayName')
       .populate({
         path: 'postId',
-        select: 'title content author', 
+        select: 'title content author',
         populate: {
           path: 'author',
           select: 'username displayname avatar',
         },
       })
-      .sort({ createdAt: -1 })
+      .sort({ timeStamp: +1 })
       .exec();
     const totalComment = await this.commentModel
       .countDocuments({ postId })

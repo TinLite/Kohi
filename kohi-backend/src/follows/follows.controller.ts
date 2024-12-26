@@ -71,8 +71,11 @@ export class FollowsController {
         followUserId,
         author,
       );
+      // console.log(notification);
     if (notification) {
-      await this.notificationsService.deleteNotification(notification._id);
+      await this.notificationsService.deleteNotification(
+        notification._id.toString(),
+      );
     }
     return this.followsService.unFollowByUser(author, followUserId);
   }

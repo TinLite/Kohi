@@ -24,11 +24,6 @@ import { Textarea } from "./ui/textarea";
 import UserPost from "./user-post";
 import UserProfileMedia from "./user-profile-media";
 const UserProfile = () => {
-  const friends = [
-    { id: 1, name: "Bill Gates", username: "@BillGates" },
-    { id: 2, name: "Gmail", username: "@gmail" },
-    { id: 3, name: "Google for Developers", username: "@googledevs" },
-  ];
   const [media, setMedia] = useState<Post[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsShare, setPostsShare] = useState<Post[]>([]);

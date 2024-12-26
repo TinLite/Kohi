@@ -14,7 +14,7 @@ import {
   updatePostsShare,
 } from "@/repository/PostsRepository";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,7 @@ import {
 } from "./ui/dialog";
 import UserPost from "./user-post";
 import { Textarea } from "./ui/textarea";
+import { UserContext } from "@/context/user-context";
 export function UserPostOption({
   post,
   onDelete,
@@ -35,6 +36,7 @@ export function UserPostOption({
   onEditPost?: () => void;
 }) {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [content, setContent] = useState(post.content);
   const handleDelete = async () => {
@@ -42,6 +44,9 @@ export function UserPostOption({
       .then(() => {
         onDelete?.();
         navigate("/");
+        // if (user?._id === post.author?._id) {
+        //   navigate("/");
+        // }
       })
       .catch((error) => {
         console.error(error);

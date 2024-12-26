@@ -1,4 +1,12 @@
 export enum SocketEvent {
-    CHAT_MESSAGE_NEW = "chat:message:new",
-    CHAT_MESSAGE_UPDATE = "chat:message:update",
+  CHAT_MESSAGE_NEW = "chat:message:new",
+  CHAT_MESSAGE_UPDATE = "chat:message:update",
+  NOTIFICATION = "notification",
+  NOTIFICATION_COMMENT = "notification:comment",
+  NOTIFICATION_COMMENT_NEWCOMMENT = "notification:comment:newcomment",
+  NOTIFICATION_COMMENT_LIKECOMMENT = "notification:comment:likecomment",
+  NOTIFICATION_COMMENT_REPLYCOMMENT = "notification:comment:replycomment",
+  NOTIFICATION_POST_NEWPOST = "notification:post:newpost",
+  NOTIFICATION_POST_LIKEPOST = "notification:post:likepost",
+  NOTIFICATION_FOLLOW_NEWFOLLOW = "notification:follow:newfollow",
 }

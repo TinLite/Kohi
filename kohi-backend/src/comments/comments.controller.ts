@@ -45,10 +45,6 @@ export class CommentsController {
       postId,
     );
     const data = (await this.postsService.findOne(postId)).depopulate('author');
-    // console.log(data)
-    // console.log(authorId)
-    // console.log(data.author)
-    console.log(postId);
     if (authorId != data.author) {
       const notification =
         await this.notificationsService.createNotificationNewComment(
@@ -100,23 +96,25 @@ export class CommentsController {
     }
     const postId = commentOld.postId;
     const authorID = commentOld.author;
-    if (authorID != author) {
-      const notification =
-        await this.notificationsService.createNotificationReplyComment(
-          new NewReplyCommentNotificationDto({
-            userId: authorID,
-            otherUser: author,
-            post: postId,
-            comment: commentId,
-          }),
-        );
-    }
-    return this.commentsService.replyComment(
+    const commented = await this.commentsService.replyComment(
       postId,
       commentId,
       author,
       replyCommentDto,
     );
+    if (authorID != author) {
+      await this.notificationsService.createNotificationReplyComment(
+        new NewReplyCommentNotificationDto({
+          userId: authorID,
+          otherUser: author,
+          post: postId,
+          comment: commented._id,
+        }),
+      );
+    }
+    return {
+      _id: commented._id,
+    };
   }
   //Like bình luận
   @Post('like/:id')
@@ -155,7 +153,10 @@ export class CommentsController {
       throw new NotFoundException('You have not liked this comment');
     }
     const notification =
-      await this.notificationsService.findOneCommentNotification(commentId);
+      await this.notificationsService.findOneLikeCommentNotification(
+        author,
+        commentId,
+      );
     if (notification) {
       await this.notificationsService.deleteNotification(notification._id);
     }
@@ -167,7 +168,7 @@ export class CommentsController {
   async deleteComment(@Param('id') commentId: string, @Req() req) {
     const author = req.user._id;
     const comment = await this.commentsService.getOneComment(commentId);
-    console.log(comment);
+    // console.log(comment);
     const post = await this.postsService.findOne(comment.postId);
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -180,12 +181,15 @@ export class CommentsController {
         'You are not authorized to delete this comment',
       );
     }
+    console.log('aaa', commentId);
     const notification =
       await this.notificationsService.findOneCommentNotification(commentId);
+    console.log(notification);
     if (notification) {
       await this.notificationsService.deleteNotification(notification._id);
     }
-    return this.commentsService.deleteComment(commentId, author);
+    const result = await this.commentsService.deleteComment(commentId, author);
+    console.log('Delete result', result);
   }
   // @Roles(Role.ADMIN)
   @Public()
@@ -215,7 +219,6 @@ export class CommentsController {
       currentLimit,
     );
   }
-
   // get bình luận theo replyTo
   @Public()
   @Get('list/reply/:id')

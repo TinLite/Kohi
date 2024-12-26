@@ -9,6 +9,7 @@ import { LikePostNotificationDto } from './dto/new-likepost-notification.dto';
 import { NewCommentNotificationDto } from './dto/new-comment-notification.dto';
 import { LIKECommentNotificationDto } from './dto/new-likecomment-notification.dto';
 import { NewReplyCommentNotificationDto } from './dto/new-reply-comment-notification.dto';
+import path from 'path';
 
 @Injectable()
 export class NotificationsService {
@@ -19,9 +20,10 @@ export class NotificationsService {
     private readonly eventsService: EventsService,
   ) {}
   async createNotification(notificationDto: NewFollowerNotificationDto) {
-    const notification = await (
-      await this.notificationModel.create(notificationDto)
-    ).populate('userId');
+    const notification = await this.notificationModel.create(notificationDto);
+    await (
+      await notification.populate('userId', 'username avatar displayName')
+    ).populate('otherUser', 'username avatar displayName');
     delete notification.__v;
     this.eventsService.announceToUser(
       notificationDto.userId,
@@ -31,8 +33,19 @@ export class NotificationsService {
     console.log(notification);
   }
   async createNotificationNewPost(notification: NewPostNotificationDto) {
-    const notificationPost =
-      await await this.notificationModel.create(notification);
+    const notificationPost = await this.notificationModel.create(notification);
+    await await (
+      await (
+        await notificationPost.populate('userId', 'username avatar displayName')
+      ).populate('otherUser', 'username avatar displayName')
+    ).populate({
+      path: 'post',
+      select: 'title content author',
+      populate: {
+        path: 'author',
+        select: 'username avatar displayName',
+      },
+    });
     delete notificationPost.__v;
     this.eventsService.announceToUser(
       notification.userId,
@@ -43,7 +56,22 @@ export class NotificationsService {
   }
   async createNotificationNewLikePost(notification: LikePostNotificationDto) {
     const notificationLikePost =
-      await await this.notificationModel.create(notification);
+      await this.notificationModel.create(notification);
+    await await (
+      await (
+        await notificationLikePost.populate(
+          'userId',
+          'username avatar displayName',
+        )
+      ).populate('otherUser', 'username avatar displayName')
+    ).populate({
+      path: 'post',
+      select: 'title content author',
+      populate: {
+        path: 'author',
+        select: 'username avatar displayName',
+      },
+    });
     delete notificationLikePost.__v;
     this.eventsService.announceToUser(
       notification.userId,
@@ -56,7 +84,22 @@ export class NotificationsService {
   async createNotificationNewComment(notification: NewCommentNotificationDto) {
     const notificationComment =
       await this.notificationModel.create(notification);
-    console.log(notificationComment, notification);
+    await await (
+      await (
+        await notificationComment.populate(
+          'userId',
+          'username avatar displayName',
+        )
+      ).populate('otherUser', 'username avatar displayName')
+    ).populate({
+      path: 'post',
+      select: 'title content author',
+      populate: {
+        path: 'author',
+        select: 'username avatar displayName',
+      },
+    });
+
     delete notificationComment.__v;
     this.eventsService.announceToUser(
       notification.userId,
@@ -71,6 +114,21 @@ export class NotificationsService {
   ) {
     const notificationLikeComment =
       await this.notificationModel.create(notification);
+    (
+      await (
+        await notificationLikeComment.populate(
+          'userId',
+          'username avatar displayName',
+        )
+      ).populate('otherUser', 'username avatar displayName')
+    ).populate({
+      path: 'post',
+      select: 'title content author',
+      populate: {
+        path: 'author',
+        select: 'username avatar displayName',
+      },
+    });
     delete notificationLikeComment.__v;
     this.eventsService.announceToUser(
       notification.userId,
@@ -79,8 +137,27 @@ export class NotificationsService {
     );
     console.log('Notification sent to user ' + notification.userId);
   }
-  async createNotificationReplyComment(notification:NewReplyCommentNotificationDto){
-    const notificationReplyComment = await this.notificationModel.create(notification);
+
+  async createNotificationReplyComment(
+    notification: NewReplyCommentNotificationDto,
+  ) {
+    const notificationReplyComment =
+      await this.notificationModel.create(notification);
+    await (
+      await (
+        await notificationReplyComment.populate(
+          'userId',
+          'username avatar displayName',
+        )
+      ).populate('otherUser', 'username avatar displayName')
+    ).populate({
+      path: 'post',
+      select: 'title content author',
+      populate: {
+        path: 'author',
+        select: 'username avatar displayName',
+      },
+    });
     delete notificationReplyComment.__v;
     this.eventsService.announceToUser(
       notification.userId,
@@ -109,13 +186,14 @@ export class NotificationsService {
       .exec();
   }
   async deleteNotification(id) {
-    return await this.notificationModel.findByIdAndDelete(id).exec();
+    return await this.notificationModel.findByIdAndDelete({ _id: id }).exec();
   }
   async findOneLikePostNotification(id, postId) {
     return await this.notificationModel
       .findOne({
         userId: id,
         post: postId,
+        type: 'LIKE_POST',
       })
       .exec();
   }
@@ -123,27 +201,30 @@ export class NotificationsService {
   async findOneLikeCommentNotification(id, commentId) {
     return await this.notificationModel
       .findOne({
-        userId: id,
+        otherUser: id,
         comment: commentId,
+        type: 'LIKE_COMMENT',
       })
       .exec();
   }
 
   async findOneFollowNotification(id, otherUser) {
-    return await this.notificationModel
+    return this.notificationModel
       .findOne({
         userId: id,
         otherUser: otherUser,
+        type: 'NEW_FOLLOWER',
       })
       .exec();
   }
   async findOneCommentNotification(commentId) {
-    return await this.notificationModel
+    return this.notificationModel
       .findOne({
         comment: commentId,
       })
       .exec();
   }
+  
   async findAllByUserId(userId: string) {
     return await this.notificationModel.find({ userId }).exec();
   }
@@ -158,5 +239,8 @@ export class NotificationsService {
   }
   async deleteOneNotification(id) {
     return await this.notificationModel.findByIdAndDelete(id).exec();
+  }
+  async deleteAllNotificationByPostId(postId) {
+    return this.notificationModel.findByIdAndDelete(postId).exec();
   }
 }

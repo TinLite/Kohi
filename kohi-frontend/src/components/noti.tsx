@@ -11,14 +11,19 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import {
   deleteNotification,
   getAllNotifications,
   readNotification,
 } from "@/repository/notification-repository";
 import { UserContext } from "@/context/user-context";
-import { get } from "http";
+import { Badge } from "./ui/badge";
+import { DateTime } from "luxon";
+import socket from "@/services/socket";
+import { SocketEvent } from "@/types/socket-types";
+import { toast } from "sonner";
+import { Notification } from "@/types/notification-types";
 
 const UserNoti = ({
   open,
@@ -30,7 +35,34 @@ const UserNoti = ({
   side?: "top" | "bottom" | "left" | "right";
 }) => {
   const { user } = useContext(UserContext);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notificationList, setNotificationList] = useReducer(
+    (
+      state: Notification[],
+      action: {
+        type: "add" | "delete" | "update" | "set" | "prepend" | "append";
+        payload: Notification[];
+      }
+    ) => {
+      switch (action.type) {
+        case "prepend":
+          return [...action.payload, ...state];
+        case "append":
+          return [...state, ...action.payload];
+        case "add":
+          return [...state, ...action.payload];
+        case "delete":
+          const ids = action.payload.map((noti) => noti._id);
+          return state.filter((noti) => !ids.includes(noti._id));
+        case "update":
+          return state.map(
+            (noti) => action.payload.find((n) => n._id === noti._id) || noti
+          );
+        case "set":
+          return action.payload;
+      }
+    },
+    []
+  );
   const fetchNotifications = async () => {
     if (!user) {
       console.error("User not logged in");
@@ -38,7 +70,7 @@ const UserNoti = ({
     }
     try {
       const response = await getAllNotifications();
-      setNotifications(response);
+      setNotificationList({ type: "set", payload: response ?? [] });
     } catch (err) {
       console.error(err);
     }
@@ -53,33 +85,156 @@ const UserNoti = ({
     fetchNotifications();
   }, [user]);
 
+  useEffect(() => {
+    socket.on(
+      SocketEvent.NOTIFICATION_COMMENT_NEWCOMMENT,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        const newComment = JSON.parse(JSON.stringify(notification));
+        toast.success(
+          `${
+            newComment.otherUser?.displayName ?? newComment.otherUser?.username
+          } commented on your post`
+        );
+      }
+    );
+    console.log("socket on notification");
+    return () => {
+      socket.off(SocketEvent.NOTIFICATION_COMMENT_NEWCOMMENT);
+    };
+  }, []);
+  useEffect(() => {
+    socket.on(
+      SocketEvent.NOTIFICATION_COMMENT_LIKECOMMENT,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        const newComment = JSON.parse(JSON.stringify(notification));
+        toast.success(
+          `${
+            newComment.otherUser?.displayName ?? newComment.otherUser?.username
+          } liked your comment`
+        );
+      }
+    );
+    console.log("socket on notification");
+    return () => {
+      socket.off(SocketEvent.NOTIFICATION_COMMENT_LIKECOMMENT);
+    };
+  }, []);
+  useEffect(() => {
+    socket.on(
+      SocketEvent.NOTIFICATION_COMMENT_REPLYCOMMENT,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        const newComment = JSON.parse(JSON.stringify(notification));
+        toast.success(
+          `${
+            newComment.otherUser?.displayName ?? newComment.otherUser?.username
+          } replied to your comment`
+        );
+      }
+    );
+    console.log("socket on notification");
+    return () => {
+      socket.off(SocketEvent.NOTIFICATION_COMMENT_REPLYCOMMENT);
+    };
+  }, []);
+  useEffect(() => {
+    socket.on(
+      SocketEvent.NOTIFICATION_POST_NEWPOST,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        const newComment = JSON.parse(JSON.stringify(notification));
+        toast.success(
+          `${
+            newComment.otherUser?.displayName ?? newComment.otherUser?.username
+          } posted a new post`
+        );
+      }
+    );
+    console.log("socket on notification");
+    return () => {
+      socket.off(SocketEvent.NOTIFICATION_POST_NEWPOST);
+    };
+  }, []);
+  useEffect(() => {
+    socket.on(
+      SocketEvent.NOTIFICATION_POST_LIKEPOST,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        const newComment = JSON.parse(JSON.stringify(notification));
+        toast.success(
+          `${
+            newComment.otherUser?.displayName ?? newComment.otherUser?.username
+          } liked your post`
+        );
+      }
+    );
+    console.log("socket on notification");
+    return () => {
+      socket.off(SocketEvent.NOTIFICATION_POST_LIKEPOST);
+    };
+  }, []);
+  useEffect(() => {
+    socket.on(
+      SocketEvent.NOTIFICATION_FOLLOW_NEWFOLLOW,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        const newComment = JSON.parse(JSON.stringify(notification));
+        toast.success(
+          `${
+            newComment.otherUser?.displayName ?? newComment.otherUser?.username
+          } started following you`
+        );
+      }
+    );
+    console.log("socket on notification");
+    return () => {
+      socket.off(SocketEvent.NOTIFICATION_FOLLOW_NEWFOLLOW);
+    };
+  }, []);
   const NotificationItem = ({
+    user,
     type,
     title,
     time,
     action,
     id,
+    flur,
   }: {
+    user: string;
     type: boolean;
     title: string;
     time: string;
     action?: string;
     id: string;
+    flur?: string;
   }) => (
-    <div className="flex items-center justify-between py-2">
+    <div
+      className={`flex items-center px-4 py-3 mb-2 rounded-md ${
+        type ? "text-muted-foreground" : ""
+      }`}
+    >
       <div className="flex items-center">
         <Avatar className="w-10 h-10">
-          <AvatarImage src="https://github.com/QuangTeoo.png" />
+          <AvatarImage src={user} />
           <AvatarFallback>?</AvatarFallback>
         </Avatar>
-        <div className="ml-3">
-          <p className="text-sm font-medium">{title}</p>
+        <div className="ml-2">
+          <p className="text-sm font-medium">
+            {!type && (
+              <Badge variant="outline" className="mr-2">
+                New
+              </Badge>
+            )}{" "}
+            {title}
+          </p>
           <p className="text-xs text-muted-foreground">{time}</p>
         </div>
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center ml-auto">
         {action && (
-          <Button variant="secondary" size="sm" className="ml-2">
+          <Button variant="secondary" size="sm" className="">
             {action}
           </Button>
         )}
@@ -114,30 +269,34 @@ const UserNoti = ({
           </TabsList>
           <TabsContent value="all">
             <ScrollArea className="overflow-y-auto h-[500px] pr-2">
-              {user && notifications.length > 0 ? (
-                notifications.map((notification) => (
+              {user && notificationList.length > 0 ? (
+                notificationList.map((notification) => (
                   <NotificationItem
                     key={notification._id}
                     title={
                       notification.type === "NEW_FOLLOWER"
-                        ? `${notification.otherUser.displayName} started following you`
+                        ? `${notification.otherUser?.displayName} started following you`
                         : notification.type === "LIKE_POST"
-                        ? `${notification.otherUser.displayName} liked your post`
+                        ? `${notification.otherUser?.displayName} liked your post`
                         : notification.type === "NEW_POST"
-                        ? `${notification.otherUser.displayName} posted a new post`
+                        ? `${notification.otherUser?.displayName} posted a new post`
                         : notification.type === "NEW_COMMENT"
-                        ? `${notification.otherUser.displayName} commented on your post`
+                        ? `${notification.otherUser?.displayName} commented on your post`
                         : notification.type === "LIKE_COMMENT"
-                        ? `${notification.otherUser.displayName} liked your comment`
+                        ? `${notification.otherUser?.displayName} liked your comment`
                         : notification.type === "NEW_REPLY_COMMENT"
-                        ? `${notification.otherUser.displayName} replied to your comment`
+                        ? `${notification.otherUser?.displayName} replied to your comment`
                         : "Other notification"
                     }
-                    time={new Date(notification.createAt).toLocaleString(
-                      "Vi-VN"
-                    )}
+                    time={
+                      DateTime.fromISO(
+                        notification.createAt.toString()
+                      ).toRelative() ?? ""
+                    }
                     type={notification.isRead}
                     id={notification._id}
+                    flur={!notification.isRead ? "Blur" : ""}
+                    user={notification.otherUser?.avatar ?? ""}
                   />
                 ))
               ) : (
@@ -149,26 +308,26 @@ const UserNoti = ({
           </TabsContent>
           <TabsContent value="unread">
             <ScrollArea className="overflow-y-auto h-[500px]">
-              {notifications.filter((noti) => noti.isRead === false).length >
+              {notificationList.filter((noti) => noti.isRead === false).length >
               0 ? (
-                notifications
+                notificationList
                   .filter((noti) => noti.isRead === false)
                   .map((notification) => (
                     <NotificationItem
                       key={notification._id}
                       title={
                         notification.type === "NEW_FOLLOWER"
-                          ? `${notification.otherUser.displayName} started following you`
+                          ? `${notification.otherUser?.displayName} started following you`
                           : notification.type === "LIKE_POST"
-                          ? `${notification.otherUser.displayName} liked your post`
+                          ? `${notification.otherUser?.displayName} liked your post`
                           : notification.type === "NEW_POST"
-                          ? `${notification.otherUser.displayName} posted a new post`
+                          ? `${notification.otherUser?.displayName} posted a new post`
                           : notification.type === "NEW_COMMENT"
-                          ? `${notification.otherUser.displayName} commented on your post`
+                          ? `${notification.otherUser?.displayName} commented on your post`
                           : notification.type === "LIKE_COMMENT"
-                          ? `${notification.otherUser.displayName} liked your comment`
+                          ? `${notification.otherUser?.displayName} liked your comment`
                           : notification.type === "NEW_REPLY_COMMENT"
-                          ? `${notification.otherUser.displayName} replied to your comment`
+                          ? `${notification.otherUser?.displayName} replied to your comment`
                           : "Other notification"
                       }
                       time={new Date(notification.createAt).toLocaleString(
@@ -176,6 +335,7 @@ const UserNoti = ({
                       )}
                       id={notification._id}
                       type={notification.isRead}
+                      user={notification.otherUser?.avatar ?? ""}
                     />
                   ))
               ) : (

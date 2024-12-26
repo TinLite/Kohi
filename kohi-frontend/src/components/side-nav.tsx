@@ -11,11 +11,15 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { DropdownSetting } from "./dropdown-setting";
 import UserNoti from "./noti";
 import { SheetSetting } from "./sheet-settings";
+import { toast } from "sonner";
+import socket from "@/services/socket";
+import { Notification } from "@/types/notification-types";
+import { SocketEvent } from "@/types/socket-types";
 
 export default function SideNav({
   disableNavOnPhone = false,
@@ -96,7 +100,14 @@ export default function SideNav({
           </NavLink>
           <UserNoti open={notiOpen} onOpenChange={setNotiOpen} />
           <button
-            onClick={() => setNotiOpen(true)}
+            onClick={(e) => {
+              if (!user) {
+                toast.error("Please login to post");
+                setLoginFormOpen(true);
+                return;
+              }
+              setNotiOpen(true);
+            }}
             className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
           >
             <Bell />
@@ -104,6 +115,12 @@ export default function SideNav({
           </button>
           <NavLink
             to="/bookmark"
+            onClick={(e) => {
+              if (!user) {
+                setLoginFormOpen(true);
+                e.preventDefault();
+              }
+            }}
             className={({ isActive }) =>
               [
                 "flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors",
@@ -139,7 +156,10 @@ export default function SideNav({
               <span className="hidden md:block">Profile</span>
             </NavLink>
           ) : (
-            <button className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground" onClick={() => setLoginFormOpen(true)}>
+            <button
+              className="flex h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
+              onClick={() => setLoginFormOpen(true)}
+            >
               <LogIn />
               <span className="hidden md:block">Login</span>
             </button>

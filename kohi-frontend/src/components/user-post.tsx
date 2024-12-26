@@ -4,7 +4,7 @@ import { getChannelList } from "@/repository/chat-repository";
 import {
   createSharePost,
   likePost,
-  unLikePost
+  unLikePost,
 } from "@/repository/PostsRepository";
 import {
   addBookMark,
@@ -37,7 +37,14 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "./ui/carousel";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,6 +62,7 @@ import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
 import { UserPostOption } from "./user-post-option";
 import UserPostShareQuote from "./user-post-share-Quote";
+import { toast } from "sonner";
 
 function UserHoverCard({
   children,
@@ -131,14 +139,16 @@ function UserHoverCard({
       if (channels.length > 0) {
         navigate(`/message/${channels[0]._id}`);
       } else {
-
       }
     });
   }
 
   return (
     <>
-      <Dialog open={isCreateDMOpen} onOpenChange={() => setIsCreateDMOpen(false)}>
+      <Dialog
+        open={isCreateDMOpen}
+        onOpenChange={() => setIsCreateDMOpen(false)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Start a DM</DialogTitle>
@@ -233,7 +243,7 @@ export default function UserPost({
   onBookmarkUpdate?: (newStatus: boolean) => void;
   className?: string;
 }) {
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser, setLoginFormOpen } = useContext(UserContext);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLiked, setIsLiked] = useState(
     post.likes?.includes(user ? user._id : "") ?? 0
@@ -249,28 +259,30 @@ export default function UserPost({
   };
 
   const handleLike = async () => {
+    if (!user) {
+      toast.error("Please login to post");
+      setLoginFormOpen(true);
+      return;
+    }
     await likePost(post._id)
-      .then((response) => {
-        setIsLiked(true);
+      .then((res) => {
         onUpdateLike?.();
-        if (response.statusCode === 401) {
-          navigate("/login");
-          // onUpdateLike?.();
-        }
+        setIsLiked(true);
       })
       .catch((err) => {
         console.log(err);
       });
   };
   const handleUnlike = () => {
+    if (!user) {
+      toast.error("Please login to post");
+      setLoginFormOpen(true);
+      return;
+    }
     unLikePost(post._id)
-      .then((response) => {
-        setIsLiked(false);
+      .then((res) => {
         onUpdateLike?.();
-        if (response.statusCode === 401) {
-          // onUpdateLike?.();
-          navigate("/login");
-        }
+        setIsLiked(false);
       })
       .catch((err) => {
         console.log(err);
@@ -284,10 +296,12 @@ export default function UserPost({
   }, [user, post._id]);
   const handleAddBookmark = async () => {
     try {
-      await addBookMark(post._id).then((res) => {
-        if (res.statusCode === 401) {
-          return navigate("/login");
-        }
+      if (!user) {
+        toast.error("Please login to post");
+        setLoginFormOpen(true);
+        return;
+      }
+      await addBookMark(post._id).then(() => {
         setIsBookMarked(true);
         getProfile().then(setUser);
         if (onBookmarkUpdate) {
@@ -300,10 +314,12 @@ export default function UserPost({
   };
   const handleRemoveBookmark = async () => {
     try {
-      await unBookMark(post._id).then((res) => {
-        if (res.statusCode === 401) {
-          return navigate("/login");
-        }
+      if (!user) {
+        toast.error("Please login to post");
+        setLoginFormOpen(true);
+        return;
+      }
+      await unBookMark(post._id).then(() => {
         setIsBookMarked(false);
         getProfile().then(setUser);
         if (onBookmarkUpdate) {
@@ -315,10 +331,19 @@ export default function UserPost({
     }
   };
   const handleClickRepost = async () => {
-    await createSharePost(post._id).then(() => {
-      onRepost?.();
-      getProfile().then(setUser);
-    });
+    if (!user) {
+      toast.error("Please login to post");
+      setLoginFormOpen(true);
+      return;
+    }
+    await createSharePost(post._id)
+      .then(() => {
+        onRepost?.();
+        getProfile().then(setUser);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleEditPost = () => {
     onEditPost?.();
@@ -378,8 +403,8 @@ export default function UserPost({
               <span>@{post.author.username}</span>
             )}
             <Link to={`/post/detail/${post._id}`}>
-              {/* {" "}- {new Date(post.createdAt).toLocaleString("vi-VN")} */}
-              {" "}- {DateTime.fromISO(post.createdAt.toString()).toRelative()}
+              {/* {" "}- {new Date(post.createdAt).toLocaleString("vi-VN")} */}{" "}
+              - {DateTime.fromISO(post.createdAt.toString()).toRelative()}
             </Link>
           </div>
         </div>
@@ -397,10 +422,16 @@ export default function UserPost({
         )}
       </div>
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
-        <p className="hyphens-auto break-all">{post.content.split("\n").map((v, i, arr) => {
-          return <span key={i}>{v}{i < arr.length - 1 && <br />}</span>
-        })}</p>
-
+        <p className="hyphens-auto break-all">
+          {post.content?.split("\n").map((v, i, arr) => {
+            return (
+              <span key={i}>
+                {v}
+                {i < arr.length - 1 && <br />}
+              </span>
+            );
+          })}
+        </p>
       </Link>
       {post.postShare && (
         <UserPost post={post.postShare} className="mx-4 mb-4" hideComment />

@@ -1,4 +1,5 @@
 import {
+  BadGatewayException,
   BadRequestException,
   Body,
   Controller,
@@ -142,6 +143,7 @@ export class PostsController {
         'You are not allowed to delete this post',
       );
     }
+    await this.notificationsService.deleteAllNotificationByPostId(id);
     return this.postsService.deletePost(id);
   }
 
@@ -153,22 +155,19 @@ export class PostsController {
     }
     const requestUserId = request.user._id;
     if (post.likes.includes(requestUserId)) {
-      throw new UnauthorizedException('You already liked this post');
+      throw new BadGatewayException('You already liked this post');
     }
     const postNoPopulate = await this.postsService.findOneNoPopulate(id);
     const authorId = postNoPopulate.author;
-    const liked = await this.postsService.addLike(id, requestUserId);
-    // console.log(requestUserId, authorId);
+    await this.postsService.addLike(id, requestUserId);
     if (requestUserId !== authorId.toString()) {
-      const test =
-        await this.notificationsService.createNotificationNewLikePost(
-          new LikePostNotificationDto({
-            userId: authorId,
-            otherUser: requestUserId,
-            post: id,
-          }),
-        );
-      return test;
+      await this.notificationsService.createNotificationNewLikePost(
+        new LikePostNotificationDto({
+          userId: authorId,
+          otherUser: requestUserId,
+          post: id,
+        }),
+      );
     }
     return {
       message: 'Post liked successfully',
@@ -183,21 +182,20 @@ export class PostsController {
     }
     const requestUserId = request.user._id;
     if (!post.likes.includes(requestUserId)) {
-      throw new UnauthorizedException('You have not liked this post yet');
+      throw new BadGatewayException('You have not liked this post yet');
     }
     const Notification =
       await this.notificationsService.findOneLikePostNotification(
-        requestUserId,
+        post.author,
         id,
       );
+    console.log(Notification);
     if (Notification) {
       await this.notificationsService.deleteNotification(Notification._id);
     }
-    const unliked = this.postsService.removeLike(id, requestUserId);
+    await this.postsService.removeLike(id, requestUserId);
     return {
       message: 'Post unliked successfully',
-      postId: id,
-      userId: requestUserId,
     };
   }
 

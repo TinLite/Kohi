@@ -8,14 +8,27 @@ import { UserContext } from "@/context/user-context";
 import { Separator } from "./ui/separator";
 import { replyToComment } from "@/repository/comment-repository";
 import { useNavigate } from "react-router-dom";
-export default function ReplyComment({ comment,onReply}: { comment: Comment,onReply?:()=>void }) {
-  const { user } = useContext(UserContext);
+import { toast } from "sonner";
+import { DateTime } from "luxon";
+export default function ReplyComment({
+  comment,
+  onReply,
+}: {
+  comment: Comment;
+  onReply?: () => void;
+}) {
+  const { user, setLoginFormOpen } = useContext(UserContext);
   const [isOpenReply, setIsOpenReply] = useState(false);
   const [replyComment, setReplyComment] = useState("");
   const navigate = useNavigate();
   const handleReplyComment = async () => {
     if (!replyComment.trim()) return;
     try {
+      if (!user) {
+        toast.error("Please login to post");
+        setLoginFormOpen(true);
+        return;
+      }
       await replyToComment(comment._id, replyComment);
       setReplyComment("");
       setIsOpenReply(false);
@@ -46,8 +59,10 @@ export default function ReplyComment({ comment,onReply}: { comment: Comment,onRe
               {comment.author.displayName}
             </p>
             <p className="text-gray-700">{comment.content}</p>
-            <span className="text-sm text-gray-500">
-              {new Date(comment.timeStamp || "").toLocaleString("vi-VN")}
+            <span className="text-sm text-muted-foreground">
+              {comment.timeStamp
+                ? DateTime.fromISO(comment.timeStamp.toString()).toRelative()
+                : ""}
             </span>
           </div>
         </div>
