@@ -1,6 +1,8 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateChatChannelDto } from './create-chat-channel.dto';
+import { IsString } from 'class-validator';
 
-export class UpdateChatChannelDto extends PartialType(CreateChatChannelDto) {
-  
+export class UpdateChatChannelDto {
+    @IsString()
+    name: string;
+
+    // avatar: string;
 }

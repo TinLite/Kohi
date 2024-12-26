@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { EventsService } from 'src/events/events.service';
@@ -17,8 +17,11 @@ export class ChatController {
     ) { }
 
     @Get('/channels')
-    async getChannels(@Req() req) {
-        return this.chatService.getChannelsByUserId(req.user._id);
+    async getChannels(@Req() req, @Query('participants') participants: string[] = []) {
+        if (participants.length === 0) {
+            return this.chatService.getChannelsByUserId(req.user._id);
+        }
+        return this.chatService.getChannelsByParticipants([...participants, req.user._id]);
     }
 
     @Post('/channels/create')
@@ -56,8 +59,22 @@ export class ChatController {
 
     @Patch('/channels/:channelId/')
     @UseInterceptors(FileInterceptor('avatar'))
-    async updateChannel(@Param('channelId') channelId: string, @Body() updateDto: UpdateChatChannelDto, @UploadedFile() avatar?: Express.Multer.File) {
-        
+    async updateChannel(@Param('channelId') channelId: string, @Body() updateDto: UpdateChatChannelDto,
+        // @UploadedFile(new ParseFilePipe({
+        //     validators: [
+        //         new MaxFileSizeValidator({ maxSize: 10000000 }),
+        //         new FileTypeValidator({ fileType: 'image/*' })
+        //     ]
+        // })) avatar?: Express.Multer.File
+    ) {
+
+        // if (!avatar && !updateDto.name) {
+        //     throw new BadRequestException('Please provide at least one field to update');
+        // }
+        // if (avatar) {
+        //     const uploadResult = await this.cloudinaryService.uploadFile(avatar, 'chat-avatars');
+        //     updateDto.avatar = uploadResult.secure_url;
+        // }
         return this.chatService.updateChannel(channelId, updateDto);
     }
 

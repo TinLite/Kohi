@@ -46,6 +46,7 @@ import { getChannelMessages, recallMesssage, sendMessage, updateChannel } from "
 import socket from "@/services/socket";
 import { ChatChannelType, ChatMessage } from "@/types/chat-types";
 import { SocketEvent } from "@/types/socket-types";
+import { User } from "@/types/user-type";
 import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, PanelRightOpen, PenLine, ReplyIcon, Trash2, UserPlus } from "lucide-react";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
@@ -227,10 +228,19 @@ function SheetChannelSettings({ open, onOpenChange }: { open: boolean, onOpenCha
   const { chatChannel: channel } = useContext(ChatContext);
   const [editChannelNameOpen, setEditChannelNameOpen] = useState(false);
   const [editChannelAvatarOpen, setEditChannelAvatarOpen] = useState(false);
+  function onAvatarUpdateSubmit(file?: File) {
+    if (!file || !channel) {
+      return;
+    }
+    updateChannel(channel?._id, { avatar: file }).then(() => {
+      toast.success("Channel avatar updated successfully");
+      onOpenChange();
+    });
+  }
   return (
     <>
       <DialogEditChannelName open={editChannelNameOpen} onOpenChange={() => setEditChannelNameOpen(false)} />
-      <DialogEditChannelAvatar open={editChannelAvatarOpen} onOpenChange={() => setEditChannelAvatarOpen(false)} />
+      <DialogEditChannelAvatar open={editChannelAvatarOpen} onOpenChange={() => setEditChannelAvatarOpen(false)} onSubmit={onAvatarUpdateSubmit} />
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="w-full">
           <SheetHeader className="mb-4">
@@ -243,13 +253,13 @@ function SheetChannelSettings({ open, onOpenChange }: { open: boolean, onOpenCha
                 <AccordionTrigger>General chat setting</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2 align-middle">
                   <Button variant="outline" className="justify-start gap-3" onClick={() => setEditChannelNameOpen(true)}><PenLine className="w-5 h-5" strokeWidth={2} /> Change chat name</Button>
-                  <Button variant="outline" className="justify-start gap-3" onClick={() => setEditChannelAvatarOpen(true)}><ImageUp className="w-5 h-5" strokeWidth={2} /> Change cover</Button>
+                  <Button variant="outline" className="justify-start gap-3" onClick={() => setEditChannelAvatarOpen(true)} disabled><ImageUp className="w-5 h-5" strokeWidth={2} /> Change cover</Button>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-chat-participants">
                 <AccordionTrigger>Participants</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2 align-middle">
-                  <Button variant="outline">
+                  <Button variant="outline" disabled>
                     <UserPlus className="mr-2" />
                     Add user to chat
                   </Button>
@@ -269,7 +279,7 @@ function SheetChannelSettings({ open, onOpenChange }: { open: boolean, onOpenCha
                             <Button variant="ghost" size="icon" className="ml-auto"><Ellipsis /></Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent side="left">
-                            <DropdownMenuItem><span className="text-destructive hover:text-destructive">Remove participant</span></DropdownMenuItem>
+                            <DropdownMenuItem disabled><span className="text-destructive hover:text-destructive">Remove participant</span></DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -280,7 +290,7 @@ function SheetChannelSettings({ open, onOpenChange }: { open: boolean, onOpenCha
               <AccordionItem value="item-chat-destructive-opntions">
                 <AccordionTrigger>Destructive options</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2 align-middle">
-                  <Button variant="destructive" className="justify-start gap-3 w-full"><DoorOpen className="w-5 h-5" strokeWidth={2} /> Leave chat</Button>
+                  <Button variant="destructive" className="justify-start gap-3 w-full" disabled><DoorOpen className="w-5 h-5" strokeWidth={2} /> Leave chat</Button>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -324,6 +334,7 @@ function MessageView({ className }: { className?: string }) {
   const [channelSettingStatus, setChannelSettingStatus] = useState(false);
 
   const [channelName, setChannelName] = useState<string | undefined>(channel?.name ?? "Chat channel");
+  const [targetUser, setTargetUser] = useState<User | undefined>(undefined);
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
   const { user } = useContext(UserContext);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
@@ -354,6 +365,7 @@ function MessageView({ className }: { className?: string }) {
         setChannelName(targetUser.displayName ?? `@${targetUser.username}`);
         setAvatar(targetUser.avatar);
       }
+      setTargetUser(targetUser);
     } else {
       setChannelName(channel?.participants.map(p => p.user.displayName ?? `@${p.user.username}`).join(', ') ?? channel?._id);
     }
@@ -459,7 +471,7 @@ function MessageView({ className }: { className?: string }) {
           <AvatarFallback>{channelName?.charAt(0) ?? '-'}</AvatarFallback>
         </Avatar>
         <div>
-          <h1 className="font-bold">Display Name <span className="font-normal text-muted-foreground">@username</span></h1>
+          <h1 className="font-bold">{channelName ?? ""} <span className="font-normal text-muted-foreground">@{targetUser?.username}</span></h1>
           <h4 className="text-xs">Online</h4>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setChannelSettingStatus(true)} className="ml-auto">
@@ -505,12 +517,15 @@ function MessageView({ className }: { className?: string }) {
               {selectedImages.map((v, i) => {
                 // TODO: Add removing image
                 return (
-                  <div className="aspect-square w-24 h-24 grid place-items-center relative p-2">
+                  <div className="aspect-square w-24 h-24 grid place-items-center relative p-2" key={v.name}>
                     <Button
                       variant="outline"
                       size="icon"
                       className="w-6 h-6 absolute top-0 -right-2"
-                      onClick={(e) => e.preventDefault()}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedImages(selectedImages.filter((_, index) => index !== i));
+                      }}
                     >
                       <Trash2 />
                     </Button>
@@ -546,7 +561,7 @@ function MessageView({ className }: { className?: string }) {
         </div>
         <Separator />
         <div className="bg-background flex gap-2 px-4 py-2">
-          <Button variant="ghost" size="icon" onClick={(e) => {
+          <Button variant="ghost" size="icon" disabled onClick={(e) => {
             e.preventDefault();
             openFileUploadSelector();
           }}>

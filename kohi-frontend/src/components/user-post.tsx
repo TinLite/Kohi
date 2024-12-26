@@ -22,6 +22,7 @@ import {
   ThumbsUp,
   UserRoundPlus,
 } from "lucide-react";
+import { DateTime } from "luxon";
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CommentUI from "./comment";
@@ -344,7 +345,8 @@ export default function UserPost({
               <span>@{post.author.username}</span>
             )}
             <Link to={`/post/detail/${post._id}`}>
-              - {new Date(post.createdAt).toLocaleString("vi-VN")}
+              {/* {" "}- {new Date(post.createdAt).toLocaleString("vi-VN")} */}
+              {" "}- {DateTime.fromISO(post.createdAt.toString()).toRelative()}
             </Link>
           </div>
         </div>

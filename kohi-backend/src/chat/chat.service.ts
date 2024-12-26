@@ -18,6 +18,10 @@ export class ChatService {
     return this.chatChannelModel.find({ "participants.user": userId }).populate('participants.user');
   }
 
+  getChannelsByParticipants(participants: string[]) {
+    return this.chatChannelModel.find({ participants: { $all: participants } }).populate('participants.user');
+  }
+
   async getChannelById(channelId: string) {
     return this.chatChannelModel.findById(channelId);
   }
