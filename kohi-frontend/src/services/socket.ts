@@ -12,7 +12,7 @@ const socket = io(URL, {
 
 socket.on("connect", () => {
   if (import.meta.env.DEV) {
-    toast.success("[DEBUG] Socket", {
+    console.log("[DEBUG] Socket", {
       description: "Đã kết nối đến server.",
     });
   }
@@ -20,7 +20,7 @@ socket.on("connect", () => {
 
 socket.on("disconnect", (reason) => {
   if (import.meta.env.DEV) {
-    toast.warning("[DEBUG] Socket", {
+    console.log("[DEBUG] Socket", {
       description: "Ngắt kết nối đến server. Lý do: " + reason,
     });
   }

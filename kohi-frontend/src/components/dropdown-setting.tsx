@@ -46,7 +46,7 @@ export function DropdownSetting({ children }: { children: React.ReactNode }) {
         {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator /> */}
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/settings")}>
             <IdCard className="mr-2 h-4 w-4" />
             <span>Cài đặt tài khoản</span>
           </DropdownMenuItem>

@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "@/context/user-context";
+import { login, getUserId } from "@/repository/authentication-repository";
+import { getProfile } from "@/repository/user-repository";
+import { toast } from "sonner";
 
 export default function Login() {
   const backgrounds = [
@@ -10,16 +14,52 @@ export default function Login() {
     "hai-tran-GFeIKOJNPJY-unsplash.jpg",
     "kashish-grover-atssyEsdrSk-unsplash.jpg",
     "steffen-bertram-qDZ-Xd8dX6w-unsplash.jpg",
-  ]
+  ];
   const [background, setBackground] = useState<string>("");
+  const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const accountRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     setBackground(backgrounds[Math.floor(Math.random() * backgrounds.length)]);
   }, []);
+
+  const loginHandle = async () => {
+    const account = accountRef.current?.value;
+    const password = passwordRef.current?.value;
+    if (!account || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    try {
+      await login(account, password);
+      if (localStorage.backend_access_token) {
+        const userId = await getUserId();
+        const userProfile = await getProfile(userId);
+        setUser(userProfile);
+        toast.success("Login successful");
+        navigate("/");
+      }
+    } catch (e) {
+      toast.error("Failed to login. Please check your information.");
+      console.error(e);
+    }
+  };
+
   return (
     <div className="flex h-screen w-screen">
       <div className="h-screen flex-grow md:grid hidden relative">
-        <img src={`/bg/${background}`} alt="background image" className="object-cover h-screen w-full brightness-75" />
-        <Link to="/" className="hidden md:block absolute top-8 left-0 pl-8 bg-accent animate-in slide-in-from-left-28 border-r-8 border-primary">
+        <img
+          src={`/bg/${background}`}
+          alt="background image"
+          className="object-cover h-screen w-full brightness-75"
+        />
+        <Link
+          to="/"
+          className="hidden md:block absolute top-8 left-0 pl-8 bg-accent animate-in slide-in-from-left-28 border-r-8 border-primary"
+        >
           <div className="px-4 font-bold bg-background text-foreground">
             コー
             <br />
@@ -27,22 +67,27 @@ export default function Login() {
           </div>
         </Link>
       </div>
-      <div className="flex-shrink-0 w-screen md:max-w-lg bg-muted text-accent-foreground px-4 py-8 justify-center items-center flex flex-col">
-        <div className="flex flex-col w-screen max-w-sm">
-          <h1 className="scroll-m-20 text-3xl font-semibold tracking-tight mb-8 text-center">
-            Login to continue
-          </h1>
-          <div className="grid grid-cols-4 items-center gap-2">
-            <Label className="text-right">Email</Label>
-            <Input type="email" placeholder="hello@tinlite.com" className="col-span-3"/>
-            <Label className="text-right">Password</Label>
-            <Input type="password" placeholder="Your little secret password goes here" className="col-span-3"/>
-            <Button className="col-span-full">Submit</Button>
-            <div className="flex justify-between text-foreground col-span-full">
-              <Link to="/">Back to home page</Link>
-              <Link to="/register">Register</Link>
-            </div>
-          </div>
+      <div className="flex flex-col justify-center items-center w-full md:w-1/3 p-8">
+        <h1 className="text-3xl font-bold mb-4">Login</h1>
+        <div className="w-full max-w-xs">
+          <Label>
+            Email:
+            <Input ref={accountRef} type="text" placeholder="m@example.com" />
+          </Label>
+          <Label className="mt-4">
+            Password:
+            <Input
+              ref={passwordRef}
+              type="password"
+              placeholder="Type your password"
+            />
+          </Label>
+          <Button className="mt-4 w-full" onClick={loginHandle}>
+            Login
+          </Button>
+          <p className="mt-4 text-center">
+            {/* Don't have an account? <Link to="/register">Register</Link> */}
+          </p>
         </div>
       </div>
     </div>

@@ -1,5 +1,9 @@
 import { UserContext } from "@/context/user-context";
-import { getUserId, login, register } from "@/repository/authentication-repository";
+import {
+  getUserId,
+  login,
+  register,
+} from "@/repository/authentication-repository";
 import { getProfile } from "@/repository/user-repository";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { useContext, useRef, useState } from "react";
@@ -20,11 +24,18 @@ import {
   SheetDescription,
   SheetFooter,
   SheetHeader,
-  SheetTitle
+  SheetTitle,
 } from "./ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { toast } from "sonner";
 
-const LoginSheet = ({ open, onOpenChange }: { open?: boolean, onOpenChange?: () => void }) => {
+const LoginSheet = ({
+  open,
+  onOpenChange,
+}: {
+  open?: boolean;
+  onOpenChange?: () => void;
+}) => {
   const { setUser } = useContext(UserContext);
 
   const [submitting, setSubmitting] = useState(false);
@@ -34,9 +45,10 @@ const LoginSheet = ({ open, onOpenChange }: { open?: boolean, onOpenChange?: () 
 
   const accountRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  
+
   const emailRef = useRef<HTMLInputElement>(null);
   const repeatPasswordRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState("login");
 
   const loginSubmitHandler = async () => {
     setSubmitting(true);
@@ -61,9 +73,7 @@ const LoginSheet = ({ open, onOpenChange }: { open?: boolean, onOpenChange?: () 
         onOpenChange?.();
       }
     } catch (e) {
-      setErrorMessage(
-        "Failed to login. Please check your information."
-      );
+      setErrorMessage("Failed to login. Please check your information.");
       setOpenAlert(true);
       console.error(e);
     } finally {
@@ -93,21 +103,16 @@ const LoginSheet = ({ open, onOpenChange }: { open?: boolean, onOpenChange?: () 
     }
     try {
       await register({ username, email, password });
-      if (localStorage.backend_access_token) {
-        const userId = await getUserId();
-        setUser(await getProfile(userId));
-        setOpenAlert(false);
-      }
+      toast.success("Register successfully. Please login to continue.");
+      setActiveTab("login");
     } catch (e) {
-      setErrorMessage(
-        "Failed to register. Please check your information."
-      );
+      setErrorMessage("Failed to register. Please check your information.");
       setOpenAlert(true);
       console.error(e);
     } finally {
       setSubmitting(false);
     }
-  }
+  };
   return (
     <>
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
@@ -124,7 +129,12 @@ const LoginSheet = ({ open, onOpenChange }: { open?: boolean, onOpenChange?: () 
           side="left"
           className="w-full mx-auto justify-center items-center"
         >
-          <Tabs defaultValue="login" className="pt-4">
+          <Tabs
+            defaultValue="login"
+            className="pt-4"
+            onValueChange={(value) => setActiveTab(value)}
+            value={activeTab}
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Register</TabsTrigger>
@@ -132,9 +142,7 @@ const LoginSheet = ({ open, onOpenChange }: { open?: boolean, onOpenChange?: () 
             <TabsContent value="login">
               <SheetHeader className="mt-4">
                 <SheetTitle>Login</SheetTitle>
-                <SheetDescription>
-                  Login to your account
-                </SheetDescription>
+                <SheetDescription>Login to your account</SheetDescription>
               </SheetHeader>
               <div className="w-full grid gap-4 py-4">
                 <div>
@@ -171,19 +179,13 @@ const LoginSheet = ({ open, onOpenChange }: { open?: boolean, onOpenChange?: () 
             <TabsContent value="signup">
               <SheetHeader className="mt-4">
                 <SheetTitle>Register new account</SheetTitle>
-                <SheetDescription>
-                  Let's create a new account
-                </SheetDescription>
+                <SheetDescription>Let's create a new account</SheetDescription>
               </SheetHeader>
               <div className="w-full grid gap-4 py-4">
                 <div>
                   <Label>
                     Username:
-                    <Input
-                      ref={accountRef}
-                      type="text"
-                      placeholder="HuTao"
-                    />
+                    <Input ref={accountRef} type="text" placeholder="HuTao" />
                   </Label>
                 </div>
                 <div>
