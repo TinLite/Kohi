@@ -22,6 +22,12 @@ export class AuthController {
     req.session.user = req.user;
     return req.user;
   }
+
+  @Post('logout')
+  async logout(@Request() req) {
+    req.session.destroy()
+  }
+
   @Get('profile')
   getProfile(@Request() req) {
     if (!req.session.user) {

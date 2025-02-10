@@ -43,8 +43,9 @@ async function bootstrap() {
       secret: configService.get('SESSION_SECRET') ?? 'ookawaii-koto',
       resave: false,
       saveUninitialized: false,
+      rolling: true,
       cookie: {
-        maxAge: Number(configService.get('SESSION_MAX_AGE')) ?? 86400000,
+        maxAge: Number(configService.get('SESSION_MAX_AGE') ?? '86400000'),
         secure: false,
         httpOnly: true,
       },

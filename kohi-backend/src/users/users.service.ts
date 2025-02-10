@@ -62,6 +62,10 @@ export class UsersService {
   async findByEmailWithPassword(email: string) {
     return await this.userModel.findOne({ email }).select('+password').exec();
   }
+  //GET Email user
+  async findByEmaiOrUsernamelWithPassword(query: string) {
+    return await this.userModel.findOne({ $or: [ { username: query }, { email: query } ] }).select('+password').exec();
+  }
   //GET ONE user
   async findOne(id: string): Promise<User> {
     return this.userModel.findById(id).select('+bio +email +sdt');
