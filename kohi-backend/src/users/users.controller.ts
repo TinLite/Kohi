@@ -9,7 +9,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   UploadedFile,
   UseInterceptors
 } from '@nestjs/common';
@@ -18,11 +17,10 @@ import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 // import { Roles } from 'src/auth/role.decorator';
 // import { Public } from '../auth/authmeta';
+import { User } from 'src/auth/user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Role } from './schemas/user.schema';
 import { UsersService } from './users.service';
-import { User } from 'src/auth/user.decorator';
 // import { FollowsService } from './follows.service';
 // import { BookmarkService } from './bookmarks.service';
 // import { PostsService } from 'src/posts/posts.service';
@@ -39,7 +37,7 @@ export class UsersController {
 
   @Post('create')
   async create(@Body() createUserDto: CreateUserDto) {
-    await this.usersService.create(createUserDto);
+    return {id: (await this.usersService.create(createUserDto))._id};
   }
 
   @Get('list')
