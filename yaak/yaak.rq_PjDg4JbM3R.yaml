@@ -1,0 +1,29 @@
+type: http_request
+model: http_request
+id: rq_PjDg4JbM3R
+createdAt: 2025-02-10T09:55:54.472449800
+updatedAt: 2025-02-10T10:47:30.072888900
+workspaceId: wk_82pbnHq9kL
+folderId: fl_3S2FYikmp9
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "username": "${[ faker.internet.userName() ]}",
+      "password": "12345678",
+      "email": "${[ faker.internet.email() ]}",
+      "displayName": "${[ faker.person.fullName() ]}"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: Um9Km92X2p
+method: POST
+name: register
+sortPriority: 0.0
+url: http://${[ BASE_DOMAIN ]}/${[ API_PREFIX ]}users/create
+urlParameters: []

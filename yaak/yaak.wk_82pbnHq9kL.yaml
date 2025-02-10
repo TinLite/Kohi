@@ -1,0 +1,10 @@
+type: workspace
+model: workspace
+id: wk_82pbnHq9kL
+createdAt: 2025-02-05T07:56:08
+updatedAt: 2025-02-10T09:33:10
+name: Kohi
+description: ''
+settingValidateCertificates: true
+settingFollowRedirects: true
+settingRequestTimeout: 0
