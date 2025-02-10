@@ -112,7 +112,7 @@ export class CommentsService {
         select: 'title content author',
         populate: {
           path: 'author',
-          select: 'username displayname avatar',
+          select: '_id username displayname avatar',
         },
       })
       .sort({ timeStamp: +1 })
@@ -136,7 +136,16 @@ export class CommentsService {
     const skip = (page - 1) * limit;
     const comment = await this.commentModel
       .find({
-        replyTo: new mongoose.Types.ObjectId(replyTo),
+        replyTo: replyTo,
+      })
+      .populate('author', 'username avatar displayName')
+      .populate({
+        path: 'postId',
+        select: 'title content author',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
       })
       .exec();
     const totalComment = await this.commentModel

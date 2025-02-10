@@ -158,7 +158,8 @@ const CommentItem = ({
                     Sửa
                   </DropdownMenuItem>
                 )}
-                {user?._id === comment.author._id && (
+                {(user?._id === comment.author._id ||
+                  user?._id === comment.postId.author._id) && (
                   <DropdownMenuItem onClick={removeComment}>
                     <Trash className="mr-2 h-4 w-4" />
                     Xóa

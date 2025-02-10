@@ -17,6 +17,7 @@ import { UsersService } from 'src/users/users.service';
 import { PostsService } from 'src/posts/posts.service';
 import mongoose, { mongo } from 'mongoose';
 import { retry } from 'rxjs';
+import { User } from 'src/auth/user.decorator';
 
 @Controller('users/')
 export class BookmarksController {
@@ -27,7 +28,7 @@ export class BookmarksController {
   ) {}
   //add bookmark
   @Post('profile/bookmark/add/:id')
-  async addBookmark(@Param('id') postId: string, @Req() req) {
+  async addBookmark(@Param('id') postId: string, @User() req) {
     const author = req.user._id;
     const user = await this.usersService.findOne(author);
     const post = await this.postsService.findOne(postId);
@@ -47,7 +48,7 @@ export class BookmarksController {
   }
 
   @Delete('profile/bookmark/remove/:id')
-  async removeBookmark(@Param('id') postId: string, @Req() req) {
+  async removeBookmark(@Param('id') postId: string, @User() req) {
     const author = req.user._id;
     const user = await this.usersService.findOne(author);
     // @ts-ignore
@@ -65,7 +66,7 @@ export class BookmarksController {
 
   @Get('profile/bookmark')
   async listBookMark(
-    @Req() req,
+    @User() req,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
@@ -91,7 +92,7 @@ export class BookmarksController {
     );
   }
   @Get('profile/bookmarks/search')
-  async searchBookMark(@Query('query') query: string, @Req() req) {
+  async searchBookMark(@Query('query') query: string, @User() req) {
     const author = req.user._id;
     const user = await this.usersService.findOne(author);
     if (!user) {

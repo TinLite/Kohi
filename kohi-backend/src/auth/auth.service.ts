@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { UtilsService } from '../utils/utils.service';
 
@@ -8,11 +7,9 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private utilsService: UtilsService,
-    private jwtService: JwtService,
   ) {
     this.utilsService = new UtilsService();
   }
-  //validate with Guard
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmailWithPassword(username);
     if (
@@ -21,18 +18,11 @@ export class AuthService {
     ) {
       return null;
     }
-    return user;
-  }
-  // login with Guard
-  async login(user: any) {
-    const payload = { sub: user._id, username: user.email, roles: user.roles };
-    // console.log('Login Payload:', payload);
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      _id: user._id,
+      // username: user.username,
+      // displayname: user.displayName,
+      // role: user.roles,
     };
-  }
-
-  decodeToken(token: string) {
-    return this.jwtService.verify(token);
   }
 }

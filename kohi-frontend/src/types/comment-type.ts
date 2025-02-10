@@ -1,11 +1,11 @@
-import { Post } from "./post-type";
+import { Post } from './post-type';
 import { User } from "./user-type";
 
 export class Comment {
   _id: string;
   author: User;
   content: string;
-  postId: string;
+  postId: Post;
   replyTo?: string;
   timeStamp?: Date;
   likes?: string[];
@@ -13,7 +13,7 @@ export class Comment {
     _id: string,
     author: User,
     content: string,
-    postId: string,
+    postId: Post,
     replyTo?: string,
     timeStamp?: Date,
     likes?: string[]

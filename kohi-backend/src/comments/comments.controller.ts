@@ -23,6 +23,7 @@ import { NewCommentNotificationDto } from 'src/notifications/dto/new-comment-not
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { LIKECommentNotificationDto } from 'src/notifications/dto/new-likecomment-notification.dto';
 import { NewReplyCommentNotificationDto } from 'src/notifications/dto/new-reply-comment-notification.dto';
+import { User } from 'src/auth/user.decorator';
 
 @Controller('comments')
 export class CommentsController {
@@ -36,15 +37,17 @@ export class CommentsController {
   async createComment(
     @Param('id') postId: string,
     @Body() createCommentDto: CreateCommentDto,
-    @Req() req,
+    @User() req,
   ) {
     const authorId = req.user._id;
+    // console.log('authorId', authorId);
     const comment = await this.commentsService.createComment(
       createCommentDto,
       authorId,
       postId,
     );
-    const data = (await this.postsService.findOne(postId)).depopulate('author');
+    const data = await this.postsService.findOne(postId);
+    // .depopulate('author');
     if (authorId != data.author) {
       const notification =
         await this.notificationsService.createNotificationNewComment(
@@ -64,7 +67,7 @@ export class CommentsController {
   async updateComment(
     @Param('id') commentId: string,
     @Body() updateCommentDto: UpdateCommentDto,
-    @Req() req,
+    @User() req,
   ) {
     const author = req.user._id;
     const comment = await this.commentsService.getOneComment(commentId);
@@ -87,14 +90,15 @@ export class CommentsController {
   async replyComment(
     @Param('id') commentId: string,
     @Body() replyCommentDto: CreateCommentDto,
-    @Req() req,
+    @User() req,
   ) {
     const author = req.user._id;
     const commentOld = await this.commentsService.getOneComment(commentId);
     if (!commentOld) {
       throw new NotFoundException('Comment not found');
     }
-    const postId = commentOld.postId;
+    //@ts-expect-error
+    const postId = commentOld.postId._id;
     const authorID = commentOld.author;
     const commented = await this.commentsService.replyComment(
       postId,
@@ -118,7 +122,7 @@ export class CommentsController {
   }
   //Like bình luận
   @Post('like/:id')
-  async likeComment(@Param('id') commentId: string, @Req() req) {
+  async likeComment(@Param('id') commentId: string, @User() req) {
     const author = req.user._id;
     const comment = await this.commentsService.getOneComment(commentId);
     if (!comment) {
@@ -143,7 +147,7 @@ export class CommentsController {
   }
   //Remove like bình luận
   @Delete('unlike/:id')
-  async removeLike(@Param('id') commentId: string, @Req() req) {
+  async removeLike(@Param('id') commentId: string, @User() req) {
     const author = req.user._id;
     const comment = await this.commentsService.getOneComment(commentId);
     if (!comment) {
@@ -165,11 +169,12 @@ export class CommentsController {
 
   //Delete bình luận
   @Delete('delete/:id')
-  async deleteComment(@Param('id') commentId: string, @Req() req) {
+  async deleteComment(@Param('id') commentId: string, @User() req) {
     const author = req.user._id;
     const comment = await this.commentsService.getOneComment(commentId);
     // console.log(comment);
-    const post = await this.postsService.findOne(comment.postId);
+    //@ts-expect-error
+    const post = await this.postsService.findOne(comment.postId._id);
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
@@ -181,18 +186,18 @@ export class CommentsController {
         'You are not authorized to delete this comment',
       );
     }
-    console.log('aaa', commentId);
+    // console.log('aaa', commentId);
     const notification =
       await this.notificationsService.findOneCommentNotification(commentId);
-    console.log(notification);
+    // console.log(notification);
     if (notification) {
       await this.notificationsService.deleteNotification(notification._id);
     }
     const result = await this.commentsService.deleteComment(commentId, author);
-    console.log('Delete result', result);
+    // console.log('Delete result', result);
   }
   // @Roles(Role.ADMIN)
-  @Public()
+  // @Public()
   @Get('list/:id')
   async getCommentByPostId(
     @Param('id') postId: string,
@@ -220,7 +225,7 @@ export class CommentsController {
     );
   }
   // get bình luận theo replyTo
-  @Public()
+  // @Public()
   @Get('list/reply/:id')
   async getCommentByReplyTo(
     @Param('id') commentId: string,

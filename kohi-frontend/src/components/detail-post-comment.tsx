@@ -1,20 +1,21 @@
-import { Post } from "@/types/post-type";
-import UserPost from "./user-post";
-import { Comment } from "@/types/comment-type";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Textarea } from "./ui/textarea";
-import { Button } from "./ui/button";
 import { useContext, useEffect, useState } from "react";
+import { Post } from "@/types/post-type";
+import { Comment } from "@/types/comment-type";
+import UserPost from "./user-post";
+import CommentItem from "./commentItem";
+import { UserContext } from "@/context/user-context";
+import { useNavigate } from "react-router-dom";
+import { getPostsById } from "@/repository/PostsRepository";
 import {
   createComment,
   listCommentsByPostId,
 } from "@/repository/comment-repository";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import CommentItem from "./commentItem";
-import { UserContext } from "@/context/user-context";
-import { useNavigate } from "react-router-dom";
-import { getPostsById } from "@/repository/PostsRepository";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Separator } from "./ui/separator";
+
 const DetailPost = ({
   post,
   onUpdateShare,
@@ -29,28 +30,31 @@ const DetailPost = ({
   const [newPost, setNewPost] = useState(post);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchComments();
+    fetchPost();
+  }, [post._id, onUpdateShare]);
+
   const fetchComments = async () => {
     try {
       const response = await listCommentsByPostId(post._id);
-      if (response && response.data) {
-        setComments(response.data);
-      } else {
-        setComments([]);
-      }
+      setComments(response?.data || []);
     } catch (err) {
       console.error(err);
       setComments([]);
     }
   };
+
   const fetchPost = async () => {
-    await getPostsById(post._id)
-      .then((data) => {
-        setNewPost(data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    try {
+      const data = await getPostsById(post._id);
+      setNewPost(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
+
   const handleNewPost = async () => {
     fetchPost();
   };
@@ -63,12 +67,7 @@ const DetailPost = ({
   const handleUpdateComment = () => {
     fetchComments();
   };
-  useEffect(() => {
-    fetchComments();
-  }, [post._id, onUpdateShare]);
-  useEffect(() => {
-    fetchPost();
-  }, [post._id]);
+
   const buildCommentTree = (comments: Comment[]) => {
     const commentMap: { [key: string]: Comment[] } = {};
     const rootComments: Comment[] = [];
@@ -96,24 +95,27 @@ const DetailPost = ({
   const commentTree = buildCommentTree(comments);
 
   return (
-    <ScrollArea className="h-screen">
-      <div className="space-y-6 py-6 max-w-2xl mx-auto">
+    <ScrollArea className="h-screen max-w-3xl mx-auto p-4 rounded-2xl  mt-2">
+      <div className="space-y-4 py-4 max-w-2xl mx-auto">
         <UserPost
           post={newPost}
-          showEditPost={user?._id == post.author._id}
+          showEditPost={user?._id === post.author._id}
           onEditPost={onEditPost}
           onUpdateShare={onUpdateShare}
           onUpdateLike={handleNewPost}
         />
+        <Separator />
         {commentTree.map((comment) => (
-          <CommentItem
-            key={comment._id}
-            comment={comment}
-            allComments={comments}
-            onReply={handleReplyComment}
-            onDeleteComment={handleDeleteComment}
-            onUpdateComment={handleUpdateComment}
-          />
+          <div className="p-2 border border-gray-200 bg-white rounded-lg">
+            <CommentItem
+              key={comment._id}
+              comment={comment}
+              allComments={comments}
+              onReply={handleReplyComment}
+              onDeleteComment={handleDeleteComment}
+              onUpdateComment={handleUpdateComment}
+            />
+          </div>
         ))}
       </div>
     </ScrollArea>

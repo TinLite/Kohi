@@ -19,6 +19,7 @@ import { NotificationsService } from 'src/notifications/notifications.service';
 import { EventsService } from 'src/events/events.service';
 import { NewFollowerNotificationDto } from '../notifications/dto/new-follower-notification.dto';
 import mongoose, { mongo } from 'mongoose';
+import { User } from 'src/auth/user.decorator';
 
 @Controller('users/follows')
 export class FollowsController {
@@ -29,7 +30,7 @@ export class FollowsController {
     private readonly eventsService: EventsService,
   ) {}
   @Post('add/:id')
-  async followByUser(@Param('id') followUserId: string, @Req() req) {
+  async followByUser(@Param('id') followUserId: string, @User() req) {
     const author = req.user._id;
     const userToFollow = await this.usersService.findOne(followUserId);
     if (!userToFollow) {
@@ -56,7 +57,7 @@ export class FollowsController {
   }
 
   @Delete('unfollow/:id')
-  async unFollowByUser(@Param('id') followUserId: string, @Req() req) {
+  async unFollowByUser(@Param('id') followUserId: string, @User() req) {
     const author = req.user._id;
     const userToFollow = await this.usersService.findOne(followUserId);
     if (!userToFollow) {
@@ -82,7 +83,7 @@ export class FollowsController {
 
   @Get('list/followers')
   async getFollowers(
-    @Req() req,
+    @User() req,
     @Query() { id }: { id?: string },
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -102,7 +103,7 @@ export class FollowsController {
   }
   @Get('list/following')
   async getFollowing(
-    @Req() req,
+    @User() req,
     @Query() { id }: { id?: string },
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -127,7 +128,7 @@ export class FollowsController {
 
   @Get('following')
   async getFollowingByUser(
-    @Req() req,
+    @User() req,
     @Query() { id }: { id?: string },
     @Query('page') page?: string,
     @Query('limit') limit?: string,

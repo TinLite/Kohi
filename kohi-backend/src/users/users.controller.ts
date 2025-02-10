@@ -16,12 +16,13 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
-import { Roles } from 'src/auth/role.decorator';
-import { Public } from '../auth/authmeta';
+// import { Roles } from 'src/auth/role.decorator';
+// import { Public } from '../auth/authmeta';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role } from './schemas/user.schema';
 import { UsersService } from './users.service';
+import { User } from 'src/auth/user.decorator';
 // import { FollowsService } from './follows.service';
 // import { BookmarkService } from './bookmarks.service';
 // import { PostsService } from 'src/posts/posts.service';
@@ -37,13 +38,11 @@ export class UsersController {
   ) {}
 
   @Post('create')
-  @Public()
   async create(@Body() createUserDto: CreateUserDto) {
     await this.usersService.create(createUserDto);
   }
 
   @Get('list')
-  @Roles(Role.ADMIN)
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     const currentPage = page ? Number(page) : 1;
     const currentLimit = limit ? Number(limit) : 10;
@@ -59,7 +58,7 @@ export class UsersController {
   }
 
   @Get('profile/:id/detail')
-  findOne(@Param('id') id: string, @Req() req) {
+  findOne(@Param('id') id: string, @User() req) {
     if (id == 'me') {
       id = req.user._id;
     }
@@ -67,7 +66,7 @@ export class UsersController {
   }
 
   @Delete('profile/:id/delete')
-  async deleteOne(@Param('id') id: string, @Req() req) {
+  async deleteOne(@Param('id') id: string, @User() req) {
     if (id == 'me') {
       id = req.user._id;
     }
@@ -81,7 +80,7 @@ export class UsersController {
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @Req() req,
+    @User() req,
   ) {
     if (id == 'me') {
       id = req.user._id;
@@ -96,7 +95,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body('oldPassword') oldPassword: string,
     @Body('newPassword') newPassword: string,
-    @Req() req,
+    @User() req,
   ) {
     if (id == 'me') {
       id = req.user._id;
@@ -114,7 +113,7 @@ export class UsersController {
   @Patch('avatar/:id/update')
   async updateAvatar(
     @Param('id') id: string,
-    @Req() req,
+    @User() req,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (id == 'me') {
@@ -126,7 +125,7 @@ export class UsersController {
   @Patch('wall/:id/update')
   async updateWall(
     @Param('id') id: string,
-    @Req() req,
+    @User() req,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (id == 'me') {
@@ -135,8 +134,7 @@ export class UsersController {
     return this.usersService.updateWall(id, file);
   }
   @Get('search')
-  @Public()
-  async searchUser(@Query('query') query: string, @Req() req) {
+  async searchUser(@Query('query') query: string, @User() req) {
     return this.usersService.searchUser(query);
   }
 

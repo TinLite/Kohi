@@ -9,7 +9,6 @@ import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UtilsModule } from './utils/utils.module';
-import { JwtAuthGuard } from './auth/passport/jwt-auth.guard';
 import { RolesGuard } from './auth/passport/role.guard';
 import { CommentsModule } from './comments/comments.module';
 import { ChatModule } from './chat/chat.module';
@@ -37,14 +36,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: 'APP_GUARD',
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: 'APP_GUARD',
-      useClass: RolesGuard,
-    },
   ],
 })
 export class AppModule {}

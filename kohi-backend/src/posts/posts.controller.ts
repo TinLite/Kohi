@@ -16,8 +16,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import mongoose from 'mongoose';
-import { Public } from 'src/auth/authmeta';
-import { Roles } from 'src/auth/role.decorator';
 import { Role } from 'src/users/schemas/user.schema';
 import { CreatePostDto } from './dto/create-post.dto';
 import { SharePostDto } from './dto/share-post.dto';
@@ -30,6 +28,7 @@ import { UsersService } from 'src/users/users.service';
 import { LikePostNotificationDto } from 'src/notifications/dto/new-likepost-notification.dto';
 import { Notification } from '../notifications/schemas/notification.schema';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { User } from 'src/auth/user.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -43,7 +42,7 @@ export class PostsController {
   @Post('/create')
   @UseInterceptors(FilesInterceptor('files', 15))
   async create(
-    @Request() request,
+    @User() request,
     @Body() createPostDto: CreatePostDto,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
@@ -71,12 +70,10 @@ export class PostsController {
   }
 
   @Get('list')
-  @Public()
   findAll() {
     return this.postsService.findAll();
   }
 
-  @Roles(Role.ADMIN)
   @Get('list/:id')
   findAllByAuthor(
     @Param('id') id: string,
@@ -97,7 +94,6 @@ export class PostsController {
   }
 
   @Get('detail/:id')
-  @Public()
   findOne(@Param('id') id: string) {
     if (!mongoose.isValidObjectId(id)) {
       throw new NotFoundException('Post not found');
@@ -109,7 +105,7 @@ export class PostsController {
   async update(
     @Param('id') id: string,
     @Body() updatePostDto: UpdatePostDto,
-    @Request() request,
+    @User() request,
   ) {
     const requestUserId = request.user._id;
     const post = await this.postsService.findOne(id);
@@ -127,7 +123,7 @@ export class PostsController {
   }
 
   @Delete('detail/:id/delete')
-  async remove(@Param('id') id: string, @Request() request) {
+  async remove(@Param('id') id: string, @User() request) {
     if (!mongoose.isValidObjectId(id)) {
       throw new NotFoundException('Post not found');
     }
@@ -148,7 +144,7 @@ export class PostsController {
   }
 
   @Post('detail/:id/like')
-  async addLike(@Param('id') id: string, @Request() request) {
+  async addLike(@Param('id') id: string, @User() request) {
     const post = await this.postsService.findOne(id);
     if (!post) {
       throw new NotFoundException('Post not found');
@@ -175,7 +171,7 @@ export class PostsController {
   }
 
   @Delete('detail/:id/unlike')
-  async removeLike(@Param('id') id: string, @Request() request) {
+  async removeLike(@Param('id') id: string, @User() request) {
     const post = await this.postsService.findOne(id);
     if (!post) {
       throw new NotFoundException('Post not found');
@@ -201,7 +197,7 @@ export class PostsController {
 
   @Post('detail/:postId/share')
   async sharePost(
-    @Request() request,
+    @User() request,
     @Param('postId') postId: string,
     @Body() sharePostDto: SharePostDto,
   ) {
@@ -219,7 +215,7 @@ export class PostsController {
   }
 
   @Delete('detail/:postId/unshare')
-  async unsharePost(@Request() request, @Param('postId') postId: string) {
+  async unsharePost(@User() request, @Param('postId') postId: string) {
     const post = await this.postsService.findOne(postId);
     const authorId = request.user._id;
     // console.log(authorId, post.author);
@@ -242,7 +238,7 @@ export class PostsController {
   async updatePostShare(
     @Param('postId') postId: string,
     @Body() updatePostShareDto: SharePostDto,
-    @Request() request,
+    @User() request,
   ) {
     const post = await this.postsService.findOne(postId);
     console.log(postId, updatePostShareDto);
@@ -262,14 +258,12 @@ export class PostsController {
     return this.postsService.updatePostShare(postId, updatePostShareDto);
   }
   @Get('search')
-  @Public()
   async search(@Query('q') q: string) {
     const post = await this.postsService.searchPosts(q);
     console.log(post);
     return post;
   }
   @Get(':id/likes')
-  @Public()
   async countLikes(@Param('id') id: string) {
     const post = await this.postsService.findOne(id);
     if (!post) {
@@ -278,7 +272,7 @@ export class PostsController {
     return await this.postsService.countLikes(id);
   }
   @Get('profile/list/:id?')
-  async getProfilePosts(@Request() request, @Param('id') id?: string) {
+  async getProfilePosts(@User() request, @Param('id') id?: string) {
     const requestUserId = id ?? request.user._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
@@ -286,7 +280,7 @@ export class PostsController {
     return this.postsService.getProfilePosts(requestUserId);
   }
   @Get('profile/media/:id?')
-  async getProfileMedia(@Request() request, @Param('id') id?: string) {
+  async getProfileMedia(@User() request, @Param('id') id?: string) {
     const requestUserId = id ?? request.user._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
@@ -294,7 +288,7 @@ export class PostsController {
     return this.postsService.getProfileMedia(requestUserId);
   }
   @Get('profile/share/:id?')
-  async getProfileShares(@Request() request, @Param('id') id?: string) {
+  async getProfileShares(@User() request, @Param('id') id?: string) {
     const requestUserId = id ?? request.user._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
