@@ -7,6 +7,7 @@ import {
 import { getProfile } from "@/repository/user-repository";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { useContext, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +28,6 @@ import {
   SheetTitle,
 } from "./ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { toast } from "sonner";
 
 const LoginSheet = ({
   open,
@@ -66,12 +66,10 @@ const LoginSheet = ({
     }
     try {
       await login(account, password);
-      if (localStorage.backend_access_token) {
-        const userId = await getUserId();
-        setUser(await getProfile(userId));
-        setOpenAlert(false);
-        onOpenChange?.();
-      }
+      const userId = await getUserId();
+      setUser(await getProfile(userId));
+      setOpenAlert(false);
+      onOpenChange?.();
     } catch (e) {
       setErrorMessage("Failed to login. Please check your information.");
       setOpenAlert(true);

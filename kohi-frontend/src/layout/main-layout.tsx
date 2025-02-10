@@ -9,9 +9,6 @@ export default function MainLayout({disableNavOnPhone = false}: {disableNavOnPho
   const { user, loginFormOpen, setLoginFormOpen } = useContext(UserContext);
   useEffect(() => {
     if (user) {
-      socket.auth = {
-        token: localStorage.getItem("backend_access_token"),
-      }
       socket.connect();
     } else if (socket.active) {
       socket.disconnect();

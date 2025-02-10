@@ -1,3 +1,4 @@
+
 export async function login(email: string, password: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
@@ -9,18 +10,28 @@ export async function login(email: string, password: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username: email, password }),
+      credentials: 'include',
     }
   );
-  if (response.ok) {
-    const data = await response.json();
-    localStorage.setItem("backend_access_token", data.access_token);
-  } else {
+  if (!response.ok) {
     if (response.status === 401) {
-      localStorage.removeItem("backend_access_token");
       throw new Error("Email hoặc mật khẩu không chính xác");
     }
     throw new Error(await response.text());
   }
+  return true;
+}
+
+export async function logout() {
+  return fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/auth/logout`,
+    {
+      method: "POST",
+      credentials: 'include',
+    }
+  );
 }
 
 export async function register(data: {
@@ -39,6 +50,7 @@ export async function register(data: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      credentials: 'include',
     }
   );
   if (!response.ok) throw new Error("Email hoặc mật khẩu không chính xác");
@@ -50,9 +62,7 @@ export async function getUserId() {
       import.meta.env.VITE_API_PREFIX
     }/auth/profile`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (response.ok) {

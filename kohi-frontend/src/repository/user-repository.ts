@@ -7,9 +7,7 @@ export async function getProfile(userId: string = "me") {
       import.meta.env.VITE_API_PREFIX
     }/users/profile/${userId}/detail`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!data.ok) {
@@ -25,9 +23,9 @@ export async function updateUser(userId: string, formData: any) {
     }/users/profile/${userId}/update`,
     {
       method: "PATCH",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
       },
       body: JSON.stringify(formData),
     }
@@ -44,9 +42,7 @@ export async function searchUsers(query: string) {
       import.meta.env.VITE_API_PREFIX
     }/users/search?query=${query}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -61,9 +57,7 @@ export async function followUser(userId: string) {
     }/users/follows/add/${userId}`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -77,9 +71,7 @@ export async function unFollowUser(userId: string) {
     }/users/follows/unfollow/${userId}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -93,9 +85,7 @@ export async function addBookMark(PostId: string) {
     }/users/profile/bookmark/add/${PostId}`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return response.json();
@@ -107,9 +97,7 @@ export async function unBookMark(PostId: string) {
     }/users/profile/bookmark/remove/${PostId}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return  response.json();
@@ -121,9 +109,7 @@ export async function getBookMarks() {
     }/users/profile/bookmark`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -147,9 +133,7 @@ export async function searchBookMarks(query: string) {
     }/users/profile/bookmarks/search?query=${query}`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -164,9 +148,7 @@ export async function getFollowing() {
     }/users/follows/list/following`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -190,9 +172,7 @@ export async function updateAvatar(userId: string, formData: FormData) {
     }/users/avatar/${userId}/update`,
     {
       method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
       body: formData,
     }
   );
@@ -208,9 +188,7 @@ export async function updateWall(userId: string, formData: FormData) {
     }/users/wall/${userId}/update`,
     {
       method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
       body: formData,
     }
   );
@@ -225,10 +203,7 @@ export async function getProfileUser(id: string) {
       import.meta.env.VITE_API_PREFIX
     }/users/profile/${id}/detail`,
     {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -244,9 +219,9 @@ export async function updatePassword(oldPassword: string, newPassword: string) {
     }/users/profile/${"me"}/password`,
     {
       method: "PATCH",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
       },
       body: JSON.stringify({ oldPassword, newPassword }),
     }

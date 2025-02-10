@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useEffect, useRef, useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "@/context/user-context";
-import { login, getUserId } from "@/repository/authentication-repository";
+import { getUserId, login } from "@/repository/authentication-repository";
 import { getProfile } from "@/repository/user-repository";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function Login() {
@@ -35,13 +35,11 @@ export default function Login() {
     }
     try {
       await login(account, password);
-      if (localStorage.backend_access_token) {
-        const userId = await getUserId();
-        const userProfile = await getProfile(userId);
-        setUser(userProfile);
-        toast.success("Login successful");
-        navigate("/");
-      }
+      const userId = await getUserId();
+      const userProfile = await getProfile(userId);
+      setUser(userProfile);
+      toast.success("Login successful");
+      navigate("/");
     } catch (e) {
       toast.error("Failed to login. Please check your information.");
       console.error(e);

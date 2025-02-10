@@ -1,6 +1,4 @@
 import { Comment } from "@/types/comment-type";
-import { Post } from "../types/post-type";
-import { User } from "../types/user-type";
 export async function createComment(postId: string, content: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
@@ -10,8 +8,8 @@ export async function createComment(postId: string, content: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
       },
+      credentials: 'include',
       body: JSON.stringify({
         content: content,
       }),
@@ -31,8 +29,8 @@ export async function updateComment(commentId: string, content: string) {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
       },
+      credentials: 'include',
       body: JSON.stringify({
         content: content,
       }),
@@ -52,8 +50,8 @@ export async function replyToComment(replyTo: string, content: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
       },
+      credentials: 'include',
       body: JSON.stringify({
         content: content,
       }),
@@ -68,12 +66,7 @@ export async function listCommentsByPostId(postId: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/comments/list/${postId}`,
-    {
-      // headers: {
-      //   Authorization: `Bearer ${localStorage.backend_access_token}`,
-      // },
-    }
+    }/comments/list/${postId}`, {}
   );
   if (!response.ok) {
     throw new Error("Failed to fetch comments");
@@ -96,9 +89,7 @@ export async function likeComment(commentId: string) {
     }/comments/like/${commentId}`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -112,9 +103,7 @@ export async function unLikeComment(commentId: string) {
     }/comments/unlike/${commentId}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -125,12 +114,7 @@ export async function listCommentByReplyTo(replyTo: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/comments/list/reply/${replyTo}`,
-    {
-      // headers: {
-      //   Authorization: `Bearer ${localStorage.backend_access_token}`,
-      // },
-    }
+    }/comments/list/reply/${replyTo}`, {}
   );
   if (!response.ok) {
     throw new Error("Failed to fetch comments");
@@ -153,9 +137,7 @@ export async function deleteComment(commentId: string) {
     }/comments/delete/${commentId}`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {

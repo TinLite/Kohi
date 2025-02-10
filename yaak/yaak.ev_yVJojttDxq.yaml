@@ -4,18 +4,18 @@ id: ev_yVJojttDxq
 workspaceId: wk_82pbnHq9kL
 environmentId: ev_FfEApthKaT
 createdAt: 2025-02-10T09:40:33.711288600
-updatedAt: 2025-02-10T09:40:54.130137400
+updatedAt: 2025-02-10T11:26:07.232301800
 name: Vinh
 variables:
 - enabled: true
   name: USERNAME
-  value: vinh@gmail.com
+  value: KhangKien70
   id: F2hm5PJd80
 - enabled: true
   name: PASSWORD
-  value: Vinh@123
+  value: '12345678'
   id: 2vnpRANJIP
 - enabled: true
   name: ''
   value: ''
-  id: fQdgqAZwf3
+  id: paTSYNchKS

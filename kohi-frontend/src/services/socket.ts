@@ -1,5 +1,4 @@
 import { io } from "socket.io-client";
-import { toast } from "sonner";
 
 const URL =
   import.meta.env.MODE === "production"
@@ -8,6 +7,7 @@ const URL =
 
 const socket = io(URL, {
   autoConnect: false,
+  withCredentials: true,
 });
 
 socket.on("connect", () => {

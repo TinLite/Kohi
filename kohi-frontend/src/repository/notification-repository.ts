@@ -5,9 +5,7 @@ export async function getAllNotifications() {
     }/notifications/all`,
     {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -25,9 +23,7 @@ export async function readNotification(id: string) {
     }/notifications/read/${id}`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -41,9 +37,7 @@ export async function readNotification(id: string) {
       }/notifications/delete/${id}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.backend_access_token}`,
-        },
+        credentials: 'include',
       }
     );
     if (!response.ok) {

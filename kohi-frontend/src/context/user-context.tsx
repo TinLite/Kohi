@@ -18,11 +18,8 @@ export const UserProvider = ({ children, userData }: { children: React.ReactNode
     const [user, setUser] = React.useState<User | null>(userData ?? null);
     const [loginFormOpen, setLoginFormOpen] = React.useState(false);
     useEffect(() => {
-        getProfile().then(setUser).catch(() => {
-            localStorage.removeItem("backend_access_token")
-        })
+        getProfile().then(setUser).catch(() => { })
     }, []);
-    console.log("UserProvider", user)
     return (
         <UserContext.Provider value={{ user, setUser, loginFormOpen, setLoginFormOpen }}>
             {children}

@@ -6,9 +6,7 @@ export async function getGlobalLatestPosts() {
       import.meta.env.VITE_API_PREFIX
     }/posts/list`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return (await response.json()) as Post[];
@@ -20,9 +18,7 @@ export async function createPosts(formData: FormData) {
     }/posts/create`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
       body: formData,
     }
   );
@@ -40,9 +36,9 @@ export async function updatePostsShare(postId: string, content: string) {
     {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
         "Content-Type": "application/json",
       },
+      credentials: 'include',
       body: JSON.stringify({ content }),
     }
   );
@@ -58,8 +54,8 @@ export async function updatePost(postId: string, content: string) {
     }/posts/detail/${postId}/update`,
     {
       method: "PATCH",
+      credentials: 'include',
       headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ content }),
@@ -77,8 +73,8 @@ export async function createSharePostQuote(postId: string, content: string) {
     }/posts/detail/${postId}/share`,
     {
       method: "POST",
+      credentials: 'include',
       headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ content }),
@@ -96,9 +92,7 @@ export async function searchPosts(query: string) {
       import.meta.env.VITE_API_PREFIX
     }/posts/search?q=${query}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   if (!response.ok) {
@@ -113,9 +107,7 @@ export async function likePost(postId: string) {
     }/posts/detail/${postId}/like`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return response.json();
@@ -127,9 +119,7 @@ export async function unLikePost(postId: string) {
     }/posts/detail/${postId}/unlike`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return response.json();
@@ -140,9 +130,7 @@ export async function countLikePost(postId: string) {
       import.meta.env.VITE_API_PREFIX
     }/posts/${postId}/likes`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return await response.json();
@@ -153,10 +141,7 @@ export async function getPostsById(postId: string) {
       import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}`,
     {
-      // headers: {
-      //   Authorization: `Bearer ${localStorage.backend_access_token}`,
-      // },
-      method: "GET",
+      credentials: 'include',
     }
   );
   return (await response.json()) as Post;
@@ -167,9 +152,7 @@ export async function getPostsByUserId(id = "") {
       import.meta.env.VITE_API_PREFIX
     }/posts/profile/list/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return (await response.json()) as Post[];
@@ -181,9 +164,7 @@ export async function getMediaByUserId(id = "") {
       import.meta.env.VITE_API_PREFIX
     }/posts/profile/media/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return response.json();
@@ -194,9 +175,7 @@ export async function getListPostShare(id = "") {
       import.meta.env.VITE_API_PREFIX
     }/posts/profile/share/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return (await response.json()) as Post[];
@@ -208,9 +187,7 @@ export async function createSharePost(postId: string) {
     }/posts/detail/${postId}/share`,
     {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return response.json();
@@ -222,9 +199,7 @@ export async function deletePost(postId: string) {
     }/posts/detail/${postId}/delete`,
     {
       method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${localStorage.backend_access_token}`,
-      },
+      credentials: 'include',
     }
   );
   return response.json();

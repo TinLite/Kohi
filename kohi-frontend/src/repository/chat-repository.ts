@@ -9,9 +9,7 @@ export async function getChannelList(participants: string[] = []) {
         url += `?participants=${participants.join(',')}`;
     }
     const data = await fetch(url, {
-        headers: {
-            Authorization: `Bearer ${localStorage.backend_access_token}`,
-        },
+        credentials: 'include',
     });
     if (!data.ok) {
         throw new Error("Failed to fetch chat channels");
@@ -22,9 +20,7 @@ export async function getChannelList(participants: string[] = []) {
 export async function createChannel(members: string[], message: string[], name?: string) {
     const respone = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/create`, {
         method: 'POST',
-        headers: {
-            Authorization: `Bearer ${localStorage.backend_access_token}`,
-        },
+        credentials: 'include',
         body: JSON.stringify({
             name,
             participants: members,
@@ -39,9 +35,7 @@ export async function createChannel(members: string[], message: string[], name?:
 
 export async function getChannel(channelId: string) {
     const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}`, {
-        headers: {
-            Authorization: `Bearer ${localStorage.backend_access_token}`,
-        },
+        credentials: 'include',
     });
     if (!data.ok) {
         throw new Error("Failed to fetch chat channel");
@@ -63,9 +57,7 @@ export async function updateChannel(channelId: string, data: {
     });
     const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}`, {
         method: 'PATCH',
-        headers: {
-            Authorization: `Bearer ${localStorage.backend_access_token}`,
-        },
+        credentials: 'include',
         body: formData,
     });
     if (!response.ok) {
@@ -76,9 +68,7 @@ export async function updateChannel(channelId: string, data: {
 
 export async function getChannelMessages(channelId: string) {
     const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages`, {
-        headers: {
-            Authorization: `Bearer ${localStorage.backend_access_token}`,
-        },
+        credentials: 'include',
     });
     if (!data.ok) {
         throw new Error("Failed to fetch chat messages");
@@ -94,8 +84,8 @@ export async function sendMessage(channelId: string, data: {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.backend_access_token}`,
         },
+        credentials: 'include',
         body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -107,9 +97,7 @@ export async function sendMessage(channelId: string, data: {
 export async function recallMesssage(channelId: string, messageId: string) {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages/${messageId}`, {
         method: 'DELETE',
-        headers: {
-            Authorization: `Bearer ${localStorage.backend_access_token}`,
-        },
+        credentials: 'include',
     });
     if (!response.ok) {
         throw new Error("Failed to recall message");

@@ -20,10 +20,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useContext, useState } from "react";
 import { UserContext } from "@/context/user-context";
-import { DialogAlertLogout } from "./dialog/dialog-alert-logout";
+import { logout } from "@/repository/authentication-repository";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DialogAlertLogout } from "./dialog/dialog-alert-logout";
 
 export function DropdownSetting({ children }: { children: React.ReactNode }) {
   const { setTheme } = useTheme();
@@ -32,11 +33,12 @@ export function DropdownSetting({ children }: { children: React.ReactNode }) {
 
   const [alertOpen, setAlertOpen] = useState(false);
 
-  function logout() {
+  function performLogout() {
+    logout();
     setAlertOpen(false);
-    localStorage.removeItem("backend_access_token");
     navigate("/");
     setUser(null);
+    
   }
 
   return (
@@ -89,7 +91,7 @@ export function DropdownSetting({ children }: { children: React.ReactNode }) {
       <DialogAlertLogout
         open={alertOpen}
         onOpenChange={setAlertOpen}
-        onConfirm={logout}
+        onConfirm={performLogout}
       />
     </DropdownMenu>
   );
