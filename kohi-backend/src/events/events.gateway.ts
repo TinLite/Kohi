@@ -7,7 +7,7 @@ import { AuthService } from 'src/auth/auth.service';
   cors: {
     origin: true,
     credentials: true,
-  }
+  },
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   @WebSocketServer() server: Server;
@@ -19,13 +19,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect, 
     
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket) {
     this.logger.debug(`Client connected: ${client.id}`);
     
-    const token = client.handshake.auth?.token;
     try {
-      if (token) {
-        const { sub: userId } = this.authService.decodeToken(token);
+      // @ts-expect-error
+      if (client.request?.session) {
+        // @ts-expect-error
+        const userId = client.request.session.user._id;
         if (userId) {
           this.logger.debug(`Client ${client.id} authenticated as user ${userId}`);
           client.join(`user:${userId}`);

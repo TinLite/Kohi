@@ -47,17 +47,17 @@ export class UsersController {
   }
 
   @Get('profile/:id/detail')
-  findOne(@Param('id') id: string, @User() req) {
+  findOne(@Param('id') id: string, @User() user) {
     if (id == 'me') {
-      id = req.user._id;
+      id = user?._id;
     }
     return this.usersService.findOne(id);
   }
 
   @Delete('profile/:id/delete')
-  async deleteOne(@Param('id') id: string, @User() req) {
+  async deleteOne(@Param('id') id: string, @User() user) {
     if (id == 'me') {
-      id = req.user._id;
+      id = user?._id;
     }
     if (mongoose.isValidObjectId(id)) {
       return this.usersService.deleteOne(id);
@@ -69,10 +69,10 @@ export class UsersController {
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @User() req,
+    @User() user,
   ) {
     if (id == 'me') {
-      id = req.user._id;
+      id = user._id;
     }
 
     await this.usersService.updateUser(id, updateUserDto);
@@ -84,10 +84,10 @@ export class UsersController {
     @Param('id') id: string,
     @Body('oldPassword') oldPassword: string,
     @Body('newPassword') newPassword: string,
-    @User() req,
+    @User() reqUser,
   ) {
     if (id == 'me') {
-      id = req.user._id;
+      id = reqUser._id;
     }
 
     const user = await this.usersService.findOneWithPassword(id);
@@ -102,11 +102,11 @@ export class UsersController {
   @Patch('avatar/:id/update')
   async updateAvatar(
     @Param('id') id: string,
-    @User() req,
+    @User() user,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (id == 'me') {
-      id = req.user._id;
+      id = user._id;
     }
     return this.usersService.updateAvatar(id, file);
   }
@@ -114,16 +114,16 @@ export class UsersController {
   @Patch('wall/:id/update')
   async updateWall(
     @Param('id') id: string,
-    @User() req,
+    @User() user,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (id == 'me') {
-      id = req.user._id;
+      id = user._id;
     }
     return this.usersService.updateWall(id, file);
   }
   @Get('search')
-  async searchUser(@Query('query') query: string, @User() req) {
+  async searchUser(@Query('query') query: string, @User() user) {
     return this.usersService.searchUser(query);
   }
 

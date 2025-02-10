@@ -1,19 +1,17 @@
 import {
   BadRequestException,
-  Body,
   Controller,
   Delete,
   ForbiddenException,
   Get,
   NotFoundException,
   Param,
-  Post,
-  Req,
+  Post
 } from '@nestjs/common';
-import { EventsService } from '../events/events.service';
-import { NotificationsService } from './notifications.service';
 import mongoose from 'mongoose';
 import { User } from 'src/auth/user.decorator';
+import { EventsService } from '../events/events.service';
+import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -24,7 +22,7 @@ export class NotificationsController {
   @Get('all')
   async getAllNotifications(@User() req) {
     return await this.notificationsService.findAllNotificationByUserId(
-      req.user._id,
+      req._id,
     );
   }
 
@@ -38,7 +36,7 @@ export class NotificationsController {
       throw new NotFoundException('User not found');
     }
     return await this.notificationsService.findAllNotificationNotReadByUserId(
-      req.user._id,
+      req._id,
     );
   }
   @Post('read/:id')
@@ -50,7 +48,7 @@ export class NotificationsController {
       throw new NotFoundException('User not found');
     }
     const noti = await this.notificationsService.findOneNotification(id);
-    if (noti.userId.toString() !== req.user._id) {
+    if (noti.userId.toString() !== req._id) {
       throw new ForbiddenException(
         'You are not allowed to read this notification',
       );
@@ -72,7 +70,7 @@ export class NotificationsController {
       throw new NotFoundException('User not found');
     }
     const noti = await this.notificationsService.findOneNotification(id);
-    if (noti.userId.toString() !== req.user._id) {
+    if (noti.userId.toString() !== req._id) {
       throw new ForbiddenException(
         'You are not allowed to delete this notification',
       );

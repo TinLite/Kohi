@@ -7,6 +7,7 @@ import session from 'express-session';
 import passport from 'passport';
 import { createClient } from 'redis';
 import { AppModule } from './app.module';
+import { CustomSocketAdapter } from './socket.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -37,23 +38,26 @@ async function bootstrap() {
     prefix: 'Kohi:',
   });
 
-  app.use(
-    session({
-      store: redisStore,
-      secret: configService.get('SESSION_SECRET') ?? 'ookawaii-koto',
-      resave: false,
-      saveUninitialized: false,
-      rolling: true,
-      cookie: {
-        maxAge: Number(configService.get('SESSION_MAX_AGE') ?? '86400000'),
-        secure: false,
-        httpOnly: true,
-      },
-    }),
-  );
+  const sessionMiddleware = 
+  session({
+    store: redisStore,
+    secret: configService.get('SESSION_SECRET') ?? 'ookawaii-koto',
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: {
+      maxAge: Number(configService.get('SESSION_MAX_AGE') ?? '86400000'),
+      secure: false,
+      httpOnly: true,
+    },
+  });
 
+  app.use(sessionMiddleware);
   app.use(passport.initialize());
   app.use(passport.session());
+
+  app.useWebSocketAdapter(new CustomSocketAdapter(sessionMiddleware, app))
+
   await app.listen(3000);
 }
 bootstrap();
