@@ -7,6 +7,7 @@ import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatChannelDto } from './dto/update-chat-channel.dto';
 import { ChatParticipantRole } from './schemas/chat-channel.schema';
+import { User } from 'src/auth/user.decorator';
 
 @Controller('chat')
 export class ChatController {
@@ -17,7 +18,7 @@ export class ChatController {
     ) { }
 
     @Get('/channels')
-    async getChannels(@Req() req, @Query('participants') participants?: string) {
+    async getChannels(@User() req, @Query('participants') participants?: string) {
         if (!participants) {
             return this.chatService.getChannelsByUserId(req.user._id);
         }
@@ -26,7 +27,7 @@ export class ChatController {
     }
 
     @Post('/channels/create')
-    async createChannel(@Body() createChatDto: CreateChatChannelDto, @Req() req) {
+    async createChannel(@Body() createChatDto: CreateChatChannelDto, @User() req) {
         const currentUser = req.user._id;
         let isCurrentUserExisted = false;
         createChatDto.participants.map(participant => {
@@ -85,7 +86,7 @@ export class ChatController {
     }
 
     @Post('/channels/:channelId/messages/create')
-    async createMessage(@Param('channelId') channelId: string, @Body() messageDto: CreateChatMessageDto, @Req() req) {
+    async createMessage(@Param('channelId') channelId: string, @Body() messageDto: CreateChatMessageDto, @User() req) {
         const message = await this.chatService.createMessage(channelId, req.user._id, messageDto);
         this.chatService.getChannelById(channelId).then(channel => {
             channel.participants.map(participant => {
@@ -96,7 +97,7 @@ export class ChatController {
     }
 
     @Delete('/channels/:channelId/messages/:messageId')
-    async recallMessage(@Param('channelId') channelId: string, @Param('messageId') messageId: string, @Req() req) {
+    async recallMessage(@Param('channelId') channelId: string, @Param('messageId') messageId: string, @User() req) {
         const message = (await this.chatService.getMessageById(messageId)).depopulate('senderID');
         if (message.senderID.toString()! !== req.user._id) {
             throw new BadRequestException('You are not allowed to remove this message');

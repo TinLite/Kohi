@@ -13,6 +13,7 @@ import {
 import { EventsService } from '../events/events.service';
 import { NotificationsService } from './notifications.service';
 import mongoose from 'mongoose';
+import { User } from 'src/auth/user.decorator';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -21,7 +22,7 @@ export class NotificationsController {
     private readonly eventsService: EventsService,
   ) {}
   @Get('all')
-  async getAllNotifications(@Req() req) {
+  async getAllNotifications(@User() req) {
     return await this.notificationsService.findAllNotificationByUserId(
       req.user._id,
     );
@@ -32,7 +33,7 @@ export class NotificationsController {
     return await this.notificationsService.deleteNotification(id);
   }
   @Get('all/unread')
-  async getAllUnreadNotifications(@Req() req) {
+  async getAllUnreadNotifications(@User() req) {
     if (!req.user) {
       throw new NotFoundException('User not found');
     }
@@ -43,7 +44,7 @@ export class NotificationsController {
   @Post('read/:id')
   async readNotification(
     @Param('id') id: mongoose.Schema.Types.ObjectId,
-    @Req() req,
+    @User() req,
   ) {
     if (!req.user) {
       throw new NotFoundException('User not found');
@@ -65,7 +66,7 @@ export class NotificationsController {
   @Delete('delete/:id')
   async deleteOneNotification(
     @Param('id') id: mongoose.Schema.Types.ObjectId,
-    @Req() req,
+    @User() req,
   ) {
     if (!req.user) {
       throw new NotFoundException('User not found');
