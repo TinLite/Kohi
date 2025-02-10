@@ -15,24 +15,15 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
-// import { Roles } from 'src/auth/role.decorator';
-// import { Public } from '../auth/authmeta';
 import { User } from 'src/auth/user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-// import { FollowsService } from './follows.service';
-// import { BookmarkService } from './bookmarks.service';
-// import { PostsService } from 'src/posts/posts.service';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    // private readonly followsService: FollowsService,
-    // private readonly bookmarkService: BookmarkService,
-    // private readonly postsService: PostsService,
-    // private readonly notificationsService: NotificationsService,
   ) {}
 
   @Post('create')
