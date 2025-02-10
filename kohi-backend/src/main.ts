@@ -1,12 +1,12 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import * as bodyParser from 'body-parser';
 import { ConfigService } from '@nestjs/config';
-import { createClient } from 'redis';
+import { NestFactory } from '@nestjs/core';
+import * as bodyParser from 'body-parser';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import passport from 'passport';
+import { createClient } from 'redis';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,7 +26,7 @@ async function bootstrap() {
     credentials: true,
   });
   //connect redis
-  const redisUrl = `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`;
+  const redisUrl = `redis://${configService.get('REDIS_HOST') ?? "localhost"}:${configService.get('REDIS_PORT') ?? "6379"}`;
   let redisClient = createClient({
     url: redisUrl,
   });
@@ -40,11 +40,11 @@ async function bootstrap() {
   app.use(
     session({
       store: redisStore,
-      secret: configService.get('SESSION_SECRET'),
+      secret: configService.get('SESSION_SECRET') ?? 'ookawaii-koto',
       resave: false,
       saveUninitialized: false,
       cookie: {
-        maxAge: Number(configService.get('SESSION_MAX_AGE')),
+        maxAge: Number(configService.get('SESSION_MAX_AGE')) ?? 86400000,
         secure: false,
         httpOnly: true,
       },
