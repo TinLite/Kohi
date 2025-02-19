@@ -1,9 +1,11 @@
+import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { SessionGuard } from './auth/passport/session.guard';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { ChatModule } from './chat/chat.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
@@ -13,8 +15,6 @@ import { FollowsModule } from './follows/follows.module';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
-import { SessionGuard } from './auth/passport/session.guard';
-import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -47,7 +47,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       }),
       inject: [ConfigService],
     }),
-    
+
     PostsModule,
     UsersModule,
     AuthModule,

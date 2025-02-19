@@ -9,7 +9,6 @@ import { createClient } from 'redis';
 import { AppModule } from './app.module';
 import { CustomSocketAdapter } from './socket.adapter';
 
-export let redisClient;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
@@ -28,8 +27,8 @@ async function bootstrap() {
     credentials: true,
   });
   //connect redis
-  const redisUrl = `redis://${configService.get('REDIS_HOST') ?? "localhost"}:${configService.get('REDIS_PORT') ?? "6379"}`;
-  redisClient = createClient({
+  const redisUrl = `redis://${configService.get('REDIS_HOST') ?? 'localhost'}:${configService.get('REDIS_PORT') ?? '6379'}`;
+  let redisClient = createClient({
     url: redisUrl,
   });
   redisClient.on('error', (err) => console.error('Redis Client Error', err));
@@ -39,8 +38,7 @@ async function bootstrap() {
     prefix: 'Kohi:',
   });
 
-  const sessionMiddleware = 
-  session({
+  const sessionMiddleware = session({
     store: redisStore,
     secret: configService.get('SESSION_SECRET') ?? 'ookawaii-koto',
     resave: false,
@@ -57,7 +55,7 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  app.useWebSocketAdapter(new CustomSocketAdapter(sessionMiddleware, app))
+  app.useWebSocketAdapter(new CustomSocketAdapter(sessionMiddleware, app));
 
   await app.listen(3000);
 }

@@ -8,13 +8,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { MailerService } from '@nestjs-modules/mailer';
 import crypto from 'crypto';
-import { redisClient } from '../main';
+import { RedisService } from '../redis/redis.service';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailerService: MailerService,
+    private readonly redisService: RedisService,
   ) {}
   //CREATE USER
   async create(createUserDto: CreateUserDto) {
@@ -25,7 +26,13 @@ export class UsersService {
       throw new BadRequestException('Email already exists');
     }
     const verifyCode = crypto.randomBytes(3).toString('hex');
-    await redisClient.set(`verify:${email}`, verifyCode, 'EX', 60 * 5);
+    this.redisService.getClient().then((client) => {
+      client
+        .set(email, verifyCode, {
+          EX: 60 * 5,
+        })
+        .then(() => client.disconnect());
+    });
     this.mailerService.sendMail({
       from: 'Kohi',
       to: email,
@@ -77,14 +84,17 @@ export class UsersService {
   }
   //GET Email user
   async findByEmaiOrUsernamelWithPassword(query: string) {
-    return await this.userModel.findOne({ $or: [ { username: query }, { email: query } ] }).select('+password').exec();
+    return await this.userModel
+      .findOne({ $or: [{ username: query }, { email: query }] })
+      .select('+password')
+      .exec();
   }
   //GET ONE user
   async findOne(id: string): Promise<User> {
     return this.userModel.findById(id).select('+bio +email +sdt');
   }
   //GET SessionUser
-  async findById(id: string){
+  async findById(id: string) {
     return this.userModel.findById(id).select('+roles');
   }
 
