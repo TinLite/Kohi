@@ -39,7 +39,7 @@ export class CommentsController {
     @Body() createCommentDto: CreateCommentDto,
     @User() req,
   ) {
-    const authorId = req.user._id;
+    const authorId = req._id;
     // console.log('authorId', authorId);
     const comment = await this.commentsService.createComment(
       createCommentDto,
@@ -69,7 +69,7 @@ export class CommentsController {
     @Body() updateCommentDto: UpdateCommentDto,
     @User() req,
   ) {
-    const author = req.user._id;
+    const author = req._id;
     const comment = await this.commentsService.getOneComment(commentId);
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -92,7 +92,7 @@ export class CommentsController {
     @Body() replyCommentDto: CreateCommentDto,
     @User() req,
   ) {
-    const author = req.user._id;
+    const author = req._id;
     const commentOld = await this.commentsService.getOneComment(commentId);
     if (!commentOld) {
       throw new NotFoundException('Comment not found');
@@ -123,7 +123,7 @@ export class CommentsController {
   //Like bình luận
   @Post('like/:id')
   async likeComment(@Param('id') commentId: string, @User() req) {
-    const author = req.user._id;
+    const author = req._id;
     const comment = await this.commentsService.getOneComment(commentId);
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -148,7 +148,7 @@ export class CommentsController {
   //Remove like bình luận
   @Delete('unlike/:id')
   async removeLike(@Param('id') commentId: string, @User() req) {
-    const author = req.user._id;
+    const author = req._id;
     const comment = await this.commentsService.getOneComment(commentId);
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -170,7 +170,7 @@ export class CommentsController {
   //Delete bình luận
   @Delete('delete/:id')
   async deleteComment(@Param('id') commentId: string, @User() req) {
-    const author = req.user._id;
+    const author = req._id;
     const comment = await this.commentsService.getOneComment(commentId);
     // console.log(comment);
     //@ts-expect-error

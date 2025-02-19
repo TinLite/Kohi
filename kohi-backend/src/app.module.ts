@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -13,12 +13,41 @@ import { FollowsModule } from './follows/follows.module';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
+import { SessionGuard } from './auth/passport/session.guard';
+import { MailerModule } from '@nestjs-modules/mailer';
+
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/kohi'), // MongoDB
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>('MAIL_HOST') ?? 'smtp.gmail.com',
+          port: configService.get<number>('MAIL_PORT') ?? 587,
+          secure: false,
+          auth: {
+            user: configService.get<string>('MAIL_USER'),
+            pass: configService.get<string>('MAIL_PASS'),
+          },
+        },
+        defaults: {
+          from: '"No Reply" <noreply@example.com>',
+        },
+        // template: {
+        //   dir: join(__dirname, 'templates'),
+        //   adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
+        //   options: {
+        //     strict: true,
+        //   },
+        // },
+      }),
+      inject: [ConfigService],
+    }),
+    
     PostsModule,
     UsersModule,
     AuthModule,
@@ -33,6 +62,10 @@ import { UtilsModule } from './utils/utils.module';
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: 'APP_GUARD',
+      useClass: SessionGuard,
+    },
   ],
 })
 export class AppModule {}

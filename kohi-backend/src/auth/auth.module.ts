@@ -5,6 +5,7 @@ import { UtilsModule } from 'src/utils/utils.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './passport/local.strategy';
+import { SessionGuard } from './passport/session.guard';
 @Global()
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { LocalStrategy } from './passport/local.strategy';
     PassportModule.register({ defaultStrategy: 'local', session: true }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy,SessionGuard],
   exports: [AuthService],
 })
 export class AuthModule { }

@@ -32,7 +32,7 @@ export class NotificationsController {
   }
   @Get('all/unread')
   async getAllUnreadNotifications(@User() req) {
-    if (!req.user) {
+    if (!req._id) {
       throw new NotFoundException('User not found');
     }
     return await this.notificationsService.findAllNotificationNotReadByUserId(
@@ -44,7 +44,7 @@ export class NotificationsController {
     @Param('id') id: mongoose.Schema.Types.ObjectId,
     @User() req,
   ) {
-    if (!req.user) {
+    if (!req._id) {
       throw new NotFoundException('User not found');
     }
     const noti = await this.notificationsService.findOneNotification(id);
@@ -66,7 +66,7 @@ export class NotificationsController {
     @Param('id') id: mongoose.Schema.Types.ObjectId,
     @User() req,
   ) {
-    if (!req.user) {
+    if (!req._id) {
       throw new NotFoundException('User not found');
     }
     const noti = await this.notificationsService.findOneNotification(id);

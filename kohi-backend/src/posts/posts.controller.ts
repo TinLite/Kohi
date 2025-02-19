@@ -46,7 +46,8 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    const requestUserId = request.user._id;
+    const requestUserId = request._id;
+    console.log(requestUserId);
     if (!createPostDto.author) {
       createPostDto.author = requestUserId;
     } else if (createPostDto.author !== requestUserId) {
@@ -107,7 +108,7 @@ export class PostsController {
     @Body() updatePostDto: UpdatePostDto,
     @User() request,
   ) {
-    const requestUserId = request.user._id;
+    const requestUserId = request._id;
     const post = await this.postsService.findOne(id);
     console.log(post.author, requestUserId);
     if (!post) {
@@ -127,7 +128,7 @@ export class PostsController {
     if (!mongoose.isValidObjectId(id)) {
       throw new NotFoundException('Post not found');
     }
-    const requestUserId = request.user._id;
+    const requestUserId = request._id;
     const post = await this.postsService.findOne(id);
     console.log(post.author, requestUserId);
     if (!post) {
@@ -149,7 +150,7 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    const requestUserId = request.user._id;
+    const requestUserId = request._id;
     if (post.likes.includes(requestUserId)) {
       throw new BadGatewayException('You already liked this post');
     }
@@ -176,7 +177,7 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    const requestUserId = request.user._id;
+    const requestUserId = request._id;
     if (!post.likes.includes(requestUserId)) {
       throw new BadGatewayException('You have not liked this post yet');
     }
@@ -202,7 +203,7 @@ export class PostsController {
     @Body() sharePostDto: SharePostDto,
   ) {
     const post = await this.postsService.findOne(postId);
-    const authorId = request.user._id;
+    const authorId = request._id;
     if (!post) {
       throw new NotFoundException('Post not found');
     }
@@ -217,7 +218,7 @@ export class PostsController {
   @Delete('detail/:postId/unshare')
   async unsharePost(@User() request, @Param('postId') postId: string) {
     const post = await this.postsService.findOne(postId);
-    const authorId = request.user._id;
+    const authorId = request._id;
     // console.log(authorId, post.author);
     if (!post) {
       throw new NotFoundException('Post not found');
@@ -242,7 +243,7 @@ export class PostsController {
   ) {
     const post = await this.postsService.findOne(postId);
     console.log(postId, updatePostShareDto);
-    const author = request.user._id;
+    const author = request._id;
     if (!post) {
       throw new NotFoundException('Post not found');
     }
@@ -273,7 +274,7 @@ export class PostsController {
   }
   @Get('profile/list/:id?')
   async getProfilePosts(@User() request, @Param('id') id?: string) {
-    const requestUserId = id ?? request.user._id;
+    const requestUserId = id ?? request._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
     }
@@ -281,7 +282,7 @@ export class PostsController {
   }
   @Get('profile/media/:id?')
   async getProfileMedia(@User() request, @Param('id') id?: string) {
-    const requestUserId = id ?? request.user._id;
+    const requestUserId = id ?? request._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
     }
@@ -289,7 +290,7 @@ export class PostsController {
   }
   @Get('profile/share/:id?')
   async getProfileShares(@User() request, @Param('id') id?: string) {
-    const requestUserId = id ?? request.user._id;
+    const requestUserId = id ?? request._id;
     if (!requestUserId) {
       throw new NotFoundException('User not found');
     }

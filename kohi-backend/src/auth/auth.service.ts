@@ -14,8 +14,9 @@ export class AuthService {
   private readonly logger = new Logger(typeof this);
 
   async validateUser(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findByEmaiOrUsernamelWithPassword(username);
-    this.logger.debug(`Fetched data for ${username}. Response: ${user}`)
+    const user =
+      await this.usersService.findByEmaiOrUsernamelWithPassword(username);
+    // this.logger.debug(`Fetched data for ${username}. Response: ${user}`)
     if (
       !user ||
       !(await this.utilsService.comparePassword(pass, user.password))
@@ -24,9 +25,9 @@ export class AuthService {
     }
     return {
       _id: user._id,
-      // username: user.username,
-      // displayname: user.displayName,
-      // role: user.roles,
+      username: user.username,
+      displayname: user.displayName,
+      role: user.roles,
     };
   }
 }

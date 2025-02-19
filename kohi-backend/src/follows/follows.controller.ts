@@ -31,7 +31,7 @@ export class FollowsController {
   ) {}
   @Post('add/:id')
   async followByUser(@Param('id') followUserId: string, @User() req) {
-    const author = req.user._id;
+    const author = req._id;
     const userToFollow = await this.usersService.findOne(followUserId);
     if (!userToFollow) {
       throw new NotFoundException('User to follow not found');
@@ -58,7 +58,7 @@ export class FollowsController {
 
   @Delete('unfollow/:id')
   async unFollowByUser(@Param('id') followUserId: string, @User() req) {
-    const author = req.user._id;
+    const author = req._id;
     const userToFollow = await this.usersService.findOne(followUserId);
     if (!userToFollow) {
       throw new NotFoundException('User to follow not found');
@@ -88,7 +88,7 @@ export class FollowsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const userId = id ?? req.user._id;
+    const userId = id ?? req._id;
     const currentPage = page ? Number(page) : 1;
     const currentLimit = limit ? Number(limit) : 10;
     if (
@@ -108,7 +108,7 @@ export class FollowsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const userId = id ?? req.user._id;
+    const userId = id ?? req._id;
     const currentPage = page ? Number(page) : 1;
     const currentLimit = limit ? Number(limit) : 10;
     if (
@@ -133,7 +133,7 @@ export class FollowsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const userId = id ?? req.user._id;
+    const userId = id ?? req._id;
     const currentPage = page ? Number(page) : 1;
     const currentLimit = limit ? Number(limit) : 10;
     const userFollowing = await this.followsService.getUserById(userId);

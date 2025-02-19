@@ -5,7 +5,7 @@ import { UsersService } from '../../users/users.service';
 import { ROLES_KEY } from '../role.decorator';
 
 @Injectable()
-export class RolesGuard extends AuthGuard('jwt') implements CanActivate {
+export class RolesGuard extends AuthGuard() implements CanActivate {
   constructor(private reflector: Reflector, private usersService: UsersService) {
     super();
   }

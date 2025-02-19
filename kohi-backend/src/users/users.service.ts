@@ -6,12 +6,15 @@ import { UtilsService } from '../utils/utils.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
-
+import { MailerService } from '@nestjs-modules/mailer';
+import crypto from 'crypto';
+import { redisClient } from '../main';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly mailerService: MailerService,
   ) {}
   //CREATE USER
   async create(createUserDto: CreateUserDto) {
@@ -21,6 +24,15 @@ export class UsersService {
     if (isExist) {
       throw new BadRequestException('Email already exists');
     }
+    const verifyCode = crypto.randomBytes(3).toString('hex');
+    await redisClient.set(`verify:${email}`, verifyCode, 'EX', 60 * 5);
+    this.mailerService.sendMail({
+      from: 'Kohi',
+      to: email,
+      subject: 'Welcome to Kohi',
+      text: 'Welcome to Kohi. Your verification code is ' + verifyCode,
+    });
+
     // hashPass
     const utilsService = new UtilsService();
     const hashPass = await utilsService.hashPassword(password);
@@ -29,6 +41,7 @@ export class UsersService {
       password: hashPass,
     });
     // console.log(newUser)
+
     return {
       _id: newUser._id,
     };
@@ -70,6 +83,10 @@ export class UsersService {
   async findOne(id: string): Promise<User> {
     return this.userModel.findById(id).select('+bio +email +sdt');
   }
+  //GET SessionUser
+  async findById(id: string){
+    return this.userModel.findById(id).select('+roles');
+  }
 
   async findOneWithPassword(id: string): Promise<User> {
     return this.userModel.findById(id).select('+password');
@@ -96,10 +113,10 @@ export class UsersService {
   }
   //Update Avatar
   async updateAvatar(id: string, file: Express.Multer.File) {
-    const folder = process.env.CLOUDINARY_FOLDER_USER;
+    // const folder = process.env.CLOUDINARY_FOLDER_USER;
     const uploadImages = await this.cloudinaryService.uploadFiles(
       [file],
-      folder,
+      // folder,
     );
     return this.userModel
       .updateOne({ _id: id }, { avatar: uploadImages[0] })
@@ -108,10 +125,10 @@ export class UsersService {
 
   // Update wall image
   async updateWall(id: string, file: Express.Multer.File) {
-    const folder = process.env.CLOUDINARY_FOLDER_USER;
+    // const folder = process.env.CLOUDINARY_FOLDER_USER;
     const uploadImages = await this.cloudinaryService.uploadFiles(
       [file],
-      folder,
+      // folder,
     );
     return this.userModel
       .updateOne({ _id: id }, { wall: uploadImages[0] })

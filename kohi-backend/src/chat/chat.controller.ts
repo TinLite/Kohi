@@ -20,15 +20,15 @@ export class ChatController {
     @Get('/channels')
     async getChannels(@User() req, @Query('participants') participants?: string) {
         if (!participants) {
-            return this.chatService.getChannelsByUserId(req.user._id);
+            return this.chatService.getChannelsByUserId(req._id);
         }
         const arr = participants.split(",")
-        return this.chatService.getChannelsByParticipants([...arr, req.user._id]);
+        return this.chatService.getChannelsByParticipants([...arr, req._id]);
     }
 
     @Post('/channels/create')
     async createChannel(@Body() createChatDto: CreateChatChannelDto, @User() req) {
-        const currentUser = req.user._id;
+        const currentUser = req._id;
         let isCurrentUserExisted = false;
         createChatDto.participants.map(participant => {
             if (participant.user === currentUser) {
@@ -87,7 +87,7 @@ export class ChatController {
 
     @Post('/channels/:channelId/messages/create')
     async createMessage(@Param('channelId') channelId: string, @Body() messageDto: CreateChatMessageDto, @User() req) {
-        const message = await this.chatService.createMessage(channelId, req.user._id, messageDto);
+        const message = await this.chatService.createMessage(channelId, req._id, messageDto);
         this.chatService.getChannelById(channelId).then(channel => {
             channel.participants.map(participant => {
                 this.eventsService.announceToUser(participant.user.toString(), 'chat:message:new', message);
@@ -99,7 +99,7 @@ export class ChatController {
     @Delete('/channels/:channelId/messages/:messageId')
     async recallMessage(@Param('channelId') channelId: string, @Param('messageId') messageId: string, @User() req) {
         const message = (await this.chatService.getMessageById(messageId)).depopulate('senderID');
-        if (message.senderID.toString()! !== req.user._id) {
+        if (message.senderID.toString()! !== req._id) {
             throw new BadRequestException('You are not allowed to remove this message');
         }
         this.chatService.recallMessage(messageId).then((newMessage) => {

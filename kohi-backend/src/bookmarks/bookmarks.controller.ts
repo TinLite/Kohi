@@ -29,7 +29,7 @@ export class BookmarksController {
   //add bookmark
   @Post('profile/bookmark/add/:id')
   async addBookmark(@Param('id') postId: string, @User() req) {
-    const author = req.user._id;
+    const author = req._id;
     const user = await this.usersService.findOne(author);
     const post = await this.postsService.findOne(postId);
     if (!user) {
@@ -49,7 +49,7 @@ export class BookmarksController {
 
   @Delete('profile/bookmark/remove/:id')
   async removeBookmark(@Param('id') postId: string, @User() req) {
-    const author = req.user._id;
+    const author = req._id;
     const user = await this.usersService.findOne(author);
     // @ts-ignore
     if (!user.bookmarks.includes(postId)) {
@@ -70,7 +70,7 @@ export class BookmarksController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const author = req.user._id;
+    const author = req._id;
     const user = await this.usersService.findOne(author);
     const currentPage = page ? Number(page) : 1;
     const currentLimit = limit ? Number(limit) : 10;
@@ -93,7 +93,7 @@ export class BookmarksController {
   }
   @Get('profile/bookmarks/search')
   async searchBookMark(@Query('query') query: string, @User() req) {
-    const author = req.user._id;
+    const author = req._id;
     const user = await this.usersService.findOne(author);
     if (!user) {
       throw new NotFoundException('User not found');

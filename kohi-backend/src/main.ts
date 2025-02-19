@@ -9,6 +9,7 @@ import { createClient } from 'redis';
 import { AppModule } from './app.module';
 import { CustomSocketAdapter } from './socket.adapter';
 
+export let redisClient;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
@@ -28,7 +29,7 @@ async function bootstrap() {
   });
   //connect redis
   const redisUrl = `redis://${configService.get('REDIS_HOST') ?? "localhost"}:${configService.get('REDIS_PORT') ?? "6379"}`;
-  let redisClient = createClient({
+  redisClient = createClient({
     url: redisUrl,
   });
   redisClient.on('error', (err) => console.error('Redis Client Error', err));
