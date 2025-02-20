@@ -4,6 +4,9 @@ import { Comment } from 'src/comments/schemas/comment.schema';
 import { Post } from 'src/posts/schemas/post.schema';
 import { User } from 'src/users/schemas/user.schema';
 
+export enum NotificationFlags{
+  HIDDEN = 'hidden',
+}
 @Schema()
 export class Notification {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
@@ -26,5 +29,7 @@ export class Notification {
 
   @Prop({ default: Date.now })
   createAt: Date;
+  @Prop()
+  flags: NotificationFlags[];
 }
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

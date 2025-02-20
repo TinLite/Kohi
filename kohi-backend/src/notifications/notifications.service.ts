@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Notification } from './schemas/notification.schema';
+import { Notification, NotificationFlags } from './schemas/notification.schema';
 import { NewFollowerNotificationDto } from './dto/new-follower-notification.dto';
 import { EventsService } from 'src/events/events.service';
 import { NewPostNotificationDto } from './dto/new-post-notification.dto';
@@ -170,6 +170,7 @@ export class NotificationsService {
     return await this.notificationModel
       .find({
         userId: id,
+        flags: { $nin: [NotificationFlags.HIDDEN] },
       })
       .sort({ createAt: -1 })
       .populate('otherUser')
@@ -180,6 +181,7 @@ export class NotificationsService {
       .find({
         userId: id,
         isRead: false,
+        flags: { $nin: [NotificationFlags.HIDDEN] },
       })
       .sort({ createAt: -1 })
       .populate('otherUser')
@@ -188,6 +190,16 @@ export class NotificationsService {
   async deleteNotification(id) {
     return await this.notificationModel.findByIdAndDelete({ _id: id }).exec();
   }
+  async remove(id: string) {
+    return this.notificationModel.findOneAndUpdate(
+      {
+        _id: id,
+        flags: { $nin: [NotificationFlags.HIDDEN] },
+      },
+      { $push: { flags: NotificationFlags.HIDDEN } },
+    );
+  }
+
   async findOneLikePostNotification(id, postId) {
     return await this.notificationModel
       .findOne({
@@ -224,7 +236,7 @@ export class NotificationsService {
       })
       .exec();
   }
-  
+
   async findAllByUserId(userId: string) {
     return await this.notificationModel.find({ userId }).exec();
   }
@@ -241,6 +253,12 @@ export class NotificationsService {
     return await this.notificationModel.findByIdAndDelete(id).exec();
   }
   async deleteAllNotificationByPostId(postId) {
-    return this.notificationModel.findByIdAndDelete(postId).exec();
+    return this.notificationModel.findOneAndUpdate(
+      {
+        post: postId,
+        flags: { $nin: [NotificationFlags.HIDDEN] },
+      },
+      { $push: { flags: NotificationFlags.HIDDEN } },
+    );
   }
 }

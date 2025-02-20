@@ -162,7 +162,7 @@ export class CommentsController {
         commentId,
       );
     if (notification) {
-      await this.notificationsService.deleteNotification(notification._id);
+      await this.notificationsService.remove(notification._id.toString());
     }
     return this.commentsService.removeLike(commentId, author);
   }
@@ -191,7 +191,7 @@ export class CommentsController {
       await this.notificationsService.findOneCommentNotification(commentId);
     // console.log(notification);
     if (notification) {
-      await this.notificationsService.deleteNotification(notification._id);
+      this.notificationsService.remove(notification._id.toString());
     }
     const result = await this.commentsService.deleteComment(commentId, author);
     // console.log('Delete result', result);
