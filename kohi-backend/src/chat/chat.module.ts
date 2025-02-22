@@ -18,5 +18,5 @@ import { ChatMessageSchema } from './schemas/chat-message.schema';
   ],
   providers: [ChatService],
   controllers: [ChatController],
-})
+}) 
 export class ChatModule { }

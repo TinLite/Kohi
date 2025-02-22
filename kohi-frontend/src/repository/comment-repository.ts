@@ -66,7 +66,9 @@ export async function listCommentsByPostId(postId: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/comments/list/${postId}`, {}
+    }/comments/list/${postId}`, {
+      credentials: 'include',
+    }
   );
   if (!response.ok) {
     throw new Error("Failed to fetch comments");
