@@ -10,7 +10,7 @@ import {
   Post,
   Query,
   UploadedFile,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import bcrypt from 'bcrypt';
@@ -19,16 +19,15 @@ import { User } from 'src/auth/user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
+import { Public } from 'src/auth/authmeta';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-  ) {}
-
+  constructor(private readonly usersService: UsersService) {}
+  @Public()
   @Post('create')
   async create(@Body() createUserDto: CreateUserDto) {
-    return {id: (await this.usersService.create(createUserDto))._id};
+    return { id: (await this.usersService.create(createUserDto))._id };
   }
 
   @Get('list')
@@ -126,5 +125,4 @@ export class UsersController {
   async searchUser(@Query('query') query: string, @User() user) {
     return this.usersService.searchUser(query);
   }
-
 }

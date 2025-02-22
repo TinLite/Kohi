@@ -103,6 +103,7 @@ const DetailPost = ({
           onEditPost={onEditPost}
           onUpdateShare={onUpdateShare}
           onUpdateLike={handleNewPost}
+          // onDelete={}
         />
         <Separator />
         {commentTree.map((comment) => (

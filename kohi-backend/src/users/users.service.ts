@@ -76,7 +76,7 @@ export class UsersService {
     };
   }
   async findByEmail(email: string) {
-    return await this.userModel.findOne({ email }).exec();
+    return await this.userModel.findOne({ email }).select('+email').exec();
   }
   //GET Email user
   async findByEmailWithPassword(email: string) {
@@ -184,5 +184,10 @@ export class UsersService {
       .select('followers')
       .exec();
     return user.followers;
+  }
+  async verifyEmail(email: string) {
+    return this.userModel
+      .findOneAndUpdate({ email: email }, { verifyEmail: true })
+      .exec();
   }
 }
