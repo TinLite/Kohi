@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CloudinaryService } from './cloudinary.service';
+import { MulterModule } from '@nestjs/platform-express';
 import { CloudinaryController } from './cloudinary.controller';
 import { CloudinaryProvider } from './cloudinary.provider';
-import { MulterModule } from '@nestjs/platform-express';
+import { CloudinaryService } from './cloudinary.service';
 
 @Module({
   imports: [

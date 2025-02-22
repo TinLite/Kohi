@@ -1,5 +1,6 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { User } from 'src/auth/user.decorator';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { EventsService } from 'src/events/events.service';
 import { ChatService } from './chat.service';
@@ -7,7 +8,6 @@ import { CreateChatChannelDto } from './dto/create-chat-channel.dto';
 import { CreateChatMessageDto } from './dto/create-chat-message.dto';
 import { UpdateChatChannelDto } from './dto/update-chat-channel.dto';
 import { ChatParticipantRole } from './schemas/chat-channel.schema';
-import { User } from 'src/auth/user.decorator';
 
 @Controller('chat')
 export class ChatController {

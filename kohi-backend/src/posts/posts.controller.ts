@@ -10,25 +10,23 @@ import {
   Patch,
   Post,
   Query,
-  Request,
   UnauthorizedException,
   UploadedFiles,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
-import { Role } from 'src/users/schemas/user.schema';
+import { Public } from 'src/auth/authmeta';
+import { User } from 'src/auth/user.decorator';
+import { EventsService } from 'src/events/events.service';
+import { LikePostNotificationDto } from 'src/notifications/dto/new-likepost-notification.dto';
+import { NewPostNotificationDto } from 'src/notifications/dto/new-post-notification.dto';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { UsersService } from 'src/users/users.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
-import { EventsService } from 'src/events/events.service';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { NewPostNotificationDto } from 'src/notifications/dto/new-post-notification.dto';
-import { UsersService } from 'src/users/users.service';
-import { LikePostNotificationDto } from 'src/notifications/dto/new-likepost-notification.dto';
-import { Notification } from '../notifications/schemas/notification.schema';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { User } from 'src/auth/user.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -94,6 +92,7 @@ export class PostsController {
     return this.postsService.findAllByAuthor(id, currentPage, currentLimit);
   }
 
+  @Public()
   @Get('detail/:id')
   findOne(@Param('id') id: string) {
     if (!mongoose.isValidObjectId(id)) {

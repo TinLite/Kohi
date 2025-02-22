@@ -106,8 +106,11 @@ export default function PostList() {
 
   const [posts, setPosts] = useState<Post[]>([]);
   useEffect(() => {
-    refreshPost();
-  }, []);
+    if (user)
+      refreshPost();
+    else
+      setPosts([])
+  }, [user]);
   return (
     <>
       <div className="sticky flex md:hidden top-0 w-full bg-background border-b border-muted px-4 pt-2 pb-8">

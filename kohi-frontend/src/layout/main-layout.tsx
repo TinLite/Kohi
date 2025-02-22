@@ -26,6 +26,7 @@ export default function MainLayout({disableNavOnPhone = false}: {disableNavOnPho
         <SideNav disableNavOnPhone={disableNavOnPhone} />
         <div className="flex-grow relative h-screen">
           <LoginSheet open={loginFormOpen} onOpenChange={() => setLoginFormOpen(false)} />
+
           <Outlet />
         </div>
       </div>
