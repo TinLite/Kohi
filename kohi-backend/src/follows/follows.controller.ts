@@ -100,7 +100,7 @@ export class FollowsController {
     @User() req,
   ) {
     const userId = req._id;
-    return this.usersService.getFollowerCount(userId);
+    return {followerCount: await this.usersService.getFollowerCount(userId)};
   }
 
   @Get('list/following/count')
@@ -108,7 +108,7 @@ export class FollowsController {
     @User() req,
   ) {
     const userId = req._id;
-    return this.usersService.getFollowingCount(userId);
+    return { followingCount: await this.usersService.getFollowingCount(userId) };
   }
 
   @Get('list/count')
@@ -116,10 +116,11 @@ export class FollowsController {
     @User() req,
   ) {
     return {
-      followerCount: await this.getFollowerCount(req),
-      followingCount: await this.getFollowingCount(req),
+      ...(await this.getFollowerCount(req)),
+      ...(await this.getFollowingCount(req)),
     }
   }
+
   @Get('list/following')
   async getFollowing(
     @User() req,

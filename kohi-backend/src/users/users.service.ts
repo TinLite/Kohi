@@ -192,7 +192,7 @@ export class UsersService {
       following: userId,
     })
       .skip(skip)
-      .select('username displayName displayName')
+      .select('username displayName displayName avatar');
 
     if (limit !== -1) {
       data = data.limit(limit);

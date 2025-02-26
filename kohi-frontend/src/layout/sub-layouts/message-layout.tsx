@@ -71,6 +71,7 @@ export default function MessageLayout() {
 
   const [channels, setChannels] = useState<ChatChannel[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!user) {
@@ -80,7 +81,7 @@ export default function MessageLayout() {
     getChannelList().then(setChannels);
   }, [user?._id]);
   useEffect(() => {
-    if (!user?._id) navigate("/login");
+    if (!user?._id) navigate(`/login?redirect=${location.pathname}`);
   }, []);
   return (
     <div className="flex flex-grow h-screen">

@@ -8,6 +8,7 @@ import {
   getPostsByUserId
 } from "@/repository/PostsRepository";
 import {
+  getAllFollowCountMetrics,
   getProfile,
   updateAvatar,
   updateUser,
@@ -30,6 +31,10 @@ const UserProfile = () => {
   const { user, setUser } = useContext(UserContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wallInputRef = useRef<HTMLInputElement>(null);
+  const [followMetrics, setFollowMetrics] = useState({
+    followingCount: 0,
+    followerCount: 0,
+  });
   const [formData, setFormData] = useState({
     username: user?.username || "",
     displayName: user?.displayName || "",
@@ -45,29 +50,27 @@ const UserProfile = () => {
       sdt: user?.sdt || "",
       bio: user?.bio || "",
     });
-  }, [user]);
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-  const handleSave = () => {
-    if (user?._id) {
-      updateUser(user._id, formData)
-        .then((updatedUser) => {
-          console.log("success", updatedUser);
-          setOpen(false);
-          getProfile().then(setUser);
-        })
-        .catch((error) => {
-          console.error("Error", error);
-        });
-    } else {
-      console.error("Cannot update profile.");
+    fetchPosts();
+    fetchPostsShare();
+    if (user) {
+      fetchFollowMetrics();
     }
+  }, [user]);
+
+  const fetchFollowMetrics = async () => {
+    getAllFollowCountMetrics().then(setFollowMetrics)
+  }
+
+  const fetchPostsShare = async () => {
+    getListPostShare().then(
+      (data) => {
+        console.log("sharepost" + data);
+        setPostsShare(data);
+      },
+      (error) => {
+        console.error("Failed to fetch posts", error);
+      }
+    );
   };
 
   const fetchPosts = async () => {
@@ -84,26 +87,25 @@ const UserProfile = () => {
       }
     );
   };
-  useEffect(() => {
-    fetchPosts();
-  }, [user]);
+
+  const handleSave = () => {
+    if (user?._id) {
+      updateUser(user._id, formData)
+        .then((updatedUser) => {
+          console.log("success", updatedUser);
+          setOpen(false);
+          getProfile().then(setUser);
+        })
+        .catch((error) => {
+          console.error("Error", error);
+        });
+    } else {
+      console.error("Cannot update profile.");
+    }
+  };
   const handleEditPost = () => {
     fetchPosts();
   };
-  const fetchPostsShare = async () => {
-    getListPostShare().then(
-      (data) => {
-        console.log("sharepost" + data);
-        setPostsShare(data);
-      },
-      (error) => {
-        console.error("Failed to fetch posts", error);
-      }
-    );
-  };
-  useEffect(() => {
-    fetchPostsShare();
-  }, [user]);
   const handleEditPostShare = () => {
     fetchPostsShare();
   };
@@ -131,7 +133,7 @@ const UserProfile = () => {
     if (file && user?._id) {
       const formData = new FormData();
       formData.append("file", file);
-      const updatedUser = await updateAvatar(user._id, formData)
+      updateAvatar(user._id, formData)
         .then(() => getProfile().then(setUser))
         .catch((error) => {
           console.error("Failed to update avatar", error);
@@ -146,7 +148,7 @@ const UserProfile = () => {
     if (file && user?._id) {
       const formData = new FormData();
       formData.append("file", file);
-      const updatedUser = await updateWall(user._id, formData)
+      await updateWall(user._id, formData)
         .then(() => getProfile().then(setUser))
         .catch((error) => {
           console.error("Failed to update avatar", error);
@@ -183,11 +185,11 @@ const UserProfile = () => {
                     </p>
                     <p className="text-gray-500">
                       <span className="font-bold">
-                        {user?.following?.length}
+                        {followMetrics.followingCount}
                       </span>{" "}
                       Following
                       <span className="font-bold ml-4">
-                        {user?.followers?.length}
+                        {followMetrics.followerCount}
                       </span>{" "}
                       Followers
                     </p>
@@ -293,8 +295,8 @@ const UserProfile = () => {
               </div>
             </div>
           </div>
-          <Tabs defaultValue="posts">
-            <TabsList className="flex ">
+          <Tabs defaultValue="posts" className="mt-4">
+            <TabsList className="flex mx-auto w-fit">
               <TabsTrigger value="posts">Posts</TabsTrigger>
               <TabsTrigger value="reup">Share</TabsTrigger>
               <TabsTrigger value="media">Media</TabsTrigger>

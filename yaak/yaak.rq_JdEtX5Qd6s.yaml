@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_rVom7eHr4h
-createdAt: 2025-02-26T04:16:58.032581100
-updatedAt: 2025-02-26T08:10:01.352383600
+id: rq_JdEtX5Qd6s
+createdAt: 2025-02-26T08:09:26.846194300
+updatedAt: 2025-02-26T08:09:46.100479200
 workspaceId: wk_82pbnHq9kL
 folderId: fl_V6N4mXH3LN
 authentication: {}
@@ -12,9 +12,9 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: following list
-sortPriority: -0.0001
-url: http://${[ BASE_DOMAIN ]}/${[ API_PREFIX ]}users/follows/list/following
+name: follower list
+sortPriority: 0.00090000004
+url: http://${[ BASE_DOMAIN ]}/${[ API_PREFIX ]}users/follows/list/followers
 urlParameters:
 - enabled: false
   name: id

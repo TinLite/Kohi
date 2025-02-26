@@ -1,14 +1,13 @@
-import { User } from "@/types/user-type";
-import { Card } from "./ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
 import {
   followUser,
-  getFollowing,
-  unFollowUser,
+  unFollowUser
 } from "@/repository/user-repository";
+import { User } from "@/types/user-type";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
 
 const UserInfo = ({
   user,

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserContext } from "@/context/user-context";
+import { parseURL } from "@/lib/utils";
 import { getUserId, login } from "@/repository/authentication-repository";
 import { getProfile } from "@/repository/user-repository";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -16,11 +17,27 @@ export default function Login() {
     "steffen-bertram-qDZ-Xd8dX6w-unsplash.jpg",
   ];
   const [background, setBackground] = useState<string>("");
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const accountRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+
+  function redirectToTarget() {
+    const queryParams = new URLSearchParams(window.location.search);
+    let redirectTarget = queryParams.get("redirect") ?? "/";
+    const parsed = parseURL(redirectTarget);
+    if (parsed.host !== window.location.host) {
+      redirectTarget = "/";
+    }
+    navigate(redirectTarget);
+  }
+
+  useEffect(() => {
+    if (user) {
+      redirectToTarget();
+    }
+  }, [user]);
 
   useEffect(() => {
     setBackground(backgrounds[Math.floor(Math.random() * backgrounds.length)]);
@@ -39,7 +56,7 @@ export default function Login() {
       const userProfile = await getProfile(userId);
       setUser(userProfile);
       toast.success("Login successful");
-      navigate("/");
+      redirectToTarget();
     } catch (e) {
       toast.error("Failed to login. Please check your information.");
       console.error(e);
@@ -65,7 +82,7 @@ export default function Login() {
           </div>
         </Link>
       </div>
-      <div className="flex flex-col justify-center items-center w-full md:w-1/3 p-8">
+      <div className="flex flex-col justify-center items-center w-full xl:w-1/3 p-8">
         <h1 className="text-3xl font-bold mb-4">Login</h1>
         <div className="w-full max-w-xs">
           <Label>

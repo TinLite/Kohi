@@ -1,18 +1,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserContext } from "@/context/user-context";
 import { searchPosts } from "@/repository/PostsRepository";
 import {
-  followUser,
-  getFollowing,
-  searchUsers,
+  searchUsers
 } from "@/repository/user-repository";
 import { Post } from "@/types/post-type";
 import { User } from "@/types/user-type";
 import { useContext, useEffect, useState } from "react";
 import { Input } from "./ui/input";
+import { ScrollArea } from "./ui/scroll-area";
 import UserInfo from "./user-info";
 import UserPost from "./user-post";
-import { UserContext } from "@/context/user-context";
-import { ScrollArea } from "./ui/scroll-area";
 
 const SearchUI = () => {
   const [posts, setPosts] = useState<Post[]>([]);
