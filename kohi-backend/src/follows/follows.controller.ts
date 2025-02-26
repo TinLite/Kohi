@@ -1,34 +1,29 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Req,
-  NotFoundException,
-  Query,
   BadRequestException,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Query
 } from '@nestjs/common';
-import { FollowsService } from './follows.service';
-import { CreateFollowDto } from './dto/create-follow.dto';
-import { UpdateFollowDto } from './dto/update-follow.dto';
-import { UsersService } from 'src/users/users.service';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { EventsService } from 'src/events/events.service';
-import { NewFollowerNotificationDto } from '../notifications/dto/new-follower-notification.dto';
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 import { User } from 'src/auth/user.decorator';
+import { EventsService } from 'src/events/events.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
+import { UsersService } from 'src/users/users.service';
+import { NewFollowerNotificationDto } from '../notifications/dto/new-follower-notification.dto';
 
 @Controller('users/follows')
 export class FollowsController {
+
   constructor(
-    private readonly followsService: FollowsService,
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
     private readonly eventsService: EventsService,
-  ) {}
+  ) { }
+
   @Post('add/:id')
   async followByUser(@Param('id') followUserId: string, @User() req) {
     const author = req._id;
@@ -52,8 +47,7 @@ export class FollowsController {
         otherUser: author,
       }),
     );
-    // console.log(test);
-    return this.followsService.followByUser(author, followUserId);
+    return this.usersService.addFollowing(author, followUserId);
   }
 
   @Delete('unfollow/:id')
@@ -74,9 +68,9 @@ export class FollowsController {
       );
     // console.log(notification);
     if (notification) {
-       this.notificationsService.remove(notification._id.toString());
+      this.notificationsService.remove(notification._id.toString());
     }
-    return this.followsService.unFollowByUser(author, followUserId);
+    return this.usersService.removeFollowing(author, followUserId);
   }
 
   @Get('list/followers')
@@ -88,6 +82,7 @@ export class FollowsController {
   ) {
     const userId = id ?? req._id;
     const currentPage = page ? Number(page) : 1;
+    const skipValue = (currentPage - 1) * Number(limit);
     const currentLimit = limit ? Number(limit) : 10;
     if (
       !Number.isInteger(currentPage) ||
@@ -95,9 +90,35 @@ export class FollowsController {
       currentPage <= 0 ||
       currentLimit <= 0
     ) {
-      throw new NotFoundException('Page or limit not found');
+      throw new BadRequestException('Page number or limit number are invalid');
     }
-    return this.followsService.getFollowers(userId, currentPage, currentLimit);
+    return this.usersService.getFollowers(userId, skipValue, currentLimit);
+  }
+
+  @Get('list/followers/count')
+  async getFollowerCount(
+    @User() req,
+  ) {
+    const userId = req._id;
+    return this.usersService.getFollowerCount(userId);
+  }
+
+  @Get('list/following/count')
+  async getFollowingCount(
+    @User() req,
+  ) {
+    const userId = req._id;
+    return this.usersService.getFollowingCount(userId);
+  }
+
+  @Get('list/count')
+  async getTotalCount(
+    @User() req,
+  ) {
+    return {
+      followerCount: await this.getFollowerCount(req),
+      followingCount: await this.getFollowingCount(req),
+    }
   }
   @Get('list/following')
   async getFollowing(
@@ -108,6 +129,7 @@ export class FollowsController {
   ) {
     const userId = id ?? req._id;
     const currentPage = page ? Number(page) : 1;
+    const skipValue = (currentPage - 1) * Number(limit);
     const currentLimit = limit ? Number(limit) : 10;
     if (
       !Number.isInteger(currentPage) ||
@@ -115,11 +137,11 @@ export class FollowsController {
       currentPage <= 0 ||
       currentLimit <= 0
     ) {
-      throw new NotFoundException('Page or limit not found');
+      throw new BadRequestException('Page number or limit number are invalid');
     }
-    return await this.followsService.getFollowing(
+    return await this.usersService.getFollowingIds(
       userId,
-      currentPage,
+      skipValue,
       currentLimit,
     );
   }
@@ -134,7 +156,7 @@ export class FollowsController {
     const userId = id ?? req._id;
     const currentPage = page ? Number(page) : 1;
     const currentLimit = limit ? Number(limit) : 10;
-    const userFollowing = await this.followsService.getUserById(userId);
+    const userFollowing = await this.usersService.getFollowingIds(userId);
     const totalUser = userFollowing.following.length;
     const totalPage = Math.ceil(totalUser / currentLimit);
     if (
@@ -143,15 +165,11 @@ export class FollowsController {
       currentPage <= 0 ||
       currentLimit <= 0
     ) {
-      throw new NotFoundException('Page or limit not found');
+      throw new BadRequestException('Page number or limit number are invalid');
     }
-    const user = await this.followsService.getFollowingByUser(
-      userId,
-      currentPage,
-      currentLimit,
-    );
+    const followElements = userFollowing.following.slice((currentPage - 1) * currentLimit, currentLimit);
     return {
-      data: user.following,
+      data: followElements,
       pagination: {
         currentPage: currentPage,
         totalPage: totalPage,

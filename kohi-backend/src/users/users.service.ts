@@ -1,14 +1,14 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import crypto from 'crypto';
 import { Model } from 'mongoose';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { RedisService } from '../redis/redis.service';
 import { UtilsService } from '../utils/utils.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
-import { MailerService } from '@nestjs-modules/mailer';
-import crypto from 'crypto';
-import { RedisService } from '../redis/redis.service';
 @Injectable()
 export class UsersService {
   constructor(
@@ -16,7 +16,7 @@ export class UsersService {
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailerService: MailerService,
     private readonly redisService: RedisService,
-  ) {}
+  ) { }
   //CREATE USER
   async create(createUserDto: CreateUserDto) {
     const { password, email } = createUserDto;
@@ -107,7 +107,7 @@ export class UsersService {
   }
 
   //findByIdAndUpdate
-  async findByIdAndUpdate(id: string, updateUserDto: UpdateUserDto) {}
+  async findByIdAndUpdate(id: string, updateUserDto: UpdateUserDto) { }
   //DELETE ONE USER
   async deleteOne(id: string) {
     this.userModel.findByIdAndDelete(id).exec();
@@ -169,6 +169,7 @@ export class UsersService {
       .select('_id username')
       .exec();
   }
+
   async findByNameOrDisplayName(query: string) {
     return this.userModel
       .find()
@@ -178,11 +179,84 @@ export class UsersService {
       ])
       .exec();
   }
-  async getFollowers(userId: string) {
-    const user = await this.userModel
-      .findById(userId)
-      .select('followers')
-      .exec();
-    return user.followers;
+
+  /**
+   * Lấy danh sách ID người dùng
+   * @param userId ID người dùng được follow
+   * @param skip Số lượng bỏ qua
+   * @param limit Số lượng lấy ra
+   * @returns Danh sách ID người dùng đang follow người dùng này
+   */
+  async getFollowers(userId: string, skip = 0, limit = -1) {
+    let data = this.userModel.find({
+      following: userId,
+    })
+      .skip(skip)
+      .select('username displayName displayName')
+
+    if (limit !== -1) {
+      data = data.limit(limit);
+    }
+    return data.exec();
+  }
+
+  /**
+   * Lấy danh sách ID người dùng mà người dùng này đang follow
+   * @param userId ID người dùng
+   * @returns Danh sách ID người dùng mà người dùng này đang follow
+   */
+  async getFollowingIds(userId: string, skip = 0, limit = -1) {
+    let data = this.userModel.findById(userId)
+      .populate("following", "username displayName")
+      .select('following')
+      .skip(skip);
+
+    if (limit !== -1) {
+      data = data.limit(limit);
+    }
+    return data.exec();
+  }
+
+  /**
+   * Lấy danh sách ID người dùng mà người dùng này đang follow
+   * @param userId ID người dùng
+   * @returns Danh sách ID người dùng mà người dùng này đang follow
+   */
+  async getFollowerCount(userId) {
+    return this.userModel.countDocuments({ following: userId }).exec();;
+  }
+
+  /**
+   * Lấy danh sách ID người dùng mà người dùng này đang follow
+   * @param userId ID người dùng
+   * @returns Danh sách ID người dùng mà người dùng này đang follow
+   */
+  async getFollowingCount(userId) {
+    const data = await this.userModel.findById(userId).select('following').exec();
+    return data.following.length;
+  }
+
+  /**
+   * Thêm người dùng vào danh sách follow
+   * @param userId ID người dùng
+   * @param followUserId ID người dùng cần follow
+   * @returns
+   */
+  async addFollowing(userId: string, followUserId: string) {
+    return this.userModel.findByIdAndUpdate(userId, {
+      $addToSet: { following: followUserId },
+    });
+  }
+
+  /**
+   * Xóa người dùng khỏi danh sách follow
+   * @param userId ID người dùng
+   * @param followUserId ID người dùng cần unfollow
+   * @returns
+   */
+  async removeFollowing(userId: string, followUserId: string) {
+    return this.userModel.findByIdAndUpdate(userId, {
+      $pull: { following: followUserId },
+    });
   }
 }

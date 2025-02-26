@@ -1,0 +1,34 @@
+type: http_request
+model: http_request
+id: rq_rVom7eHr4h
+createdAt: 2025-02-26T04:16:58.032581100
+updatedAt: 2025-02-26T04:20:49.509097600
+workspaceId: wk_82pbnHq9kL
+folderId: fl_V6N4mXH3LN
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: followers
+sortPriority: -0.0001
+url: http://${[ BASE_DOMAIN ]}/${[ API_PREFIX ]}users/follows/list/followers
+urlParameters:
+- enabled: false
+  name: id
+  value: ${[ response.body.path(request='rq_CSKWx8mE96', path='$._id', behavior='smart') ]}
+  id: F5qE9P4vmS
+- enabled: false
+  name: page
+  value: '1'
+  id: K4kdBKApcg
+- enabled: false
+  name: limit
+  value: '10'
+  id: cEIp9JaS8p
+- enabled: true
+  name: ''
+  value: ''
+  id: k9vtJUVtfG

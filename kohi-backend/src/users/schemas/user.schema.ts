@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
 import { Post } from 'src/posts/schemas/post.schema';
 
 export enum Role {
@@ -47,11 +46,8 @@ export class User {
   wall: string;
 
   // Tạo hai trường nhằm tránh Full Database Scan
-  @Prop({ ref: 'User' })
+  @Prop({ ref: 'User', index: true })
   following: String[];
-
-  @Prop({ ref: 'User' })
-  followers: String[];
 
   @Prop([{ type: String, ref: 'Post' }])
   bookmarks: Post[];

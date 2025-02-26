@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/users/schemas/user.schema';
 import { Model } from 'mongoose';
+import { User } from 'src/users/schemas/user.schema';
+import { UsersService } from 'src/users/users.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
@@ -39,11 +39,9 @@ export class FollowsService {
   // Get ALL follower
   async getFollowers(userId: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
-    const userFollower = await this.userModel
-      .findById(userId)
-      .select('followers')
-      .exec();
-    const totalUser = userFollower.followers.length;
+    const userFollower = await this.usersService.getFollowers(userId)
+    this.usersService.getFollowers(userId)
+    const totalUser = userFollower.length;
     const totalPage = Math.ceil(totalUser / limit);
     const followers = await this.userModel
       .findById(userId)
@@ -94,6 +92,7 @@ export class FollowsService {
   async getUserById(userId: string) {
     return await this.userModel.findById(userId).select('following').exec();
   }
+  
   async getFollowingByUser(userId: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
     return await this.userModel
