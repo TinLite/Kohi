@@ -1,5 +1,18 @@
+import { UserContext } from "@/context/user-context";
+import {
+  deleteNotification,
+  getAllNotifications,
+  readNotification,
+} from "@/repository/notification-repository";
+import socket from "@/services/socket";
+import { Notification } from "@/types/notification-types";
+import { SocketEvent } from "@/types/socket-types";
 import { MoreHorizontal } from "lucide-react";
+import { DateTime } from "luxon";
+import { useContext, useEffect, useReducer } from "react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -11,19 +24,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { useContext, useEffect, useReducer, useState } from "react";
-import {
-  deleteNotification,
-  getAllNotifications,
-  readNotification,
-} from "@/repository/notification-repository";
-import { UserContext } from "@/context/user-context";
-import { Badge } from "./ui/badge";
-import { DateTime } from "luxon";
-import socket from "@/services/socket";
-import { SocketEvent } from "@/types/socket-types";
-import { toast } from "sonner";
-import { Notification } from "@/types/notification-types";
 
 const UserNoti = ({
   open,

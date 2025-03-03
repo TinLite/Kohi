@@ -19,25 +19,38 @@ export class ChatController {
 
     @Get('/channels')
     async getChannels(@User() req, @Query('participants') participants?: string) {
-        if (!participants) {
-            return this.chatService.getChannelsByUserId(req._id);
+        const arr = [req._id];
+        if (participants) {
+            arr.push(...participants.split(','));
         }
-        const arr = participants.split(",")
-        return this.chatService.getChannelsByParticipants([...arr, req._id]);
+        const result = await this.chatService.getChannelsByParticipants(arr);
+        const channelIds = result.map(channel => channel._id.toHexString())
+        const latestMessages = await this.chatService.getLatestMessagesByChannelIds(channelIds)
+        return result.map(channel => {
+            // @ts-expect-error
+            const latestMessage = latestMessages.find(message => message.channelID.toHexString() === channel._id.toHexString());
+            return {
+                ...channel.toJSON(),
+                latestMessage
+            }
+        });
     }
 
     @Post('/channels/create')
     async createChannel(@Body() createChatDto: CreateChatChannelDto, @User() req) {
         const currentUser = req._id;
         let isCurrentUserExisted = false;
-        createChatDto.participants.map(participant => {
-            if (participant.user === currentUser) {
-                participant.role = ChatParticipantRole.ADMIN;
-                isCurrentUserExisted = true;
-            } else {
-                participant.role = ChatParticipantRole.PARTICIPANT;
+        createChatDto.participants = createChatDto.participants.map(participant => {
+            let part = {
+                user: participant.toString(),
+                role: ChatParticipantRole.PARTICIPANT,
+                joinedAt: new Date()
             }
-            participant.joinedAt = new Date();
+            if (part.user == currentUser) {
+                part["role"] = ChatParticipantRole.ADMIN;
+                isCurrentUserExisted = true;
+            }
+            return part;
         });
         if (!isCurrentUserExisted) {
             createChatDto.participants.push({
@@ -50,8 +63,12 @@ export class ChatController {
             throw new BadRequestException('Channel must have at least 2 participants');
         }
         const channel = await this.chatService.createChannel(createChatDto);
-        await this.chatService.createMessage(channel._id, currentUser, { content: createChatDto.firstMessage });
-        return channel;
+        const latestMessage = await this.chatService.createMessage(channel._id, currentUser, { content: createChatDto.firstMessage });
+        console.log(latestMessage);
+        return {
+            channel: channel,
+            latestMessage
+        };
     }
 
     @Get('/channels/:channelId')

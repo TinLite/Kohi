@@ -27,7 +27,7 @@ export default function Login() {
     const queryParams = new URLSearchParams(window.location.search);
     let redirectTarget = queryParams.get("redirect") ?? "/";
     const parsed = parseURL(redirectTarget);
-    if (parsed.host !== window.location.host) {
+    if (parsed.host !== window.location.host && `${parsed.host}:${parsed.port}` !== window.location.host) {
       redirectTarget = "/";
     }
     navigate(redirectTarget);

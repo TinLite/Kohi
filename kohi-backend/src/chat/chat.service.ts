@@ -32,11 +32,10 @@ export class ChatService {
   }
 
   async createChannel(createChatDto: CreateChatChannelDto) {
-    const newChannel = new this.chatChannelModel({
-      name: createChatDto.name,
-      participants: createChatDto.participants,
-    });
-    return newChannel.save();
+    const data = await(this.chatChannelModel.create(createChatDto))
+    delete data._id
+    delete data.__v
+    return data;
   }
 
   async createMessage(channelId: ChatChannel | mongoose.Types.ObjectId | String, senderId: User | mongoose.Types.ObjectId | String, createChatChannelDto: CreateChatMessageDto) {
@@ -45,7 +44,7 @@ export class ChatService {
       senderID: senderId,
       ...createChatChannelDto,
     });
-    return (await(await newMessage.save()).populate({
+    return (await (await newMessage.save()).populate({
       path: 'senderID',
       select: 'username avatar displayName',
     })).populate("replyTo", "content senderID isRecalled");
@@ -81,5 +80,13 @@ export class ChatService {
 
   async recallMessage(messageId: string) {
     return this.chatMessageModel.findByIdAndUpdate(messageId, { isRecalled: true, content: "" }, { new: true }).populate("senderID");
+  }
+
+  async getLatestMessage(channelId: string) {
+    return this.chatMessageModel.findOne({ channelID: channelId }).sort({ timeStamp: -1 });
+  }
+
+  async getLatestMessagesByChannelIds(channelIds: string[]) {
+    return this.chatMessageModel.find({ channelID: { $in: channelIds } }).sort({ timeStamp: -1 });
   }
 }

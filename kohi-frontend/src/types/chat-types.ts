@@ -30,16 +30,19 @@ export class ChatChannel {
     name: string | undefined;
     type: ChatChannelType;
     participants: ChatParticipant[];
+    latestMessage?: ChatMessage;
     constructor(
         _id: string,
         name: string | undefined,
         type: ChatChannelType,
         participants: ChatParticipant[],
+        latestMessage?: ChatMessage
     ) {
         this._id = _id;
         this.name = name;
         this.type = type;
         this.participants = participants;
+        this.latestMessage = latestMessage;
     }
 }
 
@@ -55,6 +58,7 @@ export class ChatMessage {
     channelID: string;
     content: string;
     createdAt: Date;
+    timeStamp: Date;
     isRecalled: boolean = false;
     constructor(
         _id: string,
@@ -67,7 +71,8 @@ export class ChatMessage {
         replyTo: ChatMessage,
         channelID: string,
         content: string,
-        createdAt: Date
+        createdAt: Date,
+        timeStamp: Date
     ) {
         this._id = _id;
         this.senderID = senderID;
@@ -75,5 +80,6 @@ export class ChatMessage {
         this.channelID = channelID;
         this.content = content;
         this.createdAt = createdAt;
+        this.timeStamp = timeStamp;
     }
 }

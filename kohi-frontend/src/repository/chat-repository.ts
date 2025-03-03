@@ -3,9 +3,6 @@ import { ChatChannel, ChatMessage } from "@/types/chat-types";
 export async function getChannelList(participants: string[] = []) {
     let url = `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels`;
     if (participants.length > 0) {
-        const data = new URLSearchParams({
-            participants: participants.join(','),
-        }).toString();
         url += `?participants=${participants.join(',')}`;
     }
     const data = await fetch(url, {
@@ -17,10 +14,13 @@ export async function getChannelList(participants: string[] = []) {
     return await data.json() as ChatChannel[];
 }
 
-export async function createChannel(members: string[], message: string[], name?: string) {
+export async function createChannel(members: string[], message: string, name?: string) {
     const respone = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/create`, {
         method: 'POST',
         credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
             name,
             participants: members,
@@ -30,7 +30,10 @@ export async function createChannel(members: string[], message: string[], name?:
     if (!respone.ok) {
         throw new Error(`Failed to create chat channel: ${await respone.text()}`);
     }
-    return await respone.json() as ChatChannel
+    return await respone.json() as {
+        channel: ChatChannel,
+        latestMessage: ChatMessage,
+    }
 }
 
 export async function getChannel(channelId: string) {

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { getChannelList } from "@/repository/chat-repository";
 import { ChatChannel, ChatChannelType } from "@/types/chat-types";
 import { PenLine } from "lucide-react";
+import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import {
   Link,
@@ -56,10 +57,15 @@ function MessageSelectionItem({
         <div className="flex justify-between">
           <span className="font-bold">{channelName}</span>
           <span className="pl-2 text-muted-foreground text-sm">
-            3 giờ trước
+            {
+              // @ts-expect-error
+              DateTime.fromISO(chatChannel.latestMessage?.timeStamp).toRelative()
+            }
           </span>
         </div>
-        <div className="text-muted-foreground">Last message</div>
+        <div className="text-muted-foreground">
+          {chatChannel.latestMessage?.content}
+        </div>
       </div>
     </button>
   );
