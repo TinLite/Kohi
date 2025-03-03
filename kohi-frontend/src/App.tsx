@@ -22,6 +22,7 @@ import { PageMessageChannel } from "./routes/messages/message-view";
 import { PageSettingApp } from "./routes/settings/SettingApp";
 import { PageSettingPassword } from "./routes/settings/SettingPassword";
 import { PageSettingUser } from "./routes/settings/SettingUser";
+import ForgotPassword from "./routes/auth/forgotpassword";
 
 const router = createBrowserRouter([
   {
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
     element: <Register />,
   },
   {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
     path: "/",
     element: <MainLayout disableNavOnPhone />,
     children: [
@@ -96,23 +101,23 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: 'settings',
+    path: "settings",
     element: <LayoutSetting />,
     children: [
       {
         index: true,
-        element: <PageSettingUser />
+        element: <PageSettingUser />,
       },
       {
-        path: 'password',
-        element: <PageSettingPassword />
+        path: "password",
+        element: <PageSettingPassword />,
       },
       {
-        path: 'app',
-        element: <PageSettingApp />
-      }
-    ]
-  }
+        path: "app",
+        element: <PageSettingApp />,
+      },
+    ],
+  },
 ]);
 
 function App() {

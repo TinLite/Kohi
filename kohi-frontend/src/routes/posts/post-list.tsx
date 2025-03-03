@@ -22,7 +22,7 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
   const [content, setContent] = useState("");
   const [selectedFile, setSelectedFile] = useState<File[]>([]);
 
-  const { user, setLoginFormOpen } = useContext(UserContext)
+  const { user, setLoginFormOpen } = useContext(UserContext);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -106,10 +106,8 @@ export default function PostList() {
 
   const [posts, setPosts] = useState<Post[]>([]);
   useEffect(() => {
-    if (user)
-      refreshPost();
-    else
-      setPosts([])
+    if (user) refreshPost();
+    else setPosts([]);
   }, [user]);
   return (
     <>
@@ -126,18 +124,24 @@ export default function PostList() {
             <ScrollArea className="w-full h-screen max-w-2xl">
               <div className="space-y-6 py-6 md:mb-0 mb-12 xl:pr-4">
                 <PostCreate onSubmit={refreshPost} />
-                {posts.map((post) => (
-                  <UserPost
-                    post={post}
-                    key={post._id}
-                    showEditPost={user?._id == post.author._id}
-                    onDelete={refreshPost}
-                    onRepost={refreshPost}
-                    onUpdateShare={refreshPost}
-                    onShareQuote={refreshPost}
-                    onUpdateLike={refreshPost}
-                  />
-                ))}
+                {posts.length > 0 ? (
+                  posts.map((post) => (
+                    <UserPost
+                      post={post}
+                      key={post._id}
+                      showEditPost={user?._id === post.author._id}
+                      onDelete={refreshPost}
+                      onRepost={refreshPost}
+                      onUpdateShare={refreshPost}
+                      onShareQuote={refreshPost}
+                      onUpdateLike={refreshPost}
+                    />
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-sm">
+                    Không có bài viết nào.
+                  </p>
+                )}
               </div>
             </ScrollArea>
             {/* <div className="hidden xl:block">

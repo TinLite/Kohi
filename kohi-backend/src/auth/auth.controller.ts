@@ -4,6 +4,7 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  NotFoundException,
   Patch,
   Post,
   Request,
@@ -60,16 +61,20 @@ export class AuthController {
   //   });
   //   return "ok cuc cung";
   // }
+  @Public()
   @Post('email')
   async emailAuth(@User() req, @Request() request) {
     const { email } = request.body;
     const emailUser = await this.usersService.findByEmail(email);
-    // console.log(emailUser.email);
-    // console.log(email);
-    if (emailUser.email !== email) {
-      throw new BadRequestException('Email does not match');
+    // // console.log(emailUser.email);
+    // // console.log(email);
+    // if (emailUser.email !== email) {
+    //   throw new BadRequestException('Email does not match');
+    // }
+    if (!emailUser) {
+      throw new NotFoundException('Email does not exist');
     }
-    const verifyCode = await crypto.randomBytes(3).toString('hex');
+    const verifyCode = await crypto.randomInt(100000, 999999).toString();
     const key = `verifyCode: ${email}`;
     this.redisService.getClient().then((client) => {
       client
@@ -86,6 +91,7 @@ export class AuthController {
     });
     return sendTo.accepted;
   }
+  @Public()
   @Post('email/verify')
   async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
     const { email, code } = verifyEmailDto;
@@ -96,5 +102,16 @@ export class AuthController {
       throw new BadRequestException('Invalid verification code');
     }
     return this.usersService.verifyEmail(email);
+  }
+  @Public()
+  @Patch('reset-password')
+  async resetPassword(@Body() body) {
+    const { email, password } = body;
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('Email not found');
+    }
+    //@ts-expect-error
+    return this.usersService.updatePassword(user._id, password);
   }
 }

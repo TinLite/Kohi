@@ -28,6 +28,7 @@ import {
   SheetTitle,
 } from "./ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { Link } from "react-router-dom";
 
 const LoginSheet = ({
   open,
@@ -173,6 +174,17 @@ const LoginSheet = ({
                   Login
                 </Button>
               </SheetFooter>
+              <div className="mt-4 text-center">
+                <p>
+                  Forgot password?{" "}
+                  <Link
+                    to="/forgot-password"
+                    className="text-blue-500 hover:underline"
+                  >
+                    Forgot
+                  </Link>
+                </p>
+              </div>
             </TabsContent>
             <TabsContent value="signup">
               <SheetHeader className="mt-4">

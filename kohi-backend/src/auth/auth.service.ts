@@ -28,6 +28,7 @@ export class AuthService {
       username: user.username,
       displayname: user.displayName,
       role: user.roles,
+      verify: user.verifyEmail,
     };
   }
 }

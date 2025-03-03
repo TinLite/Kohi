@@ -145,7 +145,8 @@ const CommentItem = ({
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                {user?._id === comment.author._id && (
+                {(user?._id === comment.author._id ||
+                  user?._id === comment.postId.author._id) && (
                   <Button variant="ghost" size="icon">
                     <EllipsisVertical />
                   </Button>
