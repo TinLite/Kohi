@@ -101,7 +101,9 @@ export default function Login() {
             Login
           </Button>
           <p className="mt-4 text-center">
-            {/* Don't have an account? <Link to="/register">Register</Link> */}
+            Forgot password? <Link to="/forgot-password" className="text-blue-500 hover:underline">Forgot</Link>
+            <br />
+            Don't have an account? <Link to="/register" className="text-blue-500 hover:underline">Register</Link>
           </p>
         </div>
       </div>

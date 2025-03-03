@@ -178,9 +178,8 @@ export class CommentsController {
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
-    if (
-      comment.author.toString() !== author &&
-      post.author.toString() !== author
+    //@ts-expect-error
+    if(comment.author._id.toString() !== author && post.author._id.toString() !== author
     ) {
       throw new NotFoundException(
         'You are not authorized to delete this comment',

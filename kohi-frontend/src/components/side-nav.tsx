@@ -102,7 +102,7 @@ export default function SideNav({
           <button
             onClick={(e) => {
               if (!user) {
-                toast.error("Please login to post");
+                toast.error("Please login to view notifications");
                 setLoginFormOpen(true);
                 return;
               }
@@ -117,6 +117,7 @@ export default function SideNav({
             to="/bookmark"
             onClick={(e) => {
               if (!user) {
+                toast.error("Please login to view bookmarks");
                 setLoginFormOpen(true);
                 e.preventDefault();
               }

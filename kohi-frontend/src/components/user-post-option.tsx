@@ -43,10 +43,6 @@ export function UserPostOption({
     deletePost(post._id)
       .then(() => {
         onDelete?.();
-        navigate("/");
-        // if (user?._id === post.author?._id) {
-        //   navigate("/");
-        // }
       })
       .catch((error) => {
         console.error(error);

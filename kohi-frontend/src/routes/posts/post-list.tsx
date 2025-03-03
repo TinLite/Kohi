@@ -22,7 +22,7 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
   const [content, setContent] = useState("");
   const [selectedFile, setSelectedFile] = useState<File[]>([]);
 
-  const { user, setLoginFormOpen } = useContext(UserContext)
+  const { user, setLoginFormOpen } = useContext(UserContext);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -106,10 +106,8 @@ export default function PostList() {
 
   const [posts, setPosts] = useState<Post[]>([]);
   useEffect(() => {
-    if (user)
-      refreshPost();
-    else
-      setPosts([])
+    if (user) refreshPost();
+    else setPosts([]);
   }, [user]);
   return (
     <>

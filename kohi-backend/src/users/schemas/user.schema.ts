@@ -51,6 +51,10 @@ export class User {
 
   @Prop([{ type: String, ref: 'Post' }])
   bookmarks: Post[];
+  @Prop({
+    default: false,
+  })
+  verifyEmail: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

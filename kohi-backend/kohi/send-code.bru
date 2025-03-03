@@ -1,0 +1,17 @@
+meta {
+  name: send-code
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/v1/api/auth/email
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email":"yeresgaming@gmail.com"
+  }
+}

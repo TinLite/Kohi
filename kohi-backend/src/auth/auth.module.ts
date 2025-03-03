@@ -6,11 +6,13 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './passport/local.strategy';
 import { SessionGuard } from './passport/session.guard';
+import { RedisModule } from 'src/redis/redis.module';
 @Global()
 @Module({
   imports: [
     UsersModule,
     UtilsModule,
+    RedisModule,
     PassportModule.register({ defaultStrategy: 'local', session: true }),
   ],
   controllers: [AuthController],
