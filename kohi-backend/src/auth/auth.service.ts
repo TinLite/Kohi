@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UtilsService } from '../utils/utils.service';
+import { CreateUserWithGGDto } from '../users/dto/create-userwithgg';
 
 @Injectable()
 export class AuthService {
@@ -30,5 +31,27 @@ export class AuthService {
       role: user.roles,
       verify: user.verifyEmail,
     };
+  }
+  async validateGoogleUser(profile: any): Promise<any> {
+    const { id, displayName, photos } = profile;
+    const email = profile.emails?.[0]?.value || null;
+    const avatar = photos?.[0]?.value || null;
+    // const user = await this.usersService.findGoogleId(id);
+    const existingUser = await this.usersService.findByEmail(email);
+    if (existingUser) {
+      if (existingUser && !existingUser.googleId) {
+        throw new BadGatewayException('Email linked to another account');
+      }
+    }
+    const createUserWithGGDto: CreateUserWithGGDto = {
+      googleId: id,
+      username: email.split('@')[0],
+      displayName: displayName || null,
+      email: email,
+      avatar: avatar,
+    };
+    const newUser =
+      await this.usersService.createUserWithGoogle(createUserWithGGDto);
+    return { _id: newUser._id };
   }
 }

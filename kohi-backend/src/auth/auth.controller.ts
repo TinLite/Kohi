@@ -1,4 +1,5 @@
 import {
+  BadGatewayException,
   BadRequestException,
   Body,
   Controller,
@@ -8,6 +9,7 @@ import {
   Patch,
   Post,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -20,6 +22,7 @@ import { UsersService } from '../users/users.service';
 import crypto, { verify } from 'crypto';
 import { RedisService } from 'src/redis/redis.service';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { AuthGuard } from '@nestjs/passport';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -78,9 +81,7 @@ export class AuthController {
     const key = `verifyCode: ${email}`;
     this.redisService.getClient().then((client) => {
       client
-        .set(key, verifyCode, {
-          EX: 60 * 5,
-        })
+        .set(key, verifyCode, { EX: 60 * 5 })
         .then(() => client.disconnect());
     });
     const sendTo = await this.mailerService.sendMail({
@@ -113,5 +114,22 @@ export class AuthController {
     }
     //@ts-expect-error
     return this.usersService.updatePassword(user._id, password);
+  }
+  @Public()
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleLogin() {
+    return 'Google login';
+  }
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleLoginCallback(@Request() req, @Res() res) {
+    if (!req.user) {
+      throw new BadGatewayException('Google login failed');
+    }
+    
+    req.session.user = req.user;
+    return res.json(req.user);
   }
 }
