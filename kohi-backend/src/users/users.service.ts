@@ -10,6 +10,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { CreateUserWithGGDto } from './dto/create-userwithgg';
+import { CreateUserWithDiscordDto } from './dto/create-userwithdiscord';
 @Injectable()
 export class UsersService {
   constructor(
@@ -263,11 +264,19 @@ export class UsersService {
       .exec();
   }
   async findGoogleId(googleId: string) {
-    return this.userModel.findOne({ _id: googleId }).exec();
+    return this.userModel.findOne({ googleId: googleId }).exec();
+  }
+  async findDiscordId(discordId: string) {
+    return this.userModel.findOne({ discordId }).exec();
   }
   async createUserWithGoogle(user: CreateUserWithGGDto) {
-    const newuser= await this.userModel.create(user);
-    console.log(newuser)
-    return newuser
+    const newUser = await this.userModel.create(user);
+    // console.log(newUser);
+    return newUser;
+  }
+  async createUserWithDiscord(user: CreateUserWithDiscordDto) {
+    const newUser = await this.userModel.create(user);
+    // console.log(newUser);
+    return newUser;
   }
 }

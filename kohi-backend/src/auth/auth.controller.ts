@@ -128,8 +128,23 @@ export class AuthController {
     if (!req.user) {
       throw new BadGatewayException('Google login failed');
     }
-    
     req.session.user = req.user;
-    return res.json(req.user);
+    return res.json('Login success');
+  }
+  @Public()
+  @Get('discord')
+  @UseGuards(AuthGuard('discord'))
+  async discordLogin() {
+    return 'Discord login';
+  }
+  @Public()
+  @Get('discord/callback')
+  @UseGuards(AuthGuard('discord'))
+  async discordLoginCallback(@Request() req, @Res() res) {
+    if (!req.user) {
+      throw new BadGatewayException('Discord login failed');
+    }
+    req.session.user = req.user;
+    return res.json('Login success');
   }
 }

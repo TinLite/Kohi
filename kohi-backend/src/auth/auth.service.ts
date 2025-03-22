@@ -2,6 +2,7 @@ import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { UtilsService } from '../utils/utils.service';
 import { CreateUserWithGGDto } from '../users/dto/create-userwithgg';
+import { CreateUserWithDiscordDto } from 'src/users/dto/create-userwithdiscord';
 
 @Injectable()
 export class AuthService {
@@ -52,6 +53,28 @@ export class AuthService {
     };
     const newUser =
       await this.usersService.createUserWithGoogle(createUserWithGGDto);
+    return { _id: newUser._id };
+  }
+  async validateDiscordUser(profile: any): Promise<any> {
+    const { id, username, avatar } = profile;
+    const email = profile.email || null;
+    const displayName = profile.global_name || null;
+    const existingUser = await this.usersService.findByEmail(email);
+    if (existingUser) {
+      if (existingUser && !existingUser.discordId) {
+        throw new BadGatewayException('Email linked to another account');
+      }
+    }
+    const createUserWithDiscordDto: CreateUserWithDiscordDto = {
+      discordId: id,
+      username: username,
+      displayName: displayName,
+      email: email,
+      avatar: avatar,
+    };
+    const newUser = await this.usersService.createUserWithDiscord(
+      createUserWithDiscordDto,
+    );
     return { _id: newUser._id };
   }
 }

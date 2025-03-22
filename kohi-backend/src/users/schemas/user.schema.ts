@@ -57,6 +57,8 @@ export class User {
   verifyEmail: boolean;
   @Prop()
   googleId: string;
+  @Prop()
+  discordId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
