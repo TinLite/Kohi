@@ -25,6 +25,7 @@ import store from "@/services/store";
 import { Provider } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ForgotPassword from "./routes/auth/forgotpassword";
+import { useEffect } from "react";
 
 const router = createBrowserRouter([
   {
@@ -124,7 +125,8 @@ const router = createBrowserRouter([
 
 function App() {
   const isWideScreen = useMediaQuery("(min-width: 768px");
-
+  // useEffect(() => {
+  // }, []);
   return (
     <Provider store={store}>
       <UserProvider>

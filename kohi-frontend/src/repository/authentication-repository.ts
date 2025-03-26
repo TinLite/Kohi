@@ -122,3 +122,16 @@ export async function verifyCode(email: string, code: string) {
   if (!response.ok) throw new Error(await response.text());
   return true;
 }
+export async function loginGoogle(redirect: string = "") {
+  window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+    import.meta.env.VITE_API_PREFIX
+  }/auth/google${redirect ? `?redirect=${redirect}` : ""}`;
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/auth/profile`,
+    { credentials: "include" }
+  );
+  if (!response.ok) throw new Error("Login failed");
+  return response.json();
+}

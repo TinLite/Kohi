@@ -22,7 +22,6 @@ export class SessionGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
-
     // Kiểm tra tồn tại session
     const request = context.switchToHttp().getRequest();
     if (!request.session.user) {

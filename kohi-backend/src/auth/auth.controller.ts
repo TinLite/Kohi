@@ -23,6 +23,8 @@ import crypto, { verify } from 'crypto';
 import { RedisService } from 'src/redis/redis.service';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { config } from 'process';
+import { ConfigService } from '@nestjs/config';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -30,6 +32,7 @@ export class AuthController {
     private readonly mailerService: MailerService,
     private readonly usersService: UsersService,
     private readonly redisService: RedisService,
+    private readonly configService: ConfigService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -129,7 +132,11 @@ export class AuthController {
       throw new BadGatewayException('Google login failed');
     }
     req.session.user = req.user;
-    return res.json('Login success');
+    // return res.json({
+    //   message: 'Login success',
+    // });
+    //Khong biết setup bên FE như nào
+    return res.redirect(this.configService.get<string>('FRONTEND_URL'));
   }
   @Public()
   @Get('discord')
@@ -145,6 +152,6 @@ export class AuthController {
       throw new BadGatewayException('Discord login failed');
     }
     req.session.user = req.user;
-    return res.json('Login success');
+    return res.redirect(this.configService.get<string>('FRONTEND_URL'));
   }
 }
