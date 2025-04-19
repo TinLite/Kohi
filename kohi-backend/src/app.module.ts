@@ -15,6 +15,8 @@ import { FollowsModule } from './follows/follows.module';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
+import { ReportsModule } from './reports/reports.module';
+import { RolesGuard } from './auth/passport/role.guard';
 
 @Module({
   imports: [
@@ -58,6 +60,7 @@ import { UtilsModule } from './utils/utils.module';
     FollowsModule,
     BookmarksModule,
     CloudinaryModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -65,6 +68,10 @@ import { UtilsModule } from './utils/utils.module';
     {
       provide: 'APP_GUARD',
       useClass: SessionGuard,
+    },
+    {
+      provide: 'APP_GUARD',
+      useClass: RolesGuard,
     },
   ],
 })

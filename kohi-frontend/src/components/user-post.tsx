@@ -4,6 +4,7 @@ import { getChannelList } from "@/repository/chat-repository";
 import {
   createSharePost,
   likePost,
+  reportPost,
   unLikePost,
 } from "@/repository/PostsRepository";
 import {
@@ -17,9 +18,11 @@ import { Post } from "@/types/post-type";
 import { User } from "@/types/user-type";
 import {
   Bookmark,
+  Ellipsis,
   MessagesSquare,
   Repeat,
   Send,
+  ShieldAlert,
   ThumbsUp,
   UserRoundPlus,
 } from "lucide-react";
@@ -63,6 +66,7 @@ import { Textarea } from "./ui/textarea";
 import { UserPostOption } from "./user-post-option";
 import UserPostShareQuote from "./user-post-share-Quote";
 import { toast } from "sonner";
+import { ReportPostDialog } from "./reportDialog";
 
 function UserHoverCard({
   children,
@@ -244,6 +248,7 @@ export default function UserPost({
   className?: string;
 }) {
   const { user, setUser, setLoginFormOpen } = useContext(UserContext);
+  const [openReport, setOpenReport] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLiked, setIsLiked] = useState(
     post.likes?.includes(user ? user._id : "") ?? 0
@@ -256,6 +261,9 @@ export default function UserPost({
   };
   const handleCloseQuoteDialog = () => {
     setIsQuoteDialogOpen(false);
+  };
+  const handleOpenReport = () => {
+    setOpenReport(true);
   };
 
   const handleLike = async () => {
@@ -345,6 +353,10 @@ export default function UserPost({
         console.log(err);
       });
   };
+  // const handleReportPost = async () => {
+  //   await reportPost(post._id)
+  // }
+
   const handleEditPost = () => {
     onEditPost?.();
   };
@@ -420,6 +432,7 @@ export default function UserPost({
             onEditPost={handleEditPost}
           />
         )}
+        {!showEditPost && <ReportPostDialog postId={post._id} />}
       </div>
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
         <p className="hyphens-auto break-all">

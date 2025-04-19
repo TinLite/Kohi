@@ -6,7 +6,7 @@ export async function getGlobalLatestPosts() {
       import.meta.env.VITE_API_PREFIX
     }/posts/list`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return (await response.json()) as Post[];
@@ -18,7 +18,7 @@ export async function createPosts(formData: FormData) {
     }/posts/create`,
     {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
       body: formData,
     }
   );
@@ -38,7 +38,7 @@ export async function updatePostsShare(postId: string, content: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify({ content }),
     }
   );
@@ -54,7 +54,7 @@ export async function updatePost(postId: string, content: string) {
     }/posts/detail/${postId}/update`,
     {
       method: "PATCH",
-      credentials: 'include',
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -73,7 +73,7 @@ export async function createSharePostQuote(postId: string, content: string) {
     }/posts/detail/${postId}/share`,
     {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -92,7 +92,7 @@ export async function searchPosts(query: string) {
       import.meta.env.VITE_API_PREFIX
     }/posts/search?q=${query}`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -107,7 +107,7 @@ export async function likePost(postId: string) {
     }/posts/detail/${postId}/like`,
     {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return response.json();
@@ -119,7 +119,7 @@ export async function unLikePost(postId: string) {
     }/posts/detail/${postId}/unlike`,
     {
       method: "DELETE",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return response.json();
@@ -130,7 +130,7 @@ export async function countLikePost(postId: string) {
       import.meta.env.VITE_API_PREFIX
     }/posts/${postId}/likes`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return await response.json();
@@ -141,7 +141,7 @@ export async function getPostsById(postId: string) {
       import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return (await response.json()) as Post;
@@ -152,7 +152,7 @@ export async function getPostsByUserId(id = "") {
       import.meta.env.VITE_API_PREFIX
     }/posts/profile/list/${id}`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return (await response.json()) as Post[];
@@ -164,7 +164,7 @@ export async function getMediaByUserId(id = "") {
       import.meta.env.VITE_API_PREFIX
     }/posts/profile/media/${id}`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return response.json();
@@ -175,7 +175,7 @@ export async function getListPostShare(id = "") {
       import.meta.env.VITE_API_PREFIX
     }/posts/profile/share/${id}`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return (await response.json()) as Post[];
@@ -187,7 +187,7 @@ export async function createSharePost(postId: string) {
     }/posts/detail/${postId}/share`,
     {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return response.json();
@@ -199,7 +199,24 @@ export async function deletePost(postId: string) {
     }/posts/detail/${postId}/delete`,
     {
       method: "DELETE",
-      credentials: 'include',
+      credentials: "include",
+    }
+  );
+  return response.json();
+}
+
+export async function reportPost(postId: string, reason: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/reports/post/${postId}`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ reason }),
     }
   );
   return response.json();

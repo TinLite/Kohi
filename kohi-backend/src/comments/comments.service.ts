@@ -163,4 +163,17 @@ export class CommentsService {
     };
   }
   //report comment
+
+  //hide comment
+  hideComment(commentId: string) {
+    return this.commentModel.findByIdAndUpdate(
+      {
+        _id: commentId,
+        flags: { $nin: ['hidden'] },
+      },
+      {
+        $push: { flags: 'hidden' },
+      },
+    );
+  }
 }

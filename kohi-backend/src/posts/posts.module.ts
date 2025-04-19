@@ -10,6 +10,7 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { MulterModule } from '@nestjs/platform-express';
 import * as multer from 'multer';
+import { ReportsModule } from 'src/reports/reports.module';
 
 /*
                            _
@@ -42,6 +43,7 @@ import * as multer from 'multer';
     EventsModule,
     NotificationsModule,
     CloudinaryModule,
+    // ReportsModule,
     MulterModule.register({
       storage: multer.memoryStorage(),
     }),

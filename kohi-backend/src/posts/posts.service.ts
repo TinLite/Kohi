@@ -8,8 +8,6 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { Post, PostFlags } from './schemas/post.schema';
 import { UtilsService } from '../utils/utils.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import * as request from 'supertest';
-import path from 'path';
 @Injectable()
 export class PostsService {
   constructor(
@@ -122,6 +120,19 @@ export class PostsService {
   remove(id: string) {
     // return this.postModel.findByIdAndDelete(id).exec();
     this.postModel.findOneAndUpdate(
+      {
+        _id: id,
+        flags: { $nin: [PostFlags.HIDDEN] },
+      },
+      {
+        $push: {
+          flags: PostFlags.HIDDEN,
+        },
+      },
+    );
+  }
+  hidePost(id: string) {
+    return this.postModel.findOneAndUpdate(
       {
         _id: id,
         flags: { $nin: [PostFlags.HIDDEN] },
