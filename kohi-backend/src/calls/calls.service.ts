@@ -34,7 +34,7 @@ export class CallsService {
         const sessionId = await this.createCallsSession();
         await this.redisService.getClient().then((client) =>
             client.set(`kohi:call:${channelId}`, sessionId, {
-                EX: 3600
+                EX: parseInt(this.configService.get('CALLS_SESSION_EXPIRE_TIME')) ?? 10800,
             })
         )
         return sessionId;

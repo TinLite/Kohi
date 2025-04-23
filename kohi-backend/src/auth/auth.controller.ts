@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
   BadGatewayException,
   BadRequestException,
@@ -12,19 +13,16 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './passport/local-auth.guard';
-import { Public } from './authmeta';
-import { Roles } from './role.decorator';
-import { MailerService } from '@nestjs-modules/mailer';
-import { User } from './user.decorator';
-import { UsersService } from '../users/users.service';
-import crypto, { verify } from 'crypto';
-import { RedisService } from 'src/redis/redis.service';
-import { VerifyEmailDto } from './dto/verify-email.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { config } from 'process';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
+import crypto from 'crypto';
+import { RedisService } from 'src/redis/redis.service';
+import { UsersService } from '../users/users.service';
+import { AuthService } from './auth.service';
+import { Public } from './authmeta';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { LocalAuthGuard } from './passport/local-auth.guard';
+import { User } from './user.decorator';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -88,7 +86,7 @@ export class AuthController {
         .then(() => client.disconnect());
     });
     const sendTo = await this.mailerService.sendMail({
-      from: 'Kohi',
+      from: this.configService.get<string>('MAIL_USER') ?? 'noreply@kohi.tinlite.com',
       to: email,
       subject: 'This is your verification code to email authentication',
       html: `Please use this code to verify your email: <strong>${verifyCode}</strong>`,

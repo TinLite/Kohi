@@ -565,7 +565,7 @@ function MessageView({ className }: { className?: string }) {
         </div>
         <Separator />
         <div className="bg-background flex gap-2 px-4 py-2">
-          <Button variant="ghost" size="icon" disabled onClick={(e) => {
+          <Button variant="ghost" size="icon" onClick={(e) => {
             e.preventDefault();
             openFileUploadSelector();
           }}>
