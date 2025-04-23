@@ -50,7 +50,7 @@ import { User } from "@/types/user-type";
 import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, PenLine, Phone, ReplyIcon, Trash2, UserPlus } from "lucide-react";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, message, onReply, isReplyingTo = false, replyTarget, isRecalled, onRecall = () => { } }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingTop?: boolean, message?: string, onReply?: () => void, isReplyingTo?: boolean, replyTarget?: ChatMessage, isRecalled?: boolean, onRecall?: () => void }) {
@@ -338,6 +338,7 @@ function MessageView({ className }: { className?: string }) {
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
   const { user } = useContext(UserContext);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
 
   const [replyTarget, setReplyTarget] = useState<ChatMessage | null>(null);
 
@@ -474,7 +475,7 @@ function MessageView({ className }: { className?: string }) {
           <h1 className="font-bold">{channelName ?? ""} <span className="font-normal text-muted-foreground">@{targetUser?.username}</span></h1>
           <h4 className="text-xs">Online</h4>
         </div>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={() => navigate(`/call/${channel?._id}`)}>
           <Phone strokeWidth={1.5} />
         </Button>
         <Button variant="ghost" size="icon" onClick={() => setChannelSettingStatus(true)} className="">
