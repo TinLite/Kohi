@@ -25,6 +25,7 @@ import store from "@/services/store";
 import { Provider } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ForgotPassword from "./routes/auth/forgotpassword";
+import { PageCall } from "./routes/call/call";
 
 const router = createBrowserRouter([
   {
@@ -60,6 +61,16 @@ const router = createBrowserRouter([
         path: "/post/detail/:id",
         element: <PostPage />,
       },
+      {
+        path: "/message/",
+        element: <MessageLayout />,
+        children: [
+          {
+            index: true,
+            element: <MessageViewDefault />,
+          },
+        ],
+      },
     ],
   },
   {
@@ -78,18 +89,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <MainLayout disableNavOnPhone />,
     children: [
-      // {
-      //   path: "/message/:channelID",
-      //   element: <MessagePage />,
-      // },
       {
         path: "/message/",
         element: <MessageLayout />,
         children: [
-          {
-            index: true,
-            element: <MessageViewDefault />,
-          },
           {
             path: "new",
             element: <MessageViewNewChat />,
@@ -120,6 +123,10 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "/call/:callId",
+    element: <PageCall />
+  }
 ]);
 
 function App() {

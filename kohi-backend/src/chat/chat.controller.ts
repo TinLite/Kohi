@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from 'src/auth/user.decorator';
+import { CallsService } from 'src/calls/calls.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { EventsService } from 'src/events/events.service';
 import { ChatService } from './chat.service';
@@ -15,6 +16,7 @@ export class ChatController {
         private readonly chatService: ChatService,
         private readonly eventsService: EventsService,
         private readonly cloudinaryService: CloudinaryService,
+        private readonly callsService: CallsService,
     ) { }
 
     @Get('/channels')
@@ -79,21 +81,7 @@ export class ChatController {
     @Patch('/channels/:channelId/')
     @UseInterceptors(FileInterceptor('avatar'))
     async updateChannel(@Param('channelId') channelId: string, @Body() updateDto: UpdateChatChannelDto,
-        // @UploadedFile(new ParseFilePipe({
-        //     validators: [
-        //         new MaxFileSizeValidator({ maxSize: 10000000 }),
-        //         new FileTypeValidator({ fileType: 'image/*' })
-        //     ]
-        // })) avatar?: Express.Multer.File
     ) {
-
-        // if (!avatar && !updateDto.name) {
-        //     throw new BadRequestException('Please provide at least one field to update');
-        // }
-        // if (avatar) {
-        //     const uploadResult = await this.cloudinaryService.uploadFile(avatar, 'chat-avatars');
-        //     updateDto.avatar = uploadResult.secure_url;
-        // }
         return this.chatService.updateChannel(channelId, updateDto);
     }
 
@@ -126,5 +114,23 @@ export class ChatController {
                 })
             });
         });
+    }
+
+    @Post('/channels/:channelId/calls/join')
+    async createCallSession(@Param('channelId') channelId: string, @User() user) {
+        const channel = await this.chatService.getChannelById(channelId);
+        if (!channel) {
+            throw new BadRequestException('Channel not found');
+        }
+        if (user._id.toString()! !== channel.participants.find(participant => participant.user.toString() === user._id).user.toString()) {
+            throw new BadRequestException('You are not allowed to join this call');
+        }
+        const sessionId = await this.callsService.getCallSessionByChannelId(channelId);
+        if (!sessionId) {
+            const newSessionId = await this.callsService.createCallSession(channelId);
+            this.eventsService.announceToUser(user._id, 'call:session:new', newSessionId);
+            return newSessionId;
+        }
+
     }
 }

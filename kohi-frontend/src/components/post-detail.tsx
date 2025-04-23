@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import DetailPost from "./detail-post-comment";
-import { useParams } from "react-router-dom";
-import { Post } from "@/types/post-type";
 import { getPostsById } from "@/repository/PostsRepository";
+import { Post } from "@/types/post-type";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import DetailPost from "./detail-post-comment";
 
 const PostPage = () => {
   const { id } = useParams();
   const [post, setPost] = useState<Post | null>(null);
+  const navigate = useNavigate();
 
   const fetchPost = async () => {
     if (id) {
@@ -26,9 +27,14 @@ const PostPage = () => {
   if (!post) {
     return <div className="text-center py-4">Loading post...</div>;
   }
+
+  function handleDeletePost() {
+    navigate("/");
+  }
+
   return (
     <div>
-      <DetailPost post={post} onEditPost={fetchPost} />
+      <DetailPost post={post} onEditPost={fetchPost} onDeletePost={handleDeletePost} />
     </div>
   );
 };

@@ -94,7 +94,7 @@ export default function MessageLayout() {
       <div
         className={cn(
           "bg-background flex flex-col h-screen w-96 max-w-[100vw] max-md:flex-grow",
-          channelID ? "max-md:hidden" : ""
+          (channelID || location.pathname == "/message/new") ? "max-md:hidden" : ""
         )}
       >
         <div className="w-full px-4 flex items-center">
@@ -111,7 +111,7 @@ export default function MessageLayout() {
           </Link>
         </div>
         <Separator />
-        <ScrollArea className="flex-grow flex flex-col items-stretch p-4">
+        <ScrollArea className="flex-grow flex flex-col items-stretch p-4 max-md:pb-16">
           {channels.map((channel) => (
             <MessageSelectionItem
               key={channel._id}

@@ -1,29 +1,27 @@
-import { useContext, useEffect, useState } from "react";
-import { Post } from "@/types/post-type";
-import { Comment } from "@/types/comment-type";
-import UserPost from "./user-post";
-import CommentItem from "./commentItem";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserContext } from "@/context/user-context";
-import { useNavigate } from "react-router-dom";
 import { getPostsById } from "@/repository/PostsRepository";
 import {
-  createComment,
-  listCommentsByPostId,
+  listCommentsByPostId
 } from "@/repository/comment-repository";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { Comment } from "@/types/comment-type";
+import { Post } from "@/types/post-type";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import CommentItem from "./commentItem";
 import { Separator } from "./ui/separator";
+import UserPost from "./user-post";
 
 const DetailPost = ({
   post,
   onUpdateShare,
   onEditPost,
+  onDeletePost = () => {},
 }: {
   post: Post;
   onUpdateShare?: () => void;
   onEditPost?: () => void;
+  onDeletePost?: () => void;
 }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -61,9 +59,11 @@ const DetailPost = ({
   const handleReplyComment = () => {
     fetchComments();
   };
+
   const handleDeleteComment = () => {
     fetchComments();
   };
+
   const handleUpdateComment = () => {
     fetchComments();
   };
@@ -103,7 +103,7 @@ const DetailPost = ({
           onEditPost={onEditPost}
           onUpdateShare={onUpdateShare}
           onUpdateLike={handleNewPost}
-          // onDelete={}
+          onDelete={onDeletePost}
         />
         <Separator />
         {commentTree.map((comment) => (

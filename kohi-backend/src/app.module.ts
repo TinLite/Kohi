@@ -15,6 +15,7 @@ import { FollowsModule } from './follows/follows.module';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
+import { CallsModule } from './calls/calls.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { UtilsModule } from './utils/utils.module';
     FollowsModule,
     BookmarksModule,
     CloudinaryModule,
+    CallsModule,
   ],
   controllers: [AppController],
   providers: [

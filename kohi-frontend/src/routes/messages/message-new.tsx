@@ -1,14 +1,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { createChannel } from "@/repository/chat-repository";
 import { getFollowerList } from "@/repository/user-repository";
 import { User } from "@/types/user-type";
-import { Minus, Plus } from "lucide-react";
+import { ChevronLeft, Minus, Plus } from "lucide-react";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 function AddedRecipent({ name, avatarImage, onRemove }: { name: string, avatarImage?: string, onRemove?: () => void }) {
@@ -146,7 +147,16 @@ export default function MessageViewNewChat() {
 
     return (
         <div className="h-screen bg-background flex-grow flex flex-col">
-            <h1 className="font-semibold text-xl py-2 px-4">Tạo cuộc trò chuyện mới</h1>
+            <div className="md:px-4 py-0.5 bg-background flex items-center">
+                <Link to="/message" className={cn([buttonVariants({
+                    variant: "ghost",
+                    size: "icon"
+                }), "md:hidden"])}>
+                    <ChevronLeft />
+                </Link>
+                <h1 className="font-semibold py-2 md:px-4">
+                    Tạo cuộc trò chuyện mới</h1>
+            </div>
             <Separator />
             <ScrollArea className="flex-grow">
                 <div className="px-4 py-8">

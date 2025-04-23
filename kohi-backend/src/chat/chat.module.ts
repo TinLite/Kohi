@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from 'src/auth/auth.module';
+import { CallsModule } from 'src/calls/calls.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { EventsModule } from 'src/events/events.module';
 import { ChatController } from './chat.controller';
@@ -15,6 +16,7 @@ import { ChatMessageSchema } from './schemas/chat-message.schema';
     AuthModule,
     EventsModule,
     CloudinaryModule,
+    CallsModule,
   ],
   providers: [ChatService],
   controllers: [ChatController],

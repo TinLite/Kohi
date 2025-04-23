@@ -47,7 +47,7 @@ import socket from "@/services/socket";
 import { ChatChannelType, ChatMessage } from "@/types/chat-types";
 import { SocketEvent } from "@/types/socket-types";
 import { User } from "@/types/user-type";
-import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, PanelRightOpen, PenLine, ReplyIcon, Trash2, UserPlus } from "lucide-react";
+import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, PenLine, Phone, ReplyIcon, Trash2, UserPlus } from "lucide-react";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -470,12 +470,15 @@ function MessageView({ className }: { className?: string }) {
           <AvatarImage src={avatar} className="rounded-full" alt="User" />
           <AvatarFallback>{channelName?.charAt(0) ?? '-'}</AvatarFallback>
         </Avatar>
-        <div>
+        <div className="flex-grow">
           <h1 className="font-bold">{channelName ?? ""} <span className="font-normal text-muted-foreground">@{targetUser?.username}</span></h1>
           <h4 className="text-xs">Online</h4>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setChannelSettingStatus(true)} className="ml-auto">
-          <PanelRightOpen strokeWidth={1.5} />
+        <Button variant="ghost" size="icon">
+          <Phone strokeWidth={1.5} />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => setChannelSettingStatus(true)} className="">
+          <Ellipsis strokeWidth={1.5} />
         </Button>
       </div>
       <Separator />

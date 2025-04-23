@@ -121,8 +121,8 @@ export default function PostList() {
       <div className="flex">
         <div className="h-screen flex-grow">
           <div className="w-full flex justify-center gap-4">
-            <ScrollArea className="w-full h-screen max-w-2xl">
-              <div className="space-y-6 py-6 md:mb-0 mb-12 xl:pr-4">
+            <ScrollArea className="w-full h-dvh">
+              <div className="space-y-6 py-6 mx-auto md:mb-0 mb-12 xl:pr-4 max-w-2xl">
                 {user && <PostCreate onSubmit={refreshPost} />}
                 {posts.map((post) => (
                   <UserPost

@@ -35,6 +35,11 @@ export class ChatMessage {
 
     @Prop()
     isRecalled: boolean;
+
+    @Prop({
+
+    })
+    type?: string;
 }
 
 export const ChatMessageSchema = SchemaFactory.createForClass(ChatMessage);
