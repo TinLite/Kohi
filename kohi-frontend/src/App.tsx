@@ -131,7 +131,8 @@ const router = createBrowserRouter([
 
 function App() {
   const isWideScreen = useMediaQuery("(min-width: 768px");
-
+  // useEffect(() => {
+  // }, []);
   return (
     <Provider store={store}>
       <UserProvider>

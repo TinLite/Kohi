@@ -5,17 +5,19 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { RolesGuard } from './auth/passport/role.guard';
 import { SessionGuard } from './auth/passport/session.guard';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { CallsModule } from './calls/calls.module';
 import { ChatModule } from './chat/chat.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CommentsModule } from './comments/comments.module';
 import { EventsModule } from './events/events.module';
 import { FollowsModule } from './follows/follows.module';
 import { PostsModule } from './posts/posts.module';
+import { ReportsModule } from './reports/reports.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
-import { CallsModule } from './calls/calls.module';
 
 @Module({
   imports: [
@@ -59,6 +61,7 @@ import { CallsModule } from './calls/calls.module';
     FollowsModule,
     BookmarksModule,
     CloudinaryModule,
+    ReportsModule,
     CallsModule,
   ],
   controllers: [AppController],
@@ -67,6 +70,10 @@ import { CallsModule } from './calls/calls.module';
     {
       provide: 'APP_GUARD',
       useClass: SessionGuard,
+    },
+    {
+      provide: 'APP_GUARD',
+      useClass: RolesGuard,
     },
   ],
 })

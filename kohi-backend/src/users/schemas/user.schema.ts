@@ -55,6 +55,10 @@ export class User {
     default: false,
   })
   verifyEmail: boolean;
+  @Prop()
+  googleId: string;
+  @Prop()
+  discordId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

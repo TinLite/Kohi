@@ -37,7 +37,7 @@ function MessageSelectionItem({
     if (targetUser) {
       avatar = targetUser.avatar ?? avatar;
       channelName =
-        targetUser.displayName ?? `@${targetUser.username}` ?? channelName;
+      chatChannel.name ?? targetUser.displayName ?? `@${targetUser.username}`;
     }
   }
   return (

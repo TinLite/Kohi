@@ -1,4 +1,5 @@
 import {
+  BadGatewayException,
   BadRequestException,
   Body,
   Controller,
@@ -8,6 +9,7 @@ import {
   Patch,
   Post,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -20,6 +22,9 @@ import { UsersService } from '../users/users.service';
 import crypto, { verify } from 'crypto';
 import { RedisService } from 'src/redis/redis.service';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { config } from 'process';
+import { ConfigService } from '@nestjs/config';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -27,6 +32,7 @@ export class AuthController {
     private readonly mailerService: MailerService,
     private readonly usersService: UsersService,
     private readonly redisService: RedisService,
+    private readonly configService: ConfigService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -78,9 +84,7 @@ export class AuthController {
     const key = `verifyCode: ${email}`;
     this.redisService.getClient().then((client) => {
       client
-        .set(key, verifyCode, {
-          EX: 60 * 5,
-        })
+        .set(key, verifyCode, { EX: 60 * 5 })
         .then(() => client.disconnect());
     });
     const sendTo = await this.mailerService.sendMail({
@@ -113,5 +117,41 @@ export class AuthController {
     }
     //@ts-expect-error
     return this.usersService.updatePassword(user._id, password);
+  }
+  @Public()
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleLogin() {
+    return 'Google login';
+  }
+  @Public()
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleLoginCallback(@Request() req, @Res() res) {
+    if (!req.user) {
+      throw new BadGatewayException('Google login failed');
+    }
+    req.session.user = req.user;
+    // return res.json({
+    //   message: 'Login success',
+    // });
+    //Khong biết setup bên FE như nào
+    return res.redirect(this.configService.get<string>('FRONTEND_URL'));
+  }
+  @Public()
+  @Get('discord')
+  @UseGuards(AuthGuard('discord'))
+  async discordLogin() {
+    return 'Discord login';
+  }
+  @Public()
+  @Get('discord/callback')
+  @UseGuards(AuthGuard('discord'))
+  async discordLoginCallback(@Request() req, @Res() res) {
+    if (!req.user) {
+      throw new BadGatewayException('Discord login failed');
+    }
+    req.session.user = req.user;
+    return res.redirect(this.configService.get<string>('FRONTEND_URL'));
   }
 }

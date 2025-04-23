@@ -63,7 +63,7 @@ const ProfileFriend = () => {
     fetchPosts();
   }, [user]);
   const fetchPostsShare = async () => {
-    if(!id) return;
+    if (!id) return;
     getListPostShare(id).then(
       (data) => {
         console.log("sharepost" + data);
@@ -83,7 +83,7 @@ const ProfileFriend = () => {
         <div className="flex-grow max-w-2xl ">
           <div className="aspect-[5/1] w-full">
             <img
-              src={target?.wall}
+              src={target?.wall || "../../public/wall/star.jpg"}
               alt="Wall Image"
               className=" w-full h-full object-cover mt-6 rounded-xl"
             />

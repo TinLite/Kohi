@@ -9,6 +9,8 @@ import { UtilsService } from '../utils/utils.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
+import { CreateUserWithGGDto } from './dto/create-userwithgg';
+import { CreateUserWithDiscordDto } from './dto/create-userwithdiscord';
 @Injectable()
 export class UsersService {
   constructor(
@@ -16,7 +18,7 @@ export class UsersService {
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailerService: MailerService,
     private readonly redisService: RedisService,
-  ) { }
+  ) {}
   //CREATE USER
   async create(createUserDto: CreateUserDto) {
     const { password, email } = createUserDto;
@@ -28,9 +30,7 @@ export class UsersService {
     const verifyCode = crypto.randomBytes(3).toString('hex');
     this.redisService.getClient().then((client) => {
       client
-        .set(email, verifyCode, {
-          EX: 60 * 5,
-        })
+        .set(email, verifyCode, { EX: 60 * 5 })
         .then(() => client.disconnect());
     });
     this.mailerService.sendMail({
@@ -49,9 +49,7 @@ export class UsersService {
     });
     // console.log(newUser)
 
-    return {
-      _id: newUser._id,
-    };
+    return { _id: newUser._id };
   }
 
   async updatePassword(id: string, password: string) {
@@ -107,7 +105,7 @@ export class UsersService {
   }
 
   //findByIdAndUpdate
-  async findByIdAndUpdate(id: string, updateUserDto: UpdateUserDto) { }
+  async findByIdAndUpdate(id: string, updateUserDto: UpdateUserDto) {}
   //DELETE ONE USER
   async deleteOne(id: string) {
     this.userModel.findByIdAndDelete(id).exec();
@@ -163,9 +161,7 @@ export class UsersService {
 
   async findByName(query: string) {
     return this.userModel
-      .find({
-        username: { $regex: query.toLowerCase(), $options: 'i' },
-      })
+      .find({ username: { $regex: query.toLowerCase(), $options: 'i' } })
       .select('_id username')
       .exec();
   }
@@ -188,9 +184,8 @@ export class UsersService {
    * @returns Danh sách ID người dùng đang follow người dùng này
    */
   async getFollowers(userId: string, skip = 0, limit = -1) {
-    let data = this.userModel.find({
-      following: userId,
-    })
+    let data = this.userModel
+      .find({ following: userId })
       .skip(skip)
       .select('username displayName displayName avatar');
 
@@ -206,8 +201,9 @@ export class UsersService {
    * @returns Danh sách ID người dùng mà người dùng này đang follow
    */
   async getFollowingIds(userId: string, skip = 0, limit = -1) {
-    let data = this.userModel.findById(userId)
-      .populate("following", "username displayName")
+    let data = this.userModel
+      .findById(userId)
+      .populate('following', 'username displayName')
       .select('following')
       .skip(skip);
 
@@ -223,7 +219,7 @@ export class UsersService {
    * @returns Danh sách ID người dùng mà người dùng này đang follow
    */
   async getFollowerCount(userId) {
-    return this.userModel.countDocuments({ following: userId }).exec();;
+    return this.userModel.countDocuments({ following: userId }).exec();
   }
 
   /**
@@ -232,7 +228,10 @@ export class UsersService {
    * @returns Danh sách ID người dùng mà người dùng này đang follow
    */
   async getFollowingCount(userId) {
-    const data = await this.userModel.findById(userId).select('following').exec();
+    const data = await this.userModel
+      .findById(userId)
+      .select('following')
+      .exec();
     return data.following.length;
   }
 
@@ -263,5 +262,21 @@ export class UsersService {
     return this.userModel
       .findOneAndUpdate({ email: email }, { verifyEmail: true })
       .exec();
+  }
+  async findGoogleId(googleId: string) {
+    return this.userModel.findOne({ googleId: googleId }).exec();
+  }
+  async findDiscordId(discordId: string) {
+    return this.userModel.findOne({ discordId }).exec();
+  }
+  async createUserWithGoogle(user: CreateUserWithGGDto) {
+    const newUser = await this.userModel.create(user);
+    // console.log(newUser);
+    return newUser;
+  }
+  async createUserWithDiscord(user: CreateUserWithDiscordDto) {
+    const newUser = await this.userModel.create(user);
+    // console.log(newUser);
+    return newUser;
   }
 }

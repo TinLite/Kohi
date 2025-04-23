@@ -1,29 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { Comment } from 'src/comments/schemas/comment.schema';
 import { Post } from 'src/posts/schemas/post.schema';
 import { User } from 'src/users/schemas/user.schema';
-
-export enum CommentFlags {
+export enum ReportFlags {
   HIDDEN = 'hidden',
 }
 @Schema()
-export class Comment {
+export class Report {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  author: User;
-  @Prop()
-  content: string;
+  userId: User;
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Post' })
   postId: Post;
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' })
-  replyTo?: Comment;
+  commentId: Comment;
+  @Prop()
+  reason: string;
   @Prop({ default: Date.now })
   timeStamp: Date;
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User' })
-  likes: User[];
   @Prop()
-  hasReply?: boolean;
-  @Prop()
-  flags: CommentFlags[];
+  flags: ReportFlags[];
 }
-
-export const CommentSchema = SchemaFactory.createForClass(Comment);
+export const ReportSchema = SchemaFactory.createForClass(Report);

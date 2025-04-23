@@ -2,6 +2,7 @@ import { UserContext } from "@/context/user-context";
 import {
   getUserId,
   login,
+  loginGoogle,
   register,
 } from "@/repository/authentication-repository";
 import { getProfile } from "@/repository/user-repository";
@@ -28,7 +29,11 @@ import {
   SheetTitle,
 } from "./ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Google, { GoogleMap } from "./icons/Google";
+import Discord from "./icons/Discord";
+import { Separator } from "./ui/separator";
+import PiCoin from "./icons/PiCoin";
 
 const LoginSheet = ({
   open,
@@ -38,7 +43,7 @@ const LoginSheet = ({
   onOpenChange?: () => void;
 }) => {
   const { setUser } = useContext(UserContext);
-
+  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -112,6 +117,9 @@ const LoginSheet = ({
       setSubmitting(false);
     }
   };
+  const loginGoogleHandler = async () => {
+    await loginGoogle();
+  };
   return (
     <>
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
@@ -141,7 +149,7 @@ const LoginSheet = ({
             <TabsContent value="login">
               <SheetHeader className="mt-4">
                 <SheetTitle>Login</SheetTitle>
-                <SheetDescription>Login to your account</SheetDescription>
+                {/* <SheetDescription></SheetDescription> */}
               </SheetHeader>
               <div className="w-full grid gap-4 py-4">
                 <div>
@@ -165,6 +173,13 @@ const LoginSheet = ({
                   </Label>
                 </div>
               </div>
+              <div className="text-muted-foreground">
+                <p>
+                  <Link to="/forgot-password" className="hover:underline">
+                    Forgot password?
+                  </Link>
+                </p>
+              </div>
               <SheetFooter>
                 <Button
                   type="submit"
@@ -174,16 +189,24 @@ const LoginSheet = ({
                   Login
                 </Button>
               </SheetFooter>
-              <div className="mt-4 text-center">
-                <p>
-                  Forgot password?{" "}
-                  <Link
-                    to="/forgot-password"
-                    className="text-blue-500 hover:underline"
-                  >
-                    Forgot
-                  </Link>
-                </p>
+              <Separator className="my-4" />
+              <div className="flex flex-col gap-2">
+                <Button onClick={loginGoogleHandler} variant="outline">
+                  <Google />
+                  <span className="ml-2">Login with Google</span>
+                </Button>
+                <Button variant="outline">
+                  <Discord className="w-5 h-5" fill="currentColor" />
+                  <span className="ml-2">Login with Discord</span>
+                </Button>
+                <Button variant="outline">
+                  <GoogleMap className="w-5 h-5" fill="currentColor" />
+                  <span className="ml-2">Login with Google Maps</span>
+                </Button>
+                <Button variant="outline">
+                  <PiCoin className="w-5 h-5" fill="currentColor" />
+                  <span className="ml-2">Login with Pi Network</span>
+                </Button>
               </div>
             </TabsContent>
             <TabsContent value="signup">

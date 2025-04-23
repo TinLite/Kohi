@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserContext } from "@/context/user-context";
 import {
   getListPostShare,
-  getPostsByUserId
+  getPostsByUserId,
 } from "@/repository/PostsRepository";
 import {
   getAllFollowCountMetrics,
@@ -17,7 +17,13 @@ import {
 import { Post } from "@/types/post-type";
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { useContext, useEffect, useRef, useState } from "react";
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter } from "./ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "./ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Label } from "./ui/label";
@@ -58,8 +64,8 @@ const UserProfile = () => {
   }, [user]);
 
   const fetchFollowMetrics = async () => {
-    getAllFollowCountMetrics().then(setFollowMetrics)
-  }
+    getAllFollowCountMetrics().then(setFollowMetrics);
+  };
 
   const fetchPostsShare = async () => {
     getListPostShare().then(
@@ -162,14 +168,17 @@ const UserProfile = () => {
         <div className="flex-grow max-w-2xl ">
           <div className="aspect-[3/1] md:aspect-[5/1] w-full">
             <img
-              src={user?.wall}
+              src={user?.wall || "../../public/wall/star.jpg"}
               alt="Wall Image"
               className=" w-full h-full object-cover md:mt-6 md:rounded-xl"
             />
             <div className="flex items-end gap-4 mt-6">
               <div className="flex shrink-0">
                 <Avatar className="w-full h-28">
-                  <AvatarImage src={user?.avatar} alt="@shadcn" />
+                  <AvatarImage
+                    src={user?.avatar || "https://github.com/QuangTeoo.png"}
+                    alt="@shadcn"
+                  />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
               </div>
@@ -198,14 +207,26 @@ const UserProfile = () => {
                     {user?.bio && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <p className="text-muted-foreground break-all line-clamp-2 cursor-pointer">{user.bio.split("\n").map((v, i, arr) => {
-                            return <span key={i}>{v}{i < arr.length - 1 && <br />}</span>
-                          })}</p>
+                          <p className="text-muted-foreground break-all line-clamp-2 cursor-pointer">
+                            {user.bio.split("\n").map((v, i, arr) => {
+                              return (
+                                <span key={i}>
+                                  {v}
+                                  {i < arr.length - 1 && <br />}
+                                </span>
+                              );
+                            })}
+                          </p>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogDescription>
                             {user.bio.split("\n").map((v, i, arr) => {
-                              return <span key={i}>{v}{i < arr.length - 1 && <br />}</span>
+                              return (
+                                <span key={i}>
+                                  {v}
+                                  {i < arr.length - 1 && <br />}
+                                </span>
+                              );
                             })}
                           </AlertDialogDescription>
                           <AlertDialogFooter>
@@ -278,7 +299,10 @@ const UserProfile = () => {
                               placeholder="Write something about yourself"
                               value={formData.bio}
                               onChange={(e) =>
-                                setFormData({ ...formData, bio: e.target.value })
+                                setFormData({
+                                  ...formData,
+                                  bio: e.target.value,
+                                })
                               }
                             ></Textarea>
                           </div>
