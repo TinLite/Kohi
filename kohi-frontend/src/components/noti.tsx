@@ -98,12 +98,6 @@ const UserNoti = ({
         );
       }
     );
-    console.log("socket on notification");
-    return () => {
-      socket.off(SocketEvent.NOTIFICATION_COMMENT_NEWCOMMENT);
-    };
-  }, []);
-  useEffect(() => {
     socket.on(
       SocketEvent.NOTIFICATION_COMMENT_LIKECOMMENT,
       (notification: Notification) => {
@@ -116,12 +110,6 @@ const UserNoti = ({
         );
       }
     );
-    console.log("socket on notification");
-    return () => {
-      socket.off(SocketEvent.NOTIFICATION_COMMENT_LIKECOMMENT);
-    };
-  }, []);
-  useEffect(() => {
     socket.on(
       SocketEvent.NOTIFICATION_COMMENT_REPLYCOMMENT,
       (notification: Notification) => {
@@ -134,12 +122,6 @@ const UserNoti = ({
         );
       }
     );
-    console.log("socket on notification");
-    return () => {
-      socket.off(SocketEvent.NOTIFICATION_COMMENT_REPLYCOMMENT);
-    };
-  }, []);
-  useEffect(() => {
     socket.on(
       SocketEvent.NOTIFICATION_POST_NEWPOST,
       (notification: Notification) => {
@@ -152,12 +134,6 @@ const UserNoti = ({
         );
       }
     );
-    console.log("socket on notification");
-    return () => {
-      socket.off(SocketEvent.NOTIFICATION_POST_NEWPOST);
-    };
-  }, []);
-  useEffect(() => {
     socket.on(
       SocketEvent.NOTIFICATION_POST_LIKEPOST,
       (notification: Notification) => {
@@ -170,12 +146,6 @@ const UserNoti = ({
         );
       }
     );
-    console.log("socket on notification");
-    return () => {
-      socket.off(SocketEvent.NOTIFICATION_POST_LIKEPOST);
-    };
-  }, []);
-  useEffect(() => {
     socket.on(
       SocketEvent.NOTIFICATION_FOLLOW_NEWFOLLOW,
       (notification: Notification) => {
@@ -190,6 +160,11 @@ const UserNoti = ({
     );
     console.log("socket on notification");
     return () => {
+      socket.off(SocketEvent.NOTIFICATION_COMMENT_NEWCOMMENT);
+      socket.off(SocketEvent.NOTIFICATION_COMMENT_LIKECOMMENT);
+      socket.off(SocketEvent.NOTIFICATION_COMMENT_REPLYCOMMENT);
+      socket.off(SocketEvent.NOTIFICATION_POST_NEWPOST);
+      socket.off(SocketEvent.NOTIFICATION_POST_LIKEPOST);
       socket.off(SocketEvent.NOTIFICATION_FOLLOW_NEWFOLLOW);
     };
   }, []);
