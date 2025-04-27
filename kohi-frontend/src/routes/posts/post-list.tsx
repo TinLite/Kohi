@@ -2,7 +2,6 @@ import { ButtonScrollToTop } from "@/components/button-scroll-to-top";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import UserPost from "@/components/user-post";
 import { UserContext } from "@/context/user-context";
@@ -119,25 +118,24 @@ export default function PostList() {
         </Link>
       </div>
       <div className="flex">
-        <div className="h-screen flex-grow">
+        <div className="min-h-dvh flex-grow">
           <div className="w-full flex justify-center gap-4">
-            <ScrollArea className="w-full h-dvh">
-              <div className="space-y-6 py-6 mx-auto md:mb-0 mb-12 xl:pr-4 max-w-2xl">
+              <div className="space-y-6 py-6 mx-auto md:mb-0 mb-12 xl:pr-4 max-w-2xl w-dvw">
                 {user && <PostCreate onSubmit={refreshPost} />}
                 {posts.map((post) => (
                   <UserPost
                     post={post}
                     key={post._id}
-                    showEditPost={user?._id == post.author._id}
+                    showEditPost={user?._id === post.author._id}
                     onDelete={refreshPost}
                     onRepost={refreshPost}
                     onUpdateShare={refreshPost}
                     onShareQuote={refreshPost}
                     onUpdateLike={refreshPost}
+                    lineClampNumber={3}
                   />
                 ))}
               </div>
-            </ScrollArea>
             {/* <div className="hidden xl:block">
               <FriendSide />
             </div> */}

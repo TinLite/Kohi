@@ -1,3 +1,4 @@
+import { UserContext } from "@/context/user-context";
 import {
   createComment,
   listCommentsByPostId,
@@ -7,13 +8,12 @@ import { Post } from "@/types/post-type";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { MessageCircle } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
-import { UserContext } from "@/context/user-context";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 const CommentUI = ({
   postId,
@@ -93,7 +93,14 @@ const CommentUI = ({
             </div>
           </div>
           <div className="px-6 mb-4">
-            <p>
+            <p className="hyphens-auto" style={{
+              "lineClamp": 3,
+              "display": "-webkit-box",
+              "overflow": "hidden",
+              "WebkitLineClamp": 3,
+              "WebkitBoxOrient": "vertical",
+              "overflowWrap": "anywhere"
+            }}>
               {post.content
                 ?.split("\n")
                 .filter((v) => v)

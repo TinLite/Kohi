@@ -4,8 +4,7 @@ import { getChannelList } from "@/repository/chat-repository";
 import {
   createSharePost,
   likePost,
-  reportPost,
-  unLikePost,
+  unLikePost
 } from "@/repository/PostsRepository";
 import {
   addBookMark,
@@ -18,18 +17,18 @@ import { Post } from "@/types/post-type";
 import { User } from "@/types/user-type";
 import {
   Bookmark,
-  Ellipsis,
   MessagesSquare,
   Repeat,
   Send,
-  ShieldAlert,
   ThumbsUp,
-  UserRoundPlus,
+  UserRoundPlus
 } from "lucide-react";
 import { DateTime } from "luxon";
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import CommentUI from "./comment";
+import { ReportPostDialog } from "./reportDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -65,8 +64,6 @@ import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
 import { UserPostOption } from "./user-post-option";
 import UserPostShareQuote from "./user-post-share-Quote";
-import { toast } from "sonner";
-import { ReportPostDialog } from "./reportDialog";
 
 function UserHoverCard({
   children,
@@ -233,6 +230,7 @@ export default function UserPost({
   hideComment,
   showEditPost,
   className,
+  lineClampNumber,
 }: {
   post: Post;
   hideComment?: boolean;
@@ -245,6 +243,7 @@ export default function UserPost({
   onUpdateLike?: () => void;
   showEditPost?: boolean;
   onBookmarkUpdate?: (newStatus: boolean) => void;
+  lineClampNumber?: number;
   className?: string;
 }) {
   const { user, setUser, setLoginFormOpen } = useContext(UserContext);
@@ -435,7 +434,14 @@ export default function UserPost({
         {!showEditPost && <ReportPostDialog postId={post._id} />}
       </div>
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
-        <p className="hyphens-auto break-all">
+        <p className="hyphens-auto" style={{
+          "lineClamp": lineClampNumber,
+          "display": "-webkit-box",
+          "overflow": "hidden",
+          "WebkitLineClamp": lineClampNumber,
+          "WebkitBoxOrient": "vertical",
+          "overflowWrap": "anywhere"
+        }}>
           {post.content?.split("\n").map((v, i, arr) => {
             return (
               <span key={i}>

@@ -22,9 +22,9 @@ export default function MainLayout({disableNavOnPhone = false}: {disableNavOnPho
 
   return (
     <div className="bg-muted dark:bg-muted/10">
-      <div className="flex items-start min-h-screen mx-auto">
+      <div className="flex items-start min-h-dvh mx-auto">
         <SideNav disableNavOnPhone={disableNavOnPhone} />
-        <div className="flex-grow relative h-screen">
+        <div className="flex-grow relative min-h-dvh">
           <LoginSheet open={loginFormOpen} onOpenChange={() => setLoginFormOpen(false)} />
 
           <Outlet />

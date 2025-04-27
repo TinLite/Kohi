@@ -11,15 +11,12 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { toast } from "sonner";
 import { DropdownSetting } from "./dropdown-setting";
 import UserNoti from "./noti";
 import { SheetSetting } from "./sheet-settings";
-import { toast } from "sonner";
-import socket from "@/services/socket";
-import { Notification } from "@/types/notification-types";
-import { SocketEvent } from "@/types/socket-types";
 
 export default function SideNav({
   disableNavOnPhone = false,
@@ -37,7 +34,7 @@ export default function SideNav({
   return (
     <aside
       className={cn(
-        "fixed z-10 md:sticky max-md:w-full bg-background border-r shadow bottom-0 max-md:py-4",
+        "fixed z-10 md:sticky md:top-0 max-md:w-dvw bg-background border-r shadow bottom-0 max-md:py-4",
         isOnPhone && disableNavOnPhone ? "hidden" : ""
       )}
     >
