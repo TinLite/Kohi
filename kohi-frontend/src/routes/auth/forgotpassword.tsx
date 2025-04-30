@@ -14,6 +14,7 @@ import {
   verifyEmail,
 } from "@/repository/authentication-repository";
 import { log } from "console";
+import { Loader2 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -34,7 +35,12 @@ export default function ForgotPassword() {
   const [isOtpValid, setIsOtpValid] = useState<boolean>(false);
   const [newPassword, setNewPassword] = useState<string>("");
   const [retypePassword, setRetypePassword] = useState<string>("");
+  const [countdown, setCountdown] = useState<number>(60);
+  const [isVerifying, setIsisVerifying] = useState<boolean>(false);
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState<boolean>(false);
   const handleEmailSubmit = async () => {
+    if (isVerifyingEmail) return;
+    setIsVerifyingEmail(true);
     verifyEmail(email)
       .then(() => {
         toast.success("OTP has been sent to your email", { duration: 2000 });
@@ -43,16 +49,25 @@ export default function ForgotPassword() {
       .catch((e) => {
         const mess = "Email does not exist";
         toast.error(mess || e.message, { duration: 2000 });
-      });
+      }).finally(() => {
+        setIsVerifyingEmail(false);
+      }
+      );
   };
   const handleOtpSubmit = async () => {
+    if (isVerifying) return;
+    setIsisVerifying(true);
     verifyCode(email, otp)
       .then(() => {
         toast.success("OTP verified successfully", { duration: 2000 });
         setIsOtpValid(true);
       })
-      .catch(() => {
-        toast.error("Invalid OTP", { duration: 2000 });
+      .catch((e) => {
+        const mess = "Invalid OTP";
+        toast.error(mess || e.message, { duration: 2000 });
+      })
+      .finally(() => {
+        setIsisVerifying(false);
       });
   };
   const handlePasswordSubmit = async () => {
@@ -77,7 +92,21 @@ export default function ForgotPassword() {
       });
     }
   }, [user, setUser]);
-
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isOtpSent && !isOtpValid && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      clearInterval(timer);
+    };
+  }, [isOtpSent, isOtpValid, countdown]);
+  const handleResendOtp = () => {
+    setCountdown(60);
+    handleEmailSubmit();
+  };
   return (
     <div className="flex h-screen w-screen">
       <div className="h-screen flePx-grow md:grid hidden relative">
@@ -123,8 +152,12 @@ export default function ForgotPassword() {
                 type="button"
                 className="w-full mt-4"
                 onClick={handleEmailSubmit}
+                disabled={isVerifyingEmail} // Vô hiệu hóa khi đang xử lý
               >
-                VERIFY
+                {isVerifyingEmail && 
+                  <Loader2 className="mr-2 animate-spin" />
+                }
+              {isVerifyingEmail ? "Sending..." : "SEND OTP"}{" "}
               </Button>
             </>
           ) : !isOtpValid ? (
@@ -146,9 +179,26 @@ export default function ForgotPassword() {
                 type="button"
                 className="w-full mt-4"
                 onClick={handleOtpSubmit}
+                disabled={isVerifying} // Vô hiệu hóa khi đang xử lý
               >
-                VERIFY OTP
+                {isVerifying && 
+                  <Loader2 className="mr-2 animate-spin" />
+                }
+                {isVerifying ? "Verifying..." : "VERIFY OTP"}{" "}
               </Button>
+              <div className="text-center text-sm mt-2">
+                {countdown > 0 ? (
+                  <span>Resend OTP in {countdown} seconds</span>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={handleResendOtp}
+                  >
+                    Resend OTP
+                  </Button>
+                )}
+              </div>
             </>
           ) : (
             <>

@@ -15,6 +15,7 @@ import {
   EllipsisVertical,
   Trash,
   Edit,
+  ShieldAlert,
 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { Comment } from "../types/comment-type";
@@ -29,23 +30,33 @@ import {
 import CommentUI from "./comment";
 import { Post } from "@/types/post-type";
 import ReplyComment from "./replycomment";
-import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogTitle,
+} from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
 import { DateTime } from "luxon";
-
 const CommentItem = ({
   comment,
   allComments,
   onReply,
   onDeleteComment,
   onUpdateComment,
+  showReplies, // Nhận trạng thái mở rộng từ cha
+  onToggleReplies, // Nhận callback để thay đổi trạng thái
 }: {
   comment: Comment;
   allComments: Comment[];
   onReply?: () => void;
   onDeleteComment?: () => void;
   onUpdateComment?: () => void;
+  showReplies: boolean;
+  onToggleReplies: () => void;
 }) => {
   const { user, setLoginFormOpen } = useContext(UserContext);
   const [isLiked, setIsLiked] = useState(
@@ -53,9 +64,14 @@ const CommentItem = ({
   );
   const [total, setTotal] = useState(comment.likes?.length ?? 0);
   const [replies, setReplies] = useState<Comment[]>([]);
-  const [showReplies, setShowReplies] = useState(false);
   const [content, setContent] = useState(comment.content);
   const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    const commentReplies = allComments.filter((c) => c.replyTo === comment._id);
+    setReplies(commentReplies);
+  }, [allComments, comment._id]);
+
   const toggleLikeComment = async () => {
     if (isLiked) {
       if (!user) {
@@ -75,14 +91,6 @@ const CommentItem = ({
       setTotal(total + 1);
     }
     setIsLiked(!isLiked);
-  };
-  useEffect(() => {
-    const commentReplies = allComments.filter((c) => c.replyTo === comment._id);
-    setReplies(commentReplies);
-  }, [allComments, comment._id]);
-
-  const toggleReplies = () => {
-    setShowReplies(!showReplies);
   };
   const removeComment = async () => {
     await deleteComment(comment._id)
@@ -181,9 +189,8 @@ const CommentItem = ({
               />
               {total}
             </Button>
-            <ReplyComment comment={comment} onReply={onReply} />
             {replies.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={toggleReplies}>
+              <Button variant="ghost" size="sm" onClick={onToggleReplies}>
                 {showReplies
                   ? "Hide Replies"
                   : `View Replies (${replies.length})`}
@@ -202,6 +209,8 @@ const CommentItem = ({
               onReply={onReply}
               onDeleteComment={onDeleteComment}
               onUpdateComment={onUpdateComment}
+              showReplies={showReplies} // Truyền trạng thái xuống
+              onToggleReplies={onToggleReplies} // Truyền callback xuống
             />
           ))}
         </div>
@@ -222,4 +231,5 @@ const CommentItem = ({
     </div>
   );
 };
+
 export default CommentItem;

@@ -199,14 +199,14 @@ const LoginSheet = ({
                   <Discord className="w-5 h-5" fill="currentColor" />
                   <span className="ml-2">Login with Discord</span>
                 </Button>
-                <Button variant="outline">
+                {/* <Button variant="outline">
                   <GoogleMap className="w-5 h-5" fill="currentColor" />
                   <span className="ml-2">Login with Google Maps</span>
                 </Button>
                 <Button variant="outline">
                   <PiCoin className="w-5 h-5" fill="currentColor" />
                   <span className="ml-2">Login with Pi Network</span>
-                </Button>
+                </Button> */}
               </div>
             </TabsContent>
             <TabsContent value="signup">

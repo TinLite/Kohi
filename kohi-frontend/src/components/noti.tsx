@@ -24,6 +24,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { useNavigate } from "react-router-dom";
 
 const UserNoti = ({
   open,
@@ -63,6 +64,7 @@ const UserNoti = ({
     },
     []
   );
+  const navigate = useNavigate();
   const fetchNotifications = async () => {
     if (!user) {
       console.error("User not logged in");
@@ -201,6 +203,7 @@ const UserNoti = ({
     action,
     id,
     flur,
+    onClickFocus,
   }: {
     user: string;
     type: boolean;
@@ -209,6 +212,7 @@ const UserNoti = ({
     action?: string;
     id: string;
     flur?: string;
+    onClickFocus?: () => void;
   }) => (
     <div
       className={`flex items-center px-4 py-3 mb-2 rounded-md ${
@@ -221,7 +225,7 @@ const UserNoti = ({
           <AvatarFallback>?</AvatarFallback>
         </Avatar>
         <div className="ml-2">
-          <p className="text-sm font-medium">
+          <p className="text-sm font-medium" onClick={onClickFocus}>
             {!type && (
               <Badge variant="outline" className="mr-2">
                 New
@@ -256,6 +260,7 @@ const UserNoti = ({
       </div>
     </div>
   );
+  console.log("Notification rerender");
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side={side} className="w-[350px] flex flex-col">
@@ -297,6 +302,35 @@ const UserNoti = ({
                     id={notification._id}
                     flur={!notification.isRead ? "Blur" : ""}
                     user={notification.otherUser?.avatar ?? ""}
+                    onClickFocus={() => {
+                      switch (notification.type) {
+                        case "NEW_COMMENT":
+                        case "LIKE_COMMENT":
+                        case "NEW_REPLY_COMMENT":
+                          if (notification.post && notification.comment) {
+                            navigate(
+                              `/post/detail/${notification.post}#comment`,
+                              {
+                                state: { commentId: notification.comment },
+                              }
+                            );
+                          } else {
+                            toast.error(
+                              "Không thể điều hướng đến bài viết hoặc bình luận."
+                            );
+                          }
+                          break;
+                        case "NEW_FOLLOWER":
+                          navigate(`/profile/${notification.otherUser?._id}`);
+                          break;
+                        case "LIKE_POST":
+                        case "NEW_POST":
+                          navigate(`/post/detail/${notification.post}`);
+                          break;
+                        default:
+                          console.log("Unknown notification type");
+                      }
+                    }}
                   />
                 ))
               ) : (
