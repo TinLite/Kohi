@@ -6,6 +6,7 @@ import {
   listCommentsByPostId,
   unLikeComment,
   updateComment,
+  reportComment
 } from "@/repository/comment-repository";
 import {
   MessageCircle,
@@ -66,12 +67,28 @@ const CommentItem = ({
   const [replies, setReplies] = useState<Comment[]>([]);
   const [content, setContent] = useState(comment.content);
   const [isEditing, setIsEditing] = useState(false);
-
+  const [isOpenReport, setIsOpenReport] = useState(false);
+  const [reason, setReason] = useState("");
+  const handleCloseReport = () => {
+    setIsOpenReport(false);
+    setReason("");
+  };
   useEffect(() => {
     const commentReplies = allComments.filter((c) => c.replyTo === comment._id);
     setReplies(commentReplies);
   }, [allComments, comment._id]);
 
+  const handleSubmitReport = async () => {
+    if (!reason.trim()) return;
+    try {
+      await reportComment(comment._id, reason);
+      toast.success("Report submitted successfully");
+      setReason("");
+      setIsOpenReport(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
   const toggleLikeComment = async () => {
     if (isLiked) {
       if (!user) {
@@ -174,9 +191,34 @@ const CommentItem = ({
                     Xóa
                   </DropdownMenuItem>
                 )}
+                {user?._id !== comment.author._id && (
+                  <DropdownMenuItem onClick={() => setIsOpenReport(true)}>
+                    <ShieldAlert className="mr-2 h-4 w-4" />
+                    Báo cáo
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          <Dialog open={isOpenReport} onOpenChange={handleCloseReport}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            placeholder="Enter the reason for your report..."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="mt-2"
+          />
+          <DialogFooter>
+            <Button variant="secondary" onClick={handleCloseReport}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitReport}>Submit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
           <div className="flex flex-wrap gap-2 items-center">
             <Button
               variant="ghost"

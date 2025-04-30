@@ -146,3 +146,23 @@ export async function deleteComment(commentId: string) {
     throw new Error("Failed to delete comment");
   }
 }
+export async function reportComment(commentId: string, reason: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/reports/comment/${commentId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        reason: reason,
+      }),
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to report comment");
+  }
+}
