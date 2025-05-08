@@ -17,23 +17,23 @@ export class RolesGuard extends AuthGuard() implements CanActivate {
     ]);
 
     if (!requiredRoles) {
-      return true; // Nếu không yêu cầu role, cho phép truy cập
+      return true; // No roles required
     }
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
-
+    const user = request.session?.user; // Ensure session and user exist
     if (!user || !user._id) {
-      throw new ForbiddenException('User not authenticated'); // Người dùng chưa xác thực
+      throw new ForbiddenException('User not authenticated');
     }
 
+    // console.log('Required Roles:', requiredRoles);
+    // console.log('User:', user);
+
     const userRoles = await this.usersService.getUserRoles(user._id);
+    // console.log('User Roles:', userRoles);
 
-    // Kiểm tra nếu bất kỳ role nào của người dùng trùng với yêu cầu
     const hasRole = requiredRoles.some((role) => userRoles.includes(role));
-
     if (!hasRole) {
-      // console.log('User Roles:', userRoles);
       throw new ForbiddenException('Access Denied');
     }
 

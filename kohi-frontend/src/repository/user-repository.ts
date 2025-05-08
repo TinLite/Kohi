@@ -3,10 +3,11 @@ import { Post } from "../types/post-type";
 
 export async function getProfile(userId: string = "me") {
   const data = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/profile/${userId}/detail`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!data.ok) {
@@ -17,11 +18,12 @@ export async function getProfile(userId: string = "me") {
 
 export async function updateUser(userId: string, formData: any) {
   const data = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/profile/${userId}/update`,
     {
       method: "PATCH",
-      credentials: 'include',
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -36,10 +38,11 @@ export async function updateUser(userId: string, formData: any) {
 
 export async function searchUsers(query: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/search?query=${query}`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -50,11 +53,12 @@ export async function searchUsers(query: string) {
 
 export async function followUser(userId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/follows/add/${userId}`,
     {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -64,11 +68,12 @@ export async function followUser(userId: string) {
 
 export async function unFollowUser(userId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/follows/unfollow/${userId}`,
     {
       method: "DELETE",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -78,11 +83,12 @@ export async function unFollowUser(userId: string) {
 
 export async function addBookMark(PostId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/profile/bookmark/add/${PostId}`,
     {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return response.json();
@@ -90,11 +96,12 @@ export async function addBookMark(PostId: string) {
 
 export async function unBookMark(PostId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/profile/bookmark/remove/${PostId}`,
     {
       method: "DELETE",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   return response.json();
@@ -102,11 +109,12 @@ export async function unBookMark(PostId: string) {
 
 export async function getBookMarks() {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/profile/bookmark`,
     {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -126,11 +134,12 @@ export async function getBookMarks() {
 
 export async function searchBookMarks(query: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/profile/bookmarks/search?query=${query}`,
     {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -141,11 +150,12 @@ export async function searchBookMarks(query: string) {
 
 export async function getFollowingUserList() {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/follows/list/following`,
     {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -157,11 +167,12 @@ export async function getFollowingUserList() {
 
 export async function getFollowingCount() {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/follows/list/following/count`,
     {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -175,11 +186,12 @@ export async function getFollowingCount() {
 
 export async function getFollowerList() {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/follows/list/followers`,
     {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -191,11 +203,12 @@ export async function getFollowerList() {
 
 export async function getFollowerCount() {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/follows/list/followers/count`,
     {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -207,11 +220,12 @@ export async function getFollowerCount() {
 
 export async function getAllFollowCountMetrics() {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/follows/list/count`,
     {
       method: "GET",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -226,11 +240,12 @@ export async function getAllFollowCountMetrics() {
 
 export async function updateAvatar(userId: string, formData: FormData) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/avatar/${userId}/update`,
     {
       method: "PATCH",
-      credentials: 'include',
+      credentials: "include",
       body: formData,
     }
   );
@@ -242,11 +257,12 @@ export async function updateAvatar(userId: string, formData: FormData) {
 
 export async function updateWall(userId: string, formData: FormData) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/wall/${userId}/update`,
     {
       method: "PATCH",
-      credentials: 'include',
+      credentials: "include",
       body: formData,
     }
   );
@@ -258,10 +274,11 @@ export async function updateWall(userId: string, formData: FormData) {
 
 export async function getProfileUser(id: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/profile/${id}/detail`,
     {
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -272,11 +289,12 @@ export async function getProfileUser(id: string) {
 
 export async function updatePassword(oldPassword: string, newPassword: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
     }/users/profile/${"me"}/password`,
     {
       method: "PATCH",
-      credentials: 'include',
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -287,4 +305,31 @@ export async function updatePassword(oldPassword: string, newPassword: string) {
     const data = await response.json();
     throw new Error(data.message ?? "Failed to update password");
   }
+}
+export async function AdminGetAllUsers(
+  page: number = 1,
+  limit: number = 10,
+  query?: string
+) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/users/list?page=${page}&limit=${limit}&query=${query || ""}`,
+    {
+      method: "GET",
+      credentials: "include",
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to get all users");
+  }
+  return (await response.json()) as {
+    data: User[];
+    pagination: {
+      currentPage: number;
+      totalPage: number;
+      totalElement: number;
+      limit: number;
+    };
+  };
 }

@@ -31,7 +31,7 @@ export class User {
   @Prop({ select: false })
   sdt: string;
   @Prop({ default: [Role.USER], select: false })
-  roles: String[];
+  roles: string[];
 
   @Prop({ default: Date.now })
   createdAt: Date;

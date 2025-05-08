@@ -26,6 +26,10 @@ import { Provider } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ForgotPassword from "./routes/auth/forgotpassword";
 import { PageCall } from "./routes/call/call";
+import AdminLayout from "./layout/admin-layout/admin-layout";
+import AdminUsers from "./components/admin/users";
+import AdminPosts from "./components/admin/posts";
+import AdminComments from "./components/admin/comments";
 
 const router = createBrowserRouter([
   {
@@ -126,6 +130,28 @@ const router = createBrowserRouter([
   {
     path: "/call/:callId",
     element: <PageCall />
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <AdminUsers />
+      },
+      {
+        path: "/admin/users",
+        element: <AdminUsers />
+      },
+      {
+        path: "/admin/posts",
+        element: <AdminPosts />
+      },
+      {
+        path: "/admin/comments",
+        element: <AdminComments />
+      }
+    ]
   }
 ]);
 
