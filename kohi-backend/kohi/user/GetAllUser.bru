@@ -5,9 +5,15 @@ meta {
 }
 
 get {
-  url: http://localhost:3000/v1/api/users/list
+  url: http://localhost:3000/v1/api/users/list?page=1&limit=10&query=tèo
   body: none
   auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 10
+  query: tèo
 }
 
 auth:bearer {

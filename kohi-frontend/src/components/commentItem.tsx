@@ -3,23 +3,30 @@ import { cn } from "@/lib/utils";
 import {
   deleteComment,
   likeComment,
+  reportComment,
   unLikeComment,
   updateComment
 } from "@/repository/comment-repository";
 import {
   Edit,
   EllipsisVertical,
+  ShieldAlert,
   ThumbsUp,
-  Trash
+  Trash,
 } from "lucide-react";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Comment } from "../types/comment-type";
-import ReplyComment from "./replycomment";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "./ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,19 +34,22 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Textarea } from "./ui/textarea";
-
 const CommentItem = ({
   comment,
   allComments,
   onReply,
   onDeleteComment,
   onUpdateComment,
+  showReplies, // Nhận trạng thái mở rộng từ cha
+  onToggleReplies, // Nhận callback để thay đổi trạng thái
 }: {
   comment: Comment;
   allComments: Comment[];
   onReply?: () => void;
   onDeleteComment?: () => void;
   onUpdateComment?: () => void;
+  showReplies: boolean;
+  onToggleReplies: () => void;
 }) => {
   const { user, setLoginFormOpen } = useContext(UserContext);
   const [isLiked, setIsLiked] = useState(
@@ -47,9 +57,30 @@ const CommentItem = ({
   );
   const [total, setTotal] = useState(comment.likes?.length ?? 0);
   const [replies, setReplies] = useState<Comment[]>([]);
-  const [showReplies, setShowReplies] = useState(false);
   const [content, setContent] = useState(comment.content);
   const [isEditing, setIsEditing] = useState(false);
+  const [isOpenReport, setIsOpenReport] = useState(false);
+  const [reason, setReason] = useState("");
+  const handleCloseReport = () => {
+    setIsOpenReport(false);
+    setReason("");
+  };
+  useEffect(() => {
+    const commentReplies = allComments.filter((c) => c.replyTo === comment._id);
+    setReplies(commentReplies);
+  }, [allComments, comment._id]);
+
+  const handleSubmitReport = async () => {
+    if (!reason.trim()) return;
+    try {
+      await reportComment(comment._id, reason);
+      toast.success("Report submitted successfully");
+      setReason("");
+      setIsOpenReport(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
   const toggleLikeComment = async () => {
     if (isLiked) {
       if (!user) {
@@ -69,14 +100,6 @@ const CommentItem = ({
       setTotal(total + 1);
     }
     setIsLiked(!isLiked);
-  };
-  useEffect(() => {
-    const commentReplies = allComments.filter((c) => c.replyTo === comment._id);
-    setReplies(commentReplies);
-  }, [allComments, comment._id]);
-
-  const toggleReplies = () => {
-    setShowReplies(!showReplies);
   };
   const removeComment = async () => {
     await deleteComment(comment._id)
@@ -161,9 +184,34 @@ const CommentItem = ({
                     Xóa
                   </DropdownMenuItem>
                 )}
+                {user?._id !== comment.author._id && (
+                  <DropdownMenuItem onClick={() => setIsOpenReport(true)}>
+                    <ShieldAlert className="mr-2 h-4 w-4" />
+                    Báo cáo
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          <Dialog open={isOpenReport} onOpenChange={handleCloseReport}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Report</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            placeholder="Enter the reason for your report..."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="mt-2"
+          />
+          <DialogFooter>
+            <Button variant="secondary" onClick={handleCloseReport}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitReport}>Submit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
           <div className="flex flex-wrap gap-2 items-center">
             <Button
               variant="ghost"
@@ -176,9 +224,8 @@ const CommentItem = ({
               />
               {total || ""}
             </Button>
-            <ReplyComment comment={comment} onReply={onReply} />
             {replies.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={toggleReplies}>
+              <Button variant="ghost" size="sm" onClick={onToggleReplies}>
                 {showReplies
                   ? "Hide Replies"
                   : `View Replies (${replies.length})`}
@@ -197,6 +244,8 @@ const CommentItem = ({
               onReply={onReply}
               onDeleteComment={onDeleteComment}
               onUpdateComment={onUpdateComment}
+              showReplies={showReplies} // Truyền trạng thái xuống
+              onToggleReplies={onToggleReplies} // Truyền callback xuống
             />
           ))}
         </div>
@@ -217,4 +266,5 @@ const CommentItem = ({
     </div>
   );
 };
+
 export default CommentItem;

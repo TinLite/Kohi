@@ -1,5 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import crypto from 'crypto';
 import { Model } from 'mongoose';
@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { CreateUserWithGGDto } from './dto/create-userwithgg';
 import { CreateUserWithDiscordDto } from './dto/create-userwithdiscord';
+import e from 'express';
 @Injectable()
 export class UsersService {
   constructor(
@@ -58,11 +59,34 @@ export class UsersService {
   }
 
   // GET ALL USER
-  async findAllUser(page: number, limit: number) {
+  async findAllUser(page: number, limit: number, query?: string) {
     const skip = (page - 1) * limit;
-    const User = await this.userModel.find().exec();
-    const totalUser = User.length;
+
+    const filter: any = {
+      roles: { $ne: 'admin' },
+    };
+    if (query) {
+      filter.$or = [
+        { username: { $regex: query, $options: 'i' } },
+        { displayName: { $regex: query, $options: 'i' } },
+        {
+          email: { $regex: query, $options: 'i' },
+        },
+      ];
+    }
+    const User = await this.userModel
+      .find(filter)
+      .select('username displayName email avatar')
+      .skip(skip) // Bỏ qua số lượng bản ghi tương ứng với trang trước đó
+      .limit(limit) // Giới hạn số lượng bản ghi trả về
+      .sort({ createdAt: -1 }) // Sắp xếp theo ngày tạo giảm dần
+      .exec();
+
+    const totalUser = await this.userModel.countDocuments({
+      roles: { $ne: 'admin' },
+    }); // Tổng số người dùng (không áp dụng skip và limit)
     const totalPage = Math.ceil(totalUser / limit);
+
     return {
       data: User,
       pagination: {
@@ -154,9 +178,9 @@ export class UsersService {
     return users;
   }
   //lay role
-  async getUserRoles(userId: string) {
+  async getUserRoles(userId: string): Promise<string[]> {
     const user = await this.userModel.findById(userId).select('+roles').exec();
-    return user.roles;
+    return user?.roles || [];
   }
 
   async findByName(query: string) {

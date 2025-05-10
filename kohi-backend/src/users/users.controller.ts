@@ -20,6 +20,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { Public } from 'src/auth/authmeta';
+import { Roles } from 'src/auth/role.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -29,9 +30,15 @@ export class UsersController {
   async create(@Body() createUserDto: CreateUserDto) {
     return { id: (await this.usersService.create(createUserDto))._id };
   }
-
+  @Roles('admin')
   @Get('list')
-  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+  async findAll(
+    @User() user,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('query') query?: string,
+  ) {
+    // console.log('User:', user); // Debugging user object
     const currentPage = page ? Number(page) : 1;
     const currentLimit = limit ? Number(limit) : 10;
     if (
@@ -42,7 +49,7 @@ export class UsersController {
     ) {
       throw new NotFoundException('Page or limit not found');
     }
-    return this.usersService.findAllUser(currentPage, currentLimit);
+    return this.usersService.findAllUser(currentPage, currentLimit,query);
   }
 
   @Get('profile/:id/detail')

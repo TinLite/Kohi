@@ -23,6 +23,10 @@ import { PageSettingPassword } from "@/routes/settings/SettingPassword";
 import { PageSettingUser } from "@/routes/settings/SettingUser";
 import { useContext } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import AdminComments from "./components/admin/comments";
+import AdminPosts from "./components/admin/posts";
+import AdminUsers from "./components/admin/users";
+import AdminLayout from "./layout/admin-layout/admin-layout";
 import LayoutSystem from "./layout/system-layout";
 
 const router = createBrowserRouter([
@@ -124,6 +128,28 @@ const router = createBrowserRouter([
   {
     path: "/call/:callId",
     element: <PageCall />
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <AdminUsers />
+      },
+      {
+        path: "/admin/users",
+        element: <AdminUsers />
+      },
+      {
+        path: "/admin/posts",
+        element: <AdminPosts />
+      },
+      {
+        path: "/admin/comments",
+        element: <AdminComments />
+      }
+    ]
   }
 ]);
 

@@ -109,7 +109,7 @@ export async function verifyCode(email: string, code: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/auth/email`,
+    }/auth/email/verify`,
     {
       method: "POST",
       headers: {
