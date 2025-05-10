@@ -25,10 +25,8 @@ export function ImageViewerProvider({ children }: { children: React.ReactNode })
         }
     };
 
-    const closeImage = () => {
-        if (isOpen) {
-            setIsOpen(false);
-        }
+    function closeImage() {
+        setIsOpen(false);
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
