@@ -166,11 +166,11 @@ const UserProfile = () => {
     <ScrollArea className="w-full h-screen">
       <div className="max-w-6xl mx-auto flex justify-center">
         <div className="flex-grow max-w-2xl ">
-          <div className="aspect-[3/1] md:aspect-[5/1] w-full">
+          <div className="w-full">
             <img
               src={user?.wall || "../../public/wall/star.jpg"}
               alt="Wall Image"
-              className=" w-full h-full object-cover md:mt-6 md:rounded-xl"
+              className=" w-full h-full aspect-[3/1] md:aspect-[5/1]  object-cover md:mt-6 md:rounded-xl"
             />
             <div className="flex items-end gap-4 mt-6">
               <div className="flex shrink-0">

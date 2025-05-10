@@ -1,9 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserContext } from "@/context/user-context";
 import { searchPosts } from "@/repository/PostsRepository";
-import {
-  searchUsers
-} from "@/repository/user-repository";
+import { searchUsers } from "@/repository/user-repository";
 import { Post } from "@/types/post-type";
 import { User } from "@/types/user-type";
 import { useContext, useEffect, useState } from "react";
@@ -16,7 +14,6 @@ const SearchUI = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const { user: currentUser, setUser } = useContext(UserContext);
   const [query, setQuery] = useState<string>("");
 
@@ -44,7 +41,6 @@ const SearchUI = () => {
       setError("Không thể tìm kiếm");
     }
   };
-
   const handleFollowChange = () => {
     handleSearch(query);
   };

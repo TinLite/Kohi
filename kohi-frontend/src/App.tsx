@@ -28,6 +28,7 @@ import AdminPosts from "./components/admin/posts";
 import AdminUsers from "./components/admin/users";
 import AdminLayout from "./layout/admin-layout/admin-layout";
 import LayoutSystem from "./layout/system-layout";
+import DetailUser from "./components/admin/detailuser";
 
 const router = createBrowserRouter([
   {
@@ -127,7 +128,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/call/:callId",
-    element: <PageCall />
+    element: <PageCall />,
   },
   {
     path: "/admin",
@@ -135,22 +136,26 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <AdminUsers />
+        element: <AdminUsers />,
       },
       {
         path: "/admin/users",
-        element: <AdminUsers />
+        element: <AdminUsers />,
       },
       {
         path: "/admin/posts",
-        element: <AdminPosts />
+        element: <AdminPosts />,
       },
       {
         path: "/admin/comments",
-        element: <AdminComments />
-      }
-    ]
-  }
+        element: <AdminComments />,
+      },
+      {
+        path: "/admin/users/detail/:id",
+        element: <DetailUser />,
+      },
+    ],
+  },
 ]);
 
 function App() {

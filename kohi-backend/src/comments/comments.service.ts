@@ -176,4 +176,27 @@ export class CommentsService {
       },
     );
   }
+  //get all comment by authorId
+  async getAllCommentByAuthorId(authorId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const comment = await this.commentModel
+      .find({ author: authorId })
+      .skip(skip)
+      .limit(limit)
+      .sort({ timeStamp: -1 })
+      .exec();
+    const totalComment = await this.commentModel.countDocuments({
+      author: authorId,
+    });
+    const totalPage = Math.ceil(totalComment / limit);
+    return {
+      data: comment,
+      pagination: {
+        currentPage: page,
+        totalElement: totalComment,
+        totalPage: totalPage,
+        limit: limit,
+      },
+    };
+  }
 }

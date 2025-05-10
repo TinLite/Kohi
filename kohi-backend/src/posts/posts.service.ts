@@ -51,19 +51,23 @@ export class PostsService {
       .exec();
   }
   //admin
-  async findAllByAuthor(author: string, limit: number, page: number) {
+  async findAllByAuthor(author: string, page: number, limit: number) {
     const skip = (page - 1) * limit;
     const data = await this.postModel
       .find({
         author,
-        flags: { $nin: [PostFlags.HIDDEN] },
+        // flags: { $nin: [PostFlags.HIDDEN] },
       })
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
       .populate('author')
       .exec();
+    console.log(data);
     const totalPost = await this.postModel
       .countDocuments({
         author,
-        flags: { $nin: [PostFlags.HIDDEN] },
+        // flags: { $nin: [PostFlags.HIDDEN] },
       })
       .exec();
     const totalPage = Math.ceil(totalPost / limit);
@@ -355,5 +359,45 @@ export class PostsService {
       })
       .sort({ createdAt: -1 })
       .exec();
+  }
+  //get all post in database
+  async findAllByAdmin(page: number, limit: number, query?: string) {
+    const skip = (page - 1) * limit;
+
+    // Tạo bộ lọc tìm kiếm
+    const filter: any = {};
+    if (query) {
+
+      const users = await this.usersService.findByNameOrDisplayName(query);
+      const authorIds = users.map((user) => user._id);
+
+      filter.$or = [
+        { content: { $regex: query, $options: 'i' } }, // Tìm kiếm theo nội dung bài viết
+        { author: { $in: authorIds } }, // Tìm kiếm theo tác giả
+      ];
+    }
+
+    // Lấy dữ liệu bài viết
+    const data = await this.postModel
+      .find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate('author', 'username displayname avatar') // Populate thông tin tác giả
+      .exec();
+
+    // Tính toán phân trang
+    const totalPost = await this.postModel.countDocuments(filter).exec();
+    const totalPage = Math.ceil(totalPost / limit);
+
+    return {
+      data: data,
+      pagination: {
+        currentPage: page,
+        totalElement: totalPost,
+        totalPage: totalPage,
+        limit: limit,
+      },
+    };
   }
 }

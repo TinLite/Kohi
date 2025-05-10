@@ -333,3 +333,39 @@ export async function AdminGetAllUsers(
     };
   };
 }
+
+export async function banUser(userId: string): Promise<void> {
+  try {
+    const response = await fetch(`/api/users/${userId}/ban`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to ban user");
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function unbanUser(userId: string): Promise<void> {
+  try {
+    const response = await fetch(`/api/users/${userId}/unban`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to unban user");
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

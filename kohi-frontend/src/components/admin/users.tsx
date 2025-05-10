@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom"; // Import useSearchParams
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -19,14 +20,20 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { Label } from "../ui/label";
 
 export default function AdminUsers() {
+  const [searchParams, setSearchParams] = useSearchParams(); // Hook để quản lý query params
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(
+    Number(searchParams.get("page")) || 1 // Lấy giá trị từ query params
+  );
   const [users, setUsers] = useState<User[]>([]);
   const [totalPages, setTotalPages] = useState<number>(1);
   const itemsPerPage = 10;
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -48,6 +55,8 @@ export default function AdminUsers() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
+      setCurrentPage(1);
+      // setSearchParams({ page: "1" }); // Cập nhật query params về trang 1
     }, 1000);
 
     return () => {
@@ -55,10 +64,21 @@ export default function AdminUsers() {
     };
   }, [searchQuery]);
 
+  // useEffect(() => {
+  //   const pageFromParams = Number(searchParams.get("page"));
+  //   if (pageFromParams && pageFromParams !== currentPage) {
+  //     setCurrentPage(pageFromParams);
+  //   }
+  // }, [searchParams]);
+
+  useEffect(() => {
+    setSearchParams({ page: currentPage.toString() });
+  }, [currentPage]);
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    setSearchParams({ page: page.toString() });
   };
-
   return (
     <div className="w-full px-6 py-8">
       <div>
@@ -97,7 +117,7 @@ export default function AdminUsers() {
                     <TableCell>{user.displayName || user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell className="text-right">
-                      <DropdownUser  />
+                      <DropdownUser user={user} />
                     </TableCell>
                   </TableRow>
                 ))
@@ -129,16 +149,25 @@ export default function AdminUsers() {
     </div>
   );
 }
-export function DropdownUser() {
+export function DropdownUser({ user }: { user?: User }) {
+  const [openDropdown, setOpenDropdown] = useState(false);
+  const navigate = useNavigate();
   return (
-    <DropdownMenu>
+    <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="w-8 h-8 p-0">
           <EllipsisVertical className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem>View</DropdownMenuItem>
+      <DropdownMenuContent align="end" >
+        <DropdownMenuItem
+          onClick={() => {
+            navigate(`/admin/users/detail/${user?._id}`);
+            setOpenDropdown(false);
+          }}
+        >
+          View
+        </DropdownMenuItem>
         <DropdownMenuItem>Delete</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

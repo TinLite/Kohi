@@ -12,7 +12,7 @@ import {
   Query,
   UnauthorizedException,
   UploadedFiles,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
@@ -27,6 +27,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
+import { Roles } from 'src/auth/role.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -67,13 +68,35 @@ export class PostsController {
     }
     return data;
   }
-
+  // @Roles('admin')
   @Get('list')
   findAll() {
     return this.postsService.findAll();
   }
+  @Roles('admin')
+  @Get('list/admin')
+  async findAllByAdmin(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('query') query?: string, // Thêm tham số query
+  ) {
+    const currentPage = page ? Number(page) : 1;
+    const currentLimit = limit ? Number(limit) : 10;
 
-  @Get('list/:id')
+    if (
+      !Number.isInteger(currentPage) ||
+      !Number.isInteger(currentLimit) ||
+      currentPage <= 0 ||
+      currentLimit <= 0
+    ) {
+      throw new BadRequestException('Malfunctioned page or limit');
+    }
+
+    return this.postsService.findAllByAdmin(currentPage, currentLimit, query);
+  }
+
+  @Roles('admin')
+  @Get('list/author/:id')
   findAllByAuthor(
     @Param('id') id: string,
     @Query('page') page?: string,

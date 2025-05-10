@@ -251,5 +251,29 @@ export class CommentsController {
       currentLimit,
     );
   }
-  
+  @Roles(Role.ADMIN)
+  @Get('list/author/:id')
+async getCommentsByAuthorId(
+  @Param('id') authorId: string,
+  @Query('page') page?: string,
+  @Query('limit') limit?: string,
+) {
+  const currentPage = page ? Number(page) : 1;
+  const currentLimit = limit ? Number(limit) : 10;
+
+  if (
+    !Number.isInteger(currentPage) ||
+    !Number.isInteger(currentLimit) ||
+    currentPage <= 0 ||
+    currentLimit <= 0
+  ) {
+    throw new BadRequestException('Malfunctioned page or limit');
+  }
+
+  return this.commentsService.getAllCommentByAuthorId(
+    authorId,
+    currentPage,
+    currentLimit,
+  );
+}
 }
