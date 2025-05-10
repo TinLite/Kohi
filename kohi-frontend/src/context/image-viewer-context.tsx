@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const ImageViewerContext = createContext<{
     isOpen: boolean;
@@ -9,13 +9,13 @@ export const ImageViewerContext = createContext<{
     setImageUrl: (imageUrl: string) => void;
     openImage: (imageUrl: string) => void;
     closeImage: () => void;
-    }>({
+}>({
     isOpen: false,
-    setIsOpen: () => {},
+    setIsOpen: () => { },
     imageUrl: "",
-    setImageUrl: () => {},
-    openImage: () => {},
-    closeImage: () => {},
+    setImageUrl: () => { },
+    openImage: () => { },
+    closeImage: () => { },
 });
 
 export function ImageViewerProvider({ children }: { children: React.ReactNode }) {
@@ -28,8 +28,25 @@ export function ImageViewerProvider({ children }: { children: React.ReactNode })
     };
 
     const closeImage = () => {
-        setIsOpen(false);
+        if (isOpen) {
+            setIsOpen(false);
+        }
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+            closeImage();
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        }
+    }, [])
+
 
     return (
         <ImageViewerContext.Provider

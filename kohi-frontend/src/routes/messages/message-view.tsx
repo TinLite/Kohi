@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChatContext } from "@/context/chat-context";
+import { ImageViewerContext } from "@/context/image-viewer-context";
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import { getChannelMessages, recallMesssage, sendMessage, updateChannel } from "@/repository/chat-repository";
@@ -337,6 +338,7 @@ function MessageView({ className }: { className?: string }) {
   const [targetUser, setTargetUser] = useState<User | undefined>(undefined);
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
   const { user } = useContext(UserContext);
+  const { openImage } = useContext(ImageViewerContext)
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
@@ -521,7 +523,7 @@ function MessageView({ className }: { className?: string }) {
               {selectedImages.map((v, i) => {
                 // TODO: Add removing image
                 return (
-                  <div className="aspect-square w-24 h-24 grid place-items-center relative p-2" key={v.name}>
+                  <div className="aspect-square w-24 h-24 relative p-2" key={v.name}>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -537,7 +539,8 @@ function MessageView({ className }: { className?: string }) {
                       src={URL.createObjectURL(v)}
                       alt=""
                       key={i}
-                      className=""
+                      className="w-full h-full object-contain"
+                      onClick={() => openImage(URL.createObjectURL(v))}
                     />
                   </div>
                 );
