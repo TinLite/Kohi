@@ -114,7 +114,7 @@ const DetailPost = ({
           )
         }
         {commentTree.map((comment) => (
-          <div className="p-2 border border-gray-200 bg-white rounded-lg">
+          <div className="border bg-card rounded-lg">
             <CommentItem
               key={comment._id}
               comment={comment}

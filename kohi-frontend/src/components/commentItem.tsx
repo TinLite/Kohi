@@ -3,36 +3,30 @@ import { cn } from "@/lib/utils";
 import {
   deleteComment,
   likeComment,
-  listCommentsByPostId,
   unLikeComment,
-  updateComment,
+  updateComment
 } from "@/repository/comment-repository";
 import {
-  MessageCircle,
-  MoreHorizontal,
-  Repeat,
-  ThumbsUp,
-  EllipsisVertical,
-  Trash,
   Edit,
+  EllipsisVertical,
+  ThumbsUp,
+  Trash
 } from "lucide-react";
+import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Comment } from "../types/comment-type";
+import ReplyComment from "./replycomment";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import CommentUI from "./comment";
-import { Post } from "@/types/post-type";
-import ReplyComment from "./replycomment";
-import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
-import { toast } from "sonner";
-import { DateTime } from "luxon";
 
 const CommentItem = ({
   comment,
@@ -119,7 +113,7 @@ const CommentItem = ({
   };
   return (
     <div className="space-y-4">
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-4 px-6 pt-4">
         <Avatar className="w-8 h-8">
           <AvatarImage
             src={comment.author.avatar ?? ""}
@@ -133,14 +127,15 @@ const CommentItem = ({
         <div className="flex-grow">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-gray-700 font-bold">
+              <p className="font-bold">
                 {comment.author.displayName}
+                <span className="text-sm text-muted-foreground font-normal">
+                  {' '} @{comment.author.username}
+                  {` - ${DateTime.fromISO(comment.timeStamp!.toString()).toRelative()}`}
+                </span>
               </p>
-              <p className="text-gray-700">{comment.content}</p>
+              <p className="">{comment.content}</p>
               <p className="text-sm text-muted-foreground">
-                {comment.timeStamp
-                  ? DateTime.fromISO(comment.timeStamp.toString()).toRelative()
-                  : ""}
               </p>
             </div>
             <DropdownMenu>
@@ -179,7 +174,7 @@ const CommentItem = ({
               <ThumbsUp
                 className={cn("w-4 h-4", isLiked ? "fill-primary" : "")}
               />
-              {total}
+              {total || ""}
             </Button>
             <ReplyComment comment={comment} onReply={onReply} />
             {replies.length > 0 && (

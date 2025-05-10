@@ -6,9 +6,10 @@ export function ButtonScrollToTop() {
     const ref = useRef<HTMLButtonElement>(null);
     useEffect(() => {
         const btnElement = ref.current!;
-        const scrollable = btnElement.parentElement!.parentElement!;
+        const scrollable = window;
         const scrollHandler = () => {
-            if (scrollable.scrollTop > 100) {
+            const currentScroll = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+            if (currentScroll > 100) {
                 btnElement.classList.remove('opacity-0');
             } else {
                 btnElement.classList.add('opacity-0');
@@ -17,14 +18,15 @@ export function ButtonScrollToTop() {
         const clickHandler = () => {
             scrollable.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        scrollable.addEventListener('scroll', scrollHandler);
+        console.log(scrollable, scrollable.addEventListener('scroll', scrollHandler))
         btnElement.addEventListener('click', clickHandler);
+        scrollHandler(); // Initial check
         return () => {
             scrollable.removeEventListener('scroll', scrollHandler);
             btnElement.removeEventListener('click', clickHandler);
         }
-    })
+    }, [])
     return (
-        <Button ref={ref} variant="ghost" className="fixed bottom-5 right-5 transition-opacity"><ArrowUpToLine /></Button>
+        <Button ref={ref} variant="ghost" className="fixed bottom-5 right-5 transition-opacity opacity-0"><ArrowUpToLine /></Button>
     )
 }

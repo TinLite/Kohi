@@ -43,7 +43,7 @@ export function ImageViewerProvider({ children }: { children: React.ReactNode })
             }}
         >
             {children}
-            <div className="w-dvw h-dvh bg-background fixed top-0 left-0 z-10 flex flex-col items-center transition-opacity"
+            <div className="w-dvw h-dvh bg-background fixed top-0 left-0 z-10 flex flex-col items-center transition-all"
                 style={{
                     opacity: isOpen ? 1 : 0,
                     pointerEvents: isOpen ? "auto" : "none",
@@ -52,7 +52,10 @@ export function ImageViewerProvider({ children }: { children: React.ReactNode })
                     <img
                         src={imageUrl}
                         alt=""
-                        className="max-w-full max-h-full object-contain"
+                        className="max-w-full max-h-full object-contain transition-[scale]"
+                        style={{
+                            scale: isOpen ? "1.0" : "0.5",
+                        }}
                     />
 
                 </div>
