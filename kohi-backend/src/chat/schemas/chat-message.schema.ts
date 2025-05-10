@@ -39,7 +39,7 @@ export class ChatMessage {
     @Prop({
 
     })
-    type?: string;
+    type?: 'SYSTEM_MESSAGE';
 }
 
 export const ChatMessageSchema = SchemaFactory.createForClass(ChatMessage);

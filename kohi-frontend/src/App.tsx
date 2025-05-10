@@ -4,16 +4,16 @@ import PostPage from "@/components/post-detail";
 import ProfileFriend from "@/components/profile-friend";
 import SearchUI from "@/components/search";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
 import UserProfile from "@/components/user-profile";
-import { UserProvider } from "@/context/user-context";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { UserContext } from "@/context/user-context";
 import "@/index.css";
 import MainLayout from "@/layout/main-layout";
 import { LayoutSetting } from "@/layout/setting-layout";
 import MessageLayout from "@/layout/sub-layouts/message-layout";
+import ForgotPassword from "@/routes/auth/forgotpassword";
 import Login from "@/routes/auth/login";
 import Register from "@/routes/auth/register";
+import { PageCall } from "@/routes/call/call";
 import MessageViewDefault from "@/routes/messages/message-default";
 import MessageViewNewChat from "@/routes/messages/message-new";
 import { PageMessageChannel } from "@/routes/messages/message-view";
@@ -21,11 +21,9 @@ import PostList from "@/routes/posts/post-list";
 import { PageSettingApp } from "@/routes/settings/SettingApp";
 import { PageSettingPassword } from "@/routes/settings/SettingPassword";
 import { PageSettingUser } from "@/routes/settings/SettingUser";
-import store from "@/services/store";
-import { Provider } from "react-redux";
+import { useContext } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import ForgotPassword from "./routes/auth/forgotpassword";
-import { PageCall } from "./routes/call/call";
+import LayoutSystem from "./layout/system-layout";
 
 const router = createBrowserRouter([
   {
@@ -130,22 +128,23 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const isWideScreen = useMediaQuery("(min-width: 768px");
+  const { isAuthenticating } = useContext(UserContext);
   // useEffect(() => {
   // }, []);
   return (
-    <Provider store={store}>
-      <UserProvider>
-        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-          <RouterProvider router={router} />
-          <Toaster
-            closeButton
-            position={isWideScreen ? "bottom-right" : "top-center"}
-          />
-        </ThemeProvider>
-      </UserProvider>
-
-    </Provider>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      {
+        isAuthenticating ? (
+          <div className="flex h-screen w-screen items-center justify-center bg-background text-foreground"></div>
+        ) : (
+          <>
+            <LayoutSystem>
+              <RouterProvider router={router} />
+            </LayoutSystem>
+          </>
+        )
+      }
+    </ThemeProvider>
   );
 }
 export default App;

@@ -47,7 +47,7 @@ import socket from "@/services/socket";
 import { ChatChannelType, ChatMessage } from "@/types/chat-types";
 import { SocketEvent } from "@/types/socket-types";
 import { User } from "@/types/user-type";
-import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, PenLine, Phone, ReplyIcon, Trash2, UserPlus } from "lucide-react";
+import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, PenLine, Phone, ReplyIcon, SendHorizonal, Trash, UserPlus } from "lucide-react";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useReducer, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -475,7 +475,7 @@ function MessageView({ className }: { className?: string }) {
           <h1 className="font-bold">{channelName ?? ""} <span className="font-normal text-muted-foreground">@{targetUser?.username}</span></h1>
           <h4 className="text-xs">Online</h4>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => navigate(`/call/${channel?._id}`)}>
+        <Button variant="ghost" size="icon" disabled>
           <Phone strokeWidth={1.5} />
         </Button>
         <Button variant="ghost" size="icon" onClick={() => setChannelSettingStatus(true)} className="">
@@ -523,15 +523,15 @@ function MessageView({ className }: { className?: string }) {
                 return (
                   <div className="aspect-square w-24 h-24 grid place-items-center relative p-2" key={v.name}>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="icon"
-                      className="w-6 h-6 absolute top-0 -right-2"
+                      className="w-6 h-6 absolute top-0 -right-2 text-destructive"
                       onClick={(e) => {
                         e.preventDefault();
                         setSelectedImages(selectedImages.filter((_, index) => index !== i));
                       }}
                     >
-                      <Trash2 />
+                      <Trash />
                     </Button>
                     <img
                       src={URL.createObjectURL(v)}
@@ -571,15 +571,25 @@ function MessageView({ className }: { className?: string }) {
           }}>
             <ImagePlus />
           </Button>
-          <form onSubmit={onSendMessage} className="flex-grow flex gap-2">
-            <input type="file" name="images" className="hidden" id="form-inp-upload-file" onChange={handleFileChange} accept="image/*" multiple />
-            <Input placeholder="Nhập tin nhắn..." className="flex-grow" name="content" />
-            <Button>Gửi</Button>
-          </form>
+          <MessageInputForm onSendMessage={onSendMessage} handleFileChange={handleFileChange} />
         </div>
       </div>
     </div >
   )
+}
+
+function MessageInputForm({ onSendMessage, handleFileChange }: { onSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
+  const [message, setMessage] = useState<string>("");
+  return <form onSubmit={onSendMessage} className="flex-grow flex gap-2">
+    <input type="file" name="images" className="hidden" id="form-inp-upload-file" onChange={handleFileChange} accept="image/*" multiple />
+    <Input placeholder="Nhập tin nhắn..." className="flex-grow" name="content" 
+      onChange={(e) => setMessage(e.currentTarget.value)}
+      value={message}
+    />
+    <Button disabled={message.trim().length === 0} type="submit" className="transition-all">
+      <SendHorizonal />
+    </Button>
+  </form>;
 }
 
 export function PageMessageChannel() {

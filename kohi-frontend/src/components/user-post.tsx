@@ -1,3 +1,4 @@
+import { ImageViewerContext } from "@/context/image-viewer-context";
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
 import { getChannelList } from "@/repository/chat-repository";
@@ -247,6 +248,7 @@ export default function UserPost({
   className?: string;
 }) {
   const { user, setUser, setLoginFormOpen } = useContext(UserContext);
+  const {openImage} = useContext(ImageViewerContext);
   const [openReport, setOpenReport] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLiked, setIsLiked] = useState(
@@ -467,7 +469,7 @@ export default function UserPost({
               <CarouselItem key={index} className="basis-1/3">
                 <div className="p-1">
                   <Card>
-                    <CardContent className="aspect-square p-0">
+                    <CardContent className="aspect-square p-0" onClick={() => openImage(media)}>
                       <img
                         key={index}
                         src={media}
@@ -498,7 +500,7 @@ export default function UserPost({
                 <ThumbsUp
                   className={cn("w-4 h-4", isLiked ? "fill-primary" : "")}
                 />
-                {post.likes?.length || 0}
+                {post.likes?.length || ""}
               </Button>
               <div>
                 <CommentUI postId={post._id} post={post} />

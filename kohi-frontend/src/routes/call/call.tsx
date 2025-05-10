@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import CallRepository from "@/repository/call-repository";
 import { Mic, MicOff, MonitorUp, PhoneMissed, Video, VideoOff } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -11,7 +12,7 @@ function CallPeer() {
 }
 
 export function PageCall() {
-    const params = useParams();
+    const {callId} = useParams();
     const userVideoRef = useRef<HTMLVideoElement>(null);
     const [userMediaStatus, setUserMediaStatus] = useState({
         video: false,
@@ -23,10 +24,16 @@ export function PageCall() {
     const rtcConnection = useMemo(() => new RTCPeerConnection({
         iceServers: [
             { urls: "stun:stun.cloudflare.com:3478" }, // Cloudflare STUN server
-        ]
+            { urls: "stun:stun.l.google.com:19302" }, // Google STUN server
+        ],
+        bundlePolicy: "max-bundle",
     }), []);
 
     useEffect(() => {
+        if (!callId) {
+            console.error("CL11: Call ID is not defined.");
+            return;
+        }
         navigator.mediaDevices.getUserMedia({
             video: true,
             audio: true
@@ -49,12 +56,13 @@ export function PageCall() {
             }
         }).catch((err) => {
             console.error("CL51: Error accessing media devices.", err);
-        }).then(() => {
-            rtcConnection.createOffer().then((v) =>
-                rtcConnection.setLocalDescription(v)
-            ).then(() => {
-                console.debug("CL53: RTC connection created and local description set.");
-            })
+        })
+        .then(() => rtcConnection.createOffer())
+        .then((v) => rtcConnection.setLocalDescription(v))
+        .then(() => console.debug("CL53: RTC connection created and local description set."))
+        .then(() => {
+            console.debug("CL54: Joining channel with ID:", callId);
+            CallRepository.joinChannel(callId, rtcConnection.localDescription!, rtcConnection.getTransceivers())
         });
     }, []);
 
@@ -83,7 +91,7 @@ export function PageCall() {
 
     return (
         <div className="w-dvw h-[100dvh] md:h-dvh flex flex-col">
-            <div className="h-12 sticky top-0">{JSON.stringify(params)}</div>
+            <div className="h-12 sticky top-0">CallID: {callId}</div>
             <div className="grid items-center h-[calc(100dvh - 6rem)] flex-grow">
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 px-4 py-2 max-h-full">
                     <div className="relative bg-muted/30 aspect-[3/2] rounded-xl border border-muted-foreground/30">

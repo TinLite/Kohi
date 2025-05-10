@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Logger, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from 'src/auth/user.decorator';
 import { CallsService } from 'src/calls/calls.service';
@@ -12,6 +12,7 @@ import { ChatParticipantRole } from './schemas/chat-channel.schema';
 
 @Controller('chat')
 export class ChatController {
+    private readonly logger = new Logger(ChatController.name);
     constructor(
         private readonly chatService: ChatService,
         private readonly eventsService: EventsService,
@@ -117,7 +118,7 @@ export class ChatController {
     }
 
     @Post('/channels/:channelId/calls/join')
-    async createCallSession(@Param('channelId') channelId: string, @User() user) {
+    async createCallSession(@Param('channelId') channelId: string, @User() user, @Body() body) {
         const channel = await this.chatService.getChannelById(channelId);
         if (!channel) {
             throw new BadRequestException('Channel not found');
@@ -125,12 +126,16 @@ export class ChatController {
         if (user._id.toString()! !== channel.participants.find(participant => participant.user.toString() === user._id).user.toString()) {
             throw new BadRequestException('You are not allowed to join this call');
         }
-        const sessionId = await this.callsService.getCallSessionByChannelId(channelId);
-        if (!sessionId) {
-            const newSessionId = await this.callsService.createCallSession(channelId);
-            this.eventsService.announceToUser(user._id, 'call:session:new', newSessionId);
-            return newSessionId;
-        }
-
+        this.logger.debug(`User ${user._id} joined call session ${channelId}`);
+        this.logger.debug(`Body: ${JSON.stringify(body)}`);
+        return {status: "OK"};
+        // const sessionId = await this.callsService.getCallSessionByChannelId(channelId);
+        // if (!sessionId) {
+        //     const newSessionId = await this.callsService.createCallSession(channelId);
+        //     this.eventsService.announceToUser(user._id, 'call:session:new', newSessionId);
+        //     return newSessionId;
+        // }
     }
+
+
 }
