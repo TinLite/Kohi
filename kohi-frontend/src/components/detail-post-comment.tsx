@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserContext } from "@/context/user-context";
 import { getPostsById } from "@/repository/PostsRepository";
 import { listCommentsByPostId } from "@/repository/comment-repository";
@@ -116,14 +115,14 @@ const DetailPost = ({
   const commentTree = buildCommentTree(comments);
 
   return (
-    <ScrollArea className="h-screen max-w-3xl mx-auto p-4 rounded-2xl mt-2">
-      <div className="space-y-4 py-4 max-w-2xl mx-auto">
+      <div className="space-y-4 my-12 max-w-2xl mx-auto">
         <UserPost
           post={newPost}
           showEditPost={user?._id === post.author._id}
           onEditPost={onEditPost}
           onUpdateShare={onUpdateShare}
           onUpdateLike={fetchPost}
+          onCommentCreate={fetchComments}
         />
         <Separator />
         {
@@ -158,7 +157,6 @@ const DetailPost = ({
           </div>
         ))}
       </div>
-    </ScrollArea>
   );
 };
 

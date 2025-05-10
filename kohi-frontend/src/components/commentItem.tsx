@@ -18,6 +18,7 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Comment } from "../types/comment-type";
+import ReplyComment from "./replycomment";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import {
@@ -165,10 +166,10 @@ const CommentItem = ({
               <DropdownMenuTrigger asChild>
                 {(user?._id === comment.author._id ||
                   user?._id === comment.postId.author._id) && (
-                  <Button variant="ghost" size="icon">
-                    <EllipsisVertical />
-                  </Button>
-                )}
+                    <Button variant="ghost" size="icon">
+                      <EllipsisVertical />
+                    </Button>
+                  )}
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {user?._id === comment.author._id && (
@@ -179,11 +180,11 @@ const CommentItem = ({
                 )}
                 {(user?._id === comment.author._id ||
                   user?._id === comment.postId.author._id) && (
-                  <DropdownMenuItem onClick={removeComment}>
-                    <Trash className="mr-2 h-4 w-4" />
-                    Xóa
-                  </DropdownMenuItem>
-                )}
+                    <DropdownMenuItem onClick={removeComment}>
+                      <Trash className="mr-2 h-4 w-4" />
+                      Xóa
+                    </DropdownMenuItem>
+                  )}
                 {user?._id !== comment.author._id && (
                   <DropdownMenuItem onClick={() => setIsOpenReport(true)}>
                     <ShieldAlert className="mr-2 h-4 w-4" />
@@ -194,24 +195,24 @@ const CommentItem = ({
             </DropdownMenu>
           </div>
           <Dialog open={isOpenReport} onOpenChange={handleCloseReport}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Report</DialogTitle>
-          </DialogHeader>
-          <Textarea
-            placeholder="Enter the reason for your report..."
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            className="mt-2"
-          />
-          <DialogFooter>
-            <Button variant="secondary" onClick={handleCloseReport}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmitReport}>Submit</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Report</DialogTitle>
+              </DialogHeader>
+              <Textarea
+                placeholder="Enter the reason for your report..."
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="mt-2"
+              />
+              <DialogFooter>
+                <Button variant="secondary" onClick={handleCloseReport}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmitReport}>Submit</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <div className="flex flex-wrap gap-2 items-center">
             <Button
               variant="ghost"
@@ -224,6 +225,7 @@ const CommentItem = ({
               />
               {total || ""}
             </Button>
+            <ReplyComment comment={comment} onReply={onReply} />
             {replies.length > 0 && (
               <Button variant="ghost" size="sm" onClick={onToggleReplies}>
                 {showReplies
