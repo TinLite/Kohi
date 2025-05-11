@@ -17,6 +17,7 @@ import {
   getListPostShare,
   getPostsByUserId,
 } from "@/repository/PostsRepository";
+import { ImageViewerContext } from "@/context/image-viewer-context";
 
 const ProfileFriend = () => {
   const { user, setUser } = useContext(UserContext);
@@ -24,6 +25,7 @@ const ProfileFriend = () => {
   const [media, setMedia] = useState<Post[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsShare, setPostsShare] = useState<Post[]>([]);
+  const { openImage } = useContext(ImageViewerContext);
   const { id } = useParams();
   const friends = [
     { id: 1, name: "Bill Gates", username: "@BillGates" },
@@ -86,10 +88,16 @@ const ProfileFriend = () => {
               src={target?.wall || "../../public/wall/star.jpg"}
               alt="Wall Image"
               className=" w-full h-full object-cover mt-6 rounded-xl"
+              onClick={() =>
+                openImage(target?.wall || "../../public/wall/star.jpg")
+              }
             />
             <div className="flex items-end gap-4 mt-6">
               <div className="flex">
-                <Avatar className="w-full h-28">
+                <Avatar
+                  className="w-full h-28"
+                  onClick={() => openImage(target?.avatar || "")}
+                >
                   <AvatarImage src={target?.avatar} alt="@shadcn" />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>

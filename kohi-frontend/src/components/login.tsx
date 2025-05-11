@@ -2,13 +2,17 @@ import { UserContext } from "@/context/user-context";
 import {
   getUserId,
   login,
+  loginDiscord,
   loginGoogle,
   register,
 } from "@/repository/authentication-repository";
 import { getProfile } from "@/repository/user-repository";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { useContext, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import Discord from "./icons/Discord";
+import Google from "./icons/Google";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +24,7 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Separator } from "./ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -29,11 +34,6 @@ import {
   SheetTitle,
 } from "./ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
-import { Link, useNavigate } from "react-router-dom";
-import Google, { GoogleMap } from "./icons/Google";
-import Discord from "./icons/Discord";
-import { Separator } from "./ui/separator";
-import PiCoin from "./icons/PiCoin";
 
 const LoginSheet = ({
   open,
@@ -43,7 +43,6 @@ const LoginSheet = ({
   onOpenChange?: () => void;
 }) => {
   const { setUser } = useContext(UserContext);
-  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -61,9 +60,6 @@ const LoginSheet = ({
     const account = accountRef.current?.value;
     const password = passwordRef.current?.value;
     passwordRef.current!.value = "";
-    // if (errorMessage !== "") {
-    //   setErrorMessage("");
-    // }
     if (!account || !password) {
       setErrorMessage("Please fill in all fields");
       setOpenAlert(true);
@@ -120,6 +116,9 @@ const LoginSheet = ({
   const loginGoogleHandler = async () => {
     await loginGoogle();
   };
+  const loginDiscordHandler = async () => {
+    await loginDiscord();
+  }
   return (
     <>
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
@@ -149,7 +148,6 @@ const LoginSheet = ({
             <TabsContent value="login">
               <SheetHeader className="mt-4">
                 <SheetTitle>Login</SheetTitle>
-                {/* <SheetDescription></SheetDescription> */}
               </SheetHeader>
               <div className="w-full grid gap-4 py-4">
                 <div>
@@ -195,18 +193,10 @@ const LoginSheet = ({
                   <Google />
                   <span className="ml-2">Login with Google</span>
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={loginDiscordHandler}>
                   <Discord className="w-5 h-5" fill="currentColor" />
                   <span className="ml-2">Login with Discord</span>
                 </Button>
-                {/* <Button variant="outline">
-                  <GoogleMap className="w-5 h-5" fill="currentColor" />
-                  <span className="ml-2">Login with Google Maps</span>
-                </Button>
-                <Button variant="outline">
-                  <PiCoin className="w-5 h-5" fill="currentColor" />
-                  <span className="ml-2">Login with Pi Network</span>
-                </Button> */}
               </div>
             </TabsContent>
             <TabsContent value="signup">

@@ -188,3 +188,29 @@ export async function getCommentByAuthor(authorId: string) {
     };
   };
 }
+export async function getAllCommentsAdmin(
+  page: number,
+  limit: number,
+  query: string
+) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/comments/admin/list?page=${page}&limit=${limit}&query=${query}`, {
+      credentials: 'include',
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch comments");
+  }
+  const data = await response.json();
+  return data as {
+    data: Comment[];
+    pagination: {
+      currentPage: number;
+      totalPage: number;
+      totalElement: number;
+      limit: number;
+    };
+  };
+}

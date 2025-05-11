@@ -10,13 +10,14 @@ import {
   MessageSquareMore,
   Search,
   Settings,
+  Shield,
 } from "lucide-react";
 import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { toast } from "sonner";
 import { DropdownSetting } from "./dropdown-setting";
-import UserNoti from "./noti";
 import { SheetSetting } from "./sheet-settings";
+import UserNotification from "./notifications";
 
 export default function SideNav({
   disableNavOnPhone = false,
@@ -95,7 +96,7 @@ export default function SideNav({
             <MessageSquareMore />
             <span className="hidden md:block">Message</span>
           </NavLink>
-          <UserNoti open={notiOpen} onOpenChange={setNotiOpen} />
+          <UserNotification open={notiOpen} onOpenChange={setNotiOpen} />
           <button
             onClick={(e) => {
               if (!user) {
@@ -169,7 +170,7 @@ export default function SideNav({
               "hidden md:flex",
               "h-9 items-center max-md:mx-auto gap-2 px-4 md:pr-12 rounded-lg font-bold transition-colors hover:text-foreground hover:bg-accent text-muted-foreground"
             )}
-          >
+            >
             <Settings />
             <span className="hidden md:block">Setting</span>
           </button>

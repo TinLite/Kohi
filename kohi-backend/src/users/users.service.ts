@@ -113,7 +113,7 @@ export class UsersService {
   }
   //GET ONE user
   async findOne(id: string): Promise<User> {
-    return this.userModel.findById(id).select('+bio +email +sdt');
+    return this.userModel.findById(id).select('+bio +email +sdt +roles');
   }
   //GET SessionUser
   async findById(id: string) {
@@ -303,4 +303,15 @@ export class UsersService {
     // console.log(newUser);
     return newUser;
   }
+  async findByIdAndUpdateWithGG(id, googleId) {
+    return this.userModel
+      .findByIdAndUpdate({_id:id}, { googleId: googleId })
+      .exec();
+  }
+  async findByIdAndUpdateWithDiscord(id, discordId) {
+    return this.userModel
+      .findByIdAndUpdate({_id:id}, { discordId: discordId })
+      .exec();
+  }
 }
+

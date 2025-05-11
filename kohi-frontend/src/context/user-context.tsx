@@ -26,6 +26,7 @@ export const UserProvider = ({ children, userData }: { children: React.ReactNode
             .catch(() => { })
             .finally(() => setIsAuthenticating(false))
     }, []);
+    console.log("user", user);
     return (
         <UserContext.Provider value={{ user, setUser, loginFormOpen, setLoginFormOpen, isAuthenticating }}>
             {children}

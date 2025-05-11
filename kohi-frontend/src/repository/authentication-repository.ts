@@ -135,3 +135,16 @@ export async function loginGoogle(redirect: string = "") {
   if (!response.ok) throw new Error("Login failed");
   return response.json();
 }
+export async function loginDiscord(redirect: string = "") {
+  window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+    import.meta.env.VITE_API_PREFIX
+  }/auth/discord${redirect ? `?redirect=${redirect}` : ""}`;
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/auth/profile`,
+    { credentials: "include" }
+  );
+  if (!response.ok) throw new Error("Login failed");
+  return response.json();
+}

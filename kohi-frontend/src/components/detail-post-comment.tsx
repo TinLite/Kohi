@@ -154,6 +154,7 @@ const DetailPost = ({
                       : [...prev, comment._id] // Mở rộng nếu chưa mở
                 )
               }
+              focusedCommentId={commentId ?? ""}
             />
           </div>
         ))}

@@ -24,6 +24,7 @@ import { NotificationsService } from 'src/notifications/notifications.service';
 import { LIKECommentNotificationDto } from 'src/notifications/dto/new-likecomment-notification.dto';
 import { NewReplyCommentNotificationDto } from 'src/notifications/dto/new-reply-comment-notification.dto';
 import { User } from 'src/auth/user.decorator';
+import mongoose from 'mongoose';
 
 @Controller('comments')
 export class CommentsController {
@@ -48,7 +49,7 @@ export class CommentsController {
     );
     const data = await this.postsService.findOne(postId);
     // .depopulate('author');
-    if (authorId != data.author) {
+    if (authorId !== data.author) {
       const notification =
         await this.notificationsService.createNotificationNewComment(
           new NewCommentNotificationDto({
@@ -106,7 +107,7 @@ export class CommentsController {
       author,
       replyCommentDto,
     );
-    if (authorID != author) {
+    if (authorID !== author) {
       await this.notificationsService.createNotificationReplyComment(
         new NewReplyCommentNotificationDto({
           userId: authorID,
@@ -132,7 +133,7 @@ export class CommentsController {
       throw new NotFoundException('You have already liked this comment');
     }
     const authorId = comment.author;
-    if (authorId != author) {
+    if (authorId !== author) {
       const notification =
         await this.notificationsService.createNotificationLikeComment(
           new LIKECommentNotificationDto({
@@ -198,30 +199,38 @@ export class CommentsController {
   // @Roles(Role.ADMIN)
   // @Public()
   @Get('list/:id')
-  async getCommentByPostId(
-    @Param('id') postId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+async getCommentByPostId(
+  @Param('id') postId: string,
+  @Query('page') page?: string,
+  @Query('limit') limit?: string,
+) {
+  // Kiểm tra nếu postId không phải là ObjectId hợp lệ
+  if (!mongoose.isValidObjectId(postId)) {
+    throw new BadRequestException('Invalid post ID');
+  }
+
+  const post = await this.postsService.findOne(postId);
+  if (!post) {
+    throw new NotFoundException('Post not found');
+  }
+
+  const currentPage = page ? Number(page) : 1;
+  const currentLimit = limit ? Number(limit) : 10;
+
+  if (
+    !Number.isInteger(currentPage) ||
+    !Number.isInteger(currentLimit) ||
+    currentPage <= 0 ||
+    currentLimit <= 0
   ) {
-    const post = await this.postsService.findOne(postId);
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
-    const currentPage = page ? Number(page) : 1;
-    const currentLimit = limit ? Number(limit) : 10;
-    if (
-      !Number.isInteger(currentPage) ||
-      !Number.isInteger(currentLimit) ||
-      currentPage <= 0 ||
-      currentLimit <= 0
-    ) {
-      throw new BadRequestException('Malfunctioned page or limit');
-    }
-    return this.commentsService.getCommentByPostId(
-      postId,
-      currentPage,
-      currentLimit,
-    );
+    throw new BadRequestException('Malfunctioned page or limit');
+  }
+
+  return this.commentsService.getCommentByPostId(
+    postId,
+    currentPage,
+    currentLimit,
+  );
   }
   // get bình luận theo replyTo
   // @Public()
@@ -275,5 +284,26 @@ async getCommentsByAuthorId(
     currentPage,
     currentLimit,
   );
+}
+@Roles(Role.ADMIN)
+@Get('admin/list')
+async findAllByAdmin(
+  @Query('page') page?: string,
+  @Query('limit') limit?: string,
+  @Query('query') query?: string,
+) {
+  const currentPage = page ? Number(page) : 1;
+  const currentLimit = limit ? Number(limit) : 10;
+  if (
+    !Number.isInteger(currentPage) ||
+    !Number.isInteger(currentLimit) ||
+    currentPage <= 0 ||
+    currentLimit <= 0
+  ) {
+    throw new BadRequestException('Malfunctioned page or limit');
+  }
+
+  return this.commentsService.getAllComment(currentPage, currentLimit,query);
+
 }
 }

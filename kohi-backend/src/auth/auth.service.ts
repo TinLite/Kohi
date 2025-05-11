@@ -40,8 +40,11 @@ export class AuthService {
     // const user = await this.usersService.findGoogleId(id);
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
-      if (existingUser && !existingUser.googleId) {
-        throw new BadGatewayException('Email linked to another account');
+      if (!existingUser.googleId) {
+        await this.usersService.findByIdAndUpdateWithGG(existingUser._id, id);
+        return {
+          _id: existingUser._id,
+        };
       }
     }
     const createUserWithGGDto: CreateUserWithGGDto = {
@@ -61,8 +64,14 @@ export class AuthService {
     const displayName = profile.global_name || null;
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
-      if (existingUser && !existingUser.discordId) {
-        throw new BadGatewayException('Email linked to another account');
+      if (!existingUser.discordId) {
+        await this.usersService.findByIdAndUpdateWithDiscord(
+          existingUser._id,
+          id,
+        );
+        return {
+          _id: existingUser._id,
+        };
       }
     }
     const createUserWithDiscordDto: CreateUserWithDiscordDto = {

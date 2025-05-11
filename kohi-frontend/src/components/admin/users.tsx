@@ -1,7 +1,16 @@
+import { AdminGetAllUsers } from "@/repository/user-repository";
+import { User } from "@/types/user-type";
+import { EllipsisVertical } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom"; // Import useSearchParams
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import {
   Table,
@@ -11,17 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { AdminGetAllUsers } from "@/repository/user-repository";
-import { User } from "@/types/user-type";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { EllipsisVertical } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { Label } from "../ui/label";
 
 export default function AdminUsers() {
   const [searchParams, setSearchParams] = useSearchParams(); // Hook để quản lý query params
@@ -55,21 +53,15 @@ export default function AdminUsers() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
-      setCurrentPage(1);
-      // setSearchParams({ page: "1" }); // Cập nhật query params về trang 1
+      if (searchQuery) {
+        setCurrentPage(1); // Chỉ quay về trang 1 khi từ khóa tìm kiếm thay đổi
+      }
     }, 1000);
 
     return () => {
       clearTimeout(handler);
     };
   }, [searchQuery]);
-
-  // useEffect(() => {
-  //   const pageFromParams = Number(searchParams.get("page"));
-  //   if (pageFromParams && pageFromParams !== currentPage) {
-  //     setCurrentPage(pageFromParams);
-  //   }
-  // }, [searchParams]);
 
   useEffect(() => {
     setSearchParams({ page: currentPage.toString() });
@@ -80,10 +72,10 @@ export default function AdminUsers() {
     setSearchParams({ page: page.toString() });
   };
   return (
-    <div className="w-full px-6 py-8">
+    <div className="w-full px-4 py-2">
       <div>
-        <h2 className="text-2xl font-semibold mb-6">Users</h2>
-        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+        <h2 className="text-2xl font-bold mb-6">User Administration</h2>
+        <div className="flex flex-col sm:flex-row gap-4 mb-">
           <Input
             type="text"
             placeholder="Search user..."
@@ -132,13 +124,13 @@ export default function AdminUsers() {
           </Table>
         </div>
         {totalPages > 1 && (
-          <div className="flex justify-center mt-6 space-x-2">
+          <div className="flex justify-center mt-4 space-x-2">
             {Array.from({ length: totalPages }, (_, i) => (
               <Button
                 key={i}
                 variant={currentPage === i + 1 ? "default" : "outline"}
                 onClick={() => handlePageChange(i + 1)}
-                className="w-10 h-10 p-0"
+                className="w-10 h-10 p-0 mb-2"
               >
                 {i + 1}
               </Button>

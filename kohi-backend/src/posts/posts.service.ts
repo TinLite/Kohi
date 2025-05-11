@@ -363,11 +363,8 @@ export class PostsService {
   //get all post in database
   async findAllByAdmin(page: number, limit: number, query?: string) {
     const skip = (page - 1) * limit;
-
-    // Tạo bộ lọc tìm kiếm
     const filter: any = {};
     if (query) {
-
       const users = await this.usersService.findByNameOrDisplayName(query);
       const authorIds = users.map((user) => user._id);
 

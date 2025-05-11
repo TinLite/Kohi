@@ -11,6 +11,7 @@ export class User {
   createAt?: Date;
   sdt?: string;
   email?: string;
+  roles?: string[];
   constructor(
     _id: string,
     username: string,
@@ -23,7 +24,8 @@ export class User {
     bookmarks?: string[],
     createAt?: Date,
     sdt?: string,
-    email?: string
+    email?: string,
+    roles?: string[]
   ) {
     this._id = _id;
     this.username = username;
@@ -37,5 +39,6 @@ export class User {
     this.createAt = createAt;
     this.sdt = sdt;
     this.email = email;
+    this.roles = roles;
   }
 }

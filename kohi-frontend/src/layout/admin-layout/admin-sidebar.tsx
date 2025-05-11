@@ -23,7 +23,7 @@ import {
   Moon,
   Settings,
   Sun,
-  Users
+  Users,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -47,23 +47,23 @@ export default function AdminSidebar() {
             <SidebarMenuButton asChild>
               <NavLink to="/admin/users">
                 <Users className="w-5 h-5" />
-                <span>Users</span>
+                <span className="font-semibold text-sm">Users</span>
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <NavLink to="/admin/posts">
-                <BookText />
-                <span>Posts</span>
+                <BookText className="w-5 h-5" />
+                <span className="font-semibold text-sm">Posts</span>
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <NavLink to="/admin/comments">
-                <MessageCircle />
-                <span>Comments</span>
+                <MessageCircle className="w-5 h-5" />
+                <span className="font-semibold text-sm">Comments</span>
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>

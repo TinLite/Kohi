@@ -30,6 +30,7 @@ import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import UserPost from "./user-post";
 import UserProfileMedia from "./user-profile-media";
+import { ImageViewerContext } from "@/context/image-viewer-context";
 const UserProfile = () => {
   const [media, setMedia] = useState<Post[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -37,6 +38,7 @@ const UserProfile = () => {
   const { user, setUser } = useContext(UserContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const wallInputRef = useRef<HTMLInputElement>(null);
+    const { openImage } = useContext(ImageViewerContext);
   const [followMetrics, setFollowMetrics] = useState({
     followingCount: 0,
     followerCount: 0,
@@ -168,13 +170,19 @@ const UserProfile = () => {
         <div className="flex-grow max-w-2xl ">
           <div className="w-full">
             <img
-              src={user?.wall || "../../public/wall/star.jpg"}
+              src={user?.wall || "https://github.com/QuangTeoo.png"}
               alt="Wall Image"
               className=" w-full h-full aspect-[3/1] md:aspect-[5/1]  object-cover md:mt-6 md:rounded-xl"
+              onClick={() =>
+                openImage(user?.wall || "https://github.com/QuangTeoo.png")
+              }
             />
             <div className="flex items-end gap-4 mt-6">
               <div className="flex shrink-0">
-                <Avatar className="w-full h-28">
+                <Avatar className="w-full h-28"
+                onClick={() =>
+                  openImage(user?.avatar || "https://github.com/QuangTeoo.png")}
+                >
                   <AvatarImage
                     src={user?.avatar || "https://github.com/QuangTeoo.png"}
                     alt="@shadcn"

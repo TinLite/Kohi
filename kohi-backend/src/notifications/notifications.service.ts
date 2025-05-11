@@ -261,4 +261,17 @@ export class NotificationsService {
       { $push: { flags: NotificationFlags.HIDDEN } },
     );
   }
+  //đánh dấu đã đọc tất cả thông báo của người dùng
+  async readAllNotificationByUserId(userId: string) {
+    return await this.notificationModel
+      .updateMany(
+        {
+          userId: userId,
+          isRead: false,
+          flags: { $nin: [NotificationFlags.HIDDEN] },
+        },
+        { $set: { isRead: true } },
+      )
+      .exec();
+  }
 }

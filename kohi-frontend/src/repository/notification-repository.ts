@@ -44,4 +44,17 @@ export async function readNotification(id: string) {
       return response.json();
     }
   }
-
+export async function readAllNotifications() {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/notifications/read-all`,
+    {
+      method: "POST",
+      credentials: 'include',
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to read notifications");
+  }
+}

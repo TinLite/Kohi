@@ -1,6 +1,17 @@
+import { getAllPostsAdmin } from "@/repository/PostsRepository";
+import { Post } from "@/types/post-type";
+import { EllipsisVertical } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Input } from "../ui/input";
 import {
   Table,
   TableBody,
@@ -9,12 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { getAllPostsAdmin } from "@/repository/PostsRepository";
-import { Post } from "@/types/post-type";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { EllipsisVertical } from "lucide-react";
 
 export default function AdminPosts() {
   const [searchParams] = useSearchParams();
@@ -34,6 +39,9 @@ export default function AdminPosts() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(encodeURIComponent(searchQuery));
+      if (searchQuery) {
+        setCurrentPage(1); // Chỉ quay về trang 1 khi từ khóa tìm kiếm thay đổi
+      }
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -57,9 +65,9 @@ export default function AdminPosts() {
   };
 
   return (
-    <div className="w-full px-6 py-8">
-      <h2 className="text-2xl font-semibold mb-6">Danh sách Posts</h2>
-      <div className="flex flex-col sm:flex-row gap-4 mb-4">
+    <div className="w-full px-4 py-2">
+      <h2 className="text-2xl font-bold mb-6">Post Administration</h2>
+      <div className="flex flex-col sm:flex-row gap-4 mb-2">
         <Input
           type="text"
           placeholder="Tìm kiếm posts..."
@@ -68,8 +76,6 @@ export default function AdminPosts() {
           className="w-full sm:w-1/3"
         />
       </div>
-
-      {/* Table Posts */}
       <div className="overflow-x-auto min-h-[300px]">
         <Table className="w-full text-base">
           <TableHeader>
@@ -117,13 +123,13 @@ export default function AdminPosts() {
         </Table>
       </div>
       {totalPages > 1 && (
-        <div className="flex justify-center mt-6 space-x-2">
+        <div className="flex justify-center mt-4 space-x-2">
           {Array.from({ length: totalPages }, (_, i) => (
             <Button
               key={i}
               variant={currentPage === i + 1 ? "default" : "outline"}
               onClick={() => handlePageChange(i + 1)}
-              className="w-10 h-10 p-0"
+              className="w-10 h-10 p-0 mb-2"
             >
               {i + 1}
             </Button>
@@ -143,7 +149,7 @@ export function DropdownPost({ post }: { post?: Post }) {
           <EllipsisVertical className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" >
+      <DropdownMenuContent align="end">
         <DropdownMenuItem
           onClick={() => {
             // navigate(`/admin/users/detail/${user?._id}`);

@@ -11,12 +11,15 @@ import mongoose, { Model } from 'mongoose';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PostsService } from 'src/posts/posts.service';
 import { timeStamp } from 'console';
+import e from 'express';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CommentsService {
   constructor(
     @InjectModel(Comment.name) private readonly commentModel: Model<Comment>,
     private readonly postsService: PostsService,
+    private readonly usersService: UsersService,
   ) {}
 
   //Create Bình luận
@@ -115,7 +118,7 @@ export class CommentsService {
           select: '_id username displayname avatar',
         },
       })
-      .sort({ timeStamp: +1 })
+      .sort({ timeStamp: -1 })
       .exec();
     const totalComment = await this.commentModel
       .countDocuments({ postId })
@@ -188,6 +191,38 @@ export class CommentsService {
     const totalComment = await this.commentModel.countDocuments({
       author: authorId,
     });
+    const totalPage = Math.ceil(totalComment / limit);
+    return {
+      data: comment,
+      pagination: {
+        currentPage: page,
+        totalElement: totalComment,
+        totalPage: totalPage,
+        limit: limit,
+      },
+    };
+  }
+  async getAllComment(page: number, limit: number, query?: string) {
+    const skip = (page - 1) * limit;
+    const filter: any = {};
+    if (query) {
+      const users = await this.usersService.findByNameOrDisplayName(query);
+      const authorIds = users.map((user) => user._id);
+
+      filter.$or = [
+        { content: { $regex: query, $options: 'i' } },
+        { author: { $in: authorIds } },
+      ];
+    }
+
+    const comment = await this.commentModel
+      .find(filter)
+      .populate('author', 'username avatar displayName')
+      .skip(skip)
+      .limit(limit)
+      .sort({ timeStamp: -1 })
+      .exec();
+    const totalComment = await this.commentModel.countDocuments(filter).exec();
     const totalPage = Math.ceil(totalComment / limit);
     return {
       data: comment,

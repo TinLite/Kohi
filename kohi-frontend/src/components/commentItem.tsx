@@ -42,6 +42,7 @@ const CommentItem = ({
   onUpdateComment,
   showReplies, // Nhận trạng thái mở rộng từ cha
   onToggleReplies, // Nhận callback để thay đổi trạng thái
+  focusedCommentId,
 }: {
   comment: Comment;
   allComments: Comment[];
@@ -50,6 +51,7 @@ const CommentItem = ({
   onUpdateComment?: () => void;
   showReplies: boolean;
   onToggleReplies: () => void;
+  focusedCommentId: string | null;
 }) => {
   const { user, setLoginFormOpen } = useContext(UserContext);
   const [isLiked, setIsLiked] = useState(
@@ -134,8 +136,14 @@ const CommentItem = ({
         console.error(error);
       });
   };
+  const isFocused = comment._id === focusedCommentId; // Kiểm tra nếu comment được focus
   return (
-    <div className="space-y-4">
+ <div
+  className={cn(
+    "space-y-4 border bg-card rounded-lg p-4",
+    isFocused ? "bg-primary/10 border-primary" : "" // Thêm class nếu được focus
+  )}
+>
       <div className="flex items-start gap-4 px-6 pt-4">
         <Avatar className="w-8 h-8">
           <AvatarImage
@@ -246,6 +254,7 @@ const CommentItem = ({
               onUpdateComment={onUpdateComment}
               showReplies={showReplies} // Truyền trạng thái xuống
               onToggleReplies={onToggleReplies} // Truyền callback xuống
+              focusedCommentId={focusedCommentId} // Truyền ID của comment đang được focus
             />
           ))}
         </div>

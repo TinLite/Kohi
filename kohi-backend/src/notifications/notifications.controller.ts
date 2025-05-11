@@ -80,4 +80,12 @@ export class NotificationsController {
     }
     return await this.notificationsService.deleteNotification(id);
   }
+  @Post('read-all')
+  async readAllNotifications(@User() req) {
+    if (!req._id) {
+      throw new NotFoundException('User not found');
+    }
+    return await this.notificationsService.readAllNotificationByUserId(req._id);
+  }
+
 }
