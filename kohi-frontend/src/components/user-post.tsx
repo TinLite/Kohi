@@ -228,6 +228,7 @@ export default function UserPost({
   onEditPost,
   onFollowChange,
   onUpdateLike,
+  onCommentCreate,
   hideComment,
   showEditPost,
   className,
@@ -242,6 +243,7 @@ export default function UserPost({
   onEditPost?: () => void;
   onFollowChange?: () => void;
   onUpdateLike?: () => void;
+  onCommentCreate?: () => void;
   showEditPost?: boolean;
   onBookmarkUpdate?: (newStatus: boolean) => void;
   lineClampNumber?: number;
@@ -249,22 +251,16 @@ export default function UserPost({
 }) {
   const { user, setUser, setLoginFormOpen } = useContext(UserContext);
   const {openImage} = useContext(ImageViewerContext);
-  const [openReport, setOpenReport] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
   const [isLiked, setIsLiked] = useState(
     post.likes?.includes(user ? user._id : "") ?? 0
   );
   const [isBookMarked, setIsBookMarked] = useState(false);
   const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
-  const navigate = useNavigate();
   const handleOpenQuoteDialog = () => {
     setIsQuoteDialogOpen(true);
   };
   const handleCloseQuoteDialog = () => {
     setIsQuoteDialogOpen(false);
-  };
-  const handleOpenReport = () => {
-    setOpenReport(true);
   };
 
   const handleLike = async () => {
@@ -274,7 +270,7 @@ export default function UserPost({
       return;
     }
     await likePost(post._id)
-      .then((res) => {
+      .then(() => {
         onUpdateLike?.();
         setIsLiked(true);
       })
@@ -289,7 +285,7 @@ export default function UserPost({
       return;
     }
     unLikePost(post._id)
-      .then((res) => {
+      .then(() => {
         onUpdateLike?.();
         setIsLiked(false);
       })
@@ -503,7 +499,7 @@ export default function UserPost({
                 {post.likes?.length || ""}
               </Button>
               <div>
-                <CommentUI postId={post._id} post={post} />
+                <CommentUI postId={post._id} post={post} onCreatedComment={onCommentCreate} />
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

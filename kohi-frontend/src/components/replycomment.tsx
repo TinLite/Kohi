@@ -1,15 +1,14 @@
+import { UserContext } from "@/context/user-context";
+import { replyToComment } from "@/repository/comment-repository";
+import { Comment } from "@/types/comment-type";
+import { DateTime } from "luxon";
+import { useContext, useState } from "react";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Textarea } from "./ui/textarea";
-import { Comment } from "@/types/comment-type";
-import { useContext, useState } from "react";
-import { UserContext } from "@/context/user-context";
 import { Separator } from "./ui/separator";
-import { replyToComment } from "@/repository/comment-repository";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { DateTime } from "luxon";
+import { Textarea } from "./ui/textarea";
 export default function ReplyComment({
   comment,
   onReply,
@@ -20,7 +19,6 @@ export default function ReplyComment({
   const { user, setLoginFormOpen } = useContext(UserContext);
   const [isOpenReply, setIsOpenReply] = useState(false);
   const [replyComment, setReplyComment] = useState("");
-  const navigate = useNavigate();
   const handleReplyComment = async () => {
     if (!replyComment.trim()) return;
     try {
@@ -55,10 +53,10 @@ export default function ReplyComment({
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
           <div className="flex-grow">
-            <p className="text-gray-700 font-bold">
+            <p className="font-bold">
               {comment.author.displayName}
             </p>
-            <p className="text-gray-700">{comment.content}</p>
+            <p>{comment.content}</p>
             <span className="text-sm text-muted-foreground">
               {comment.timeStamp
                 ? DateTime.fromISO(comment.timeStamp.toString()).toRelative()

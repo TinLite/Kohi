@@ -1,17 +1,14 @@
 import { UserContext } from "@/context/user-context";
 import {
-  createComment,
-  listCommentsByPostId,
+  createComment
 } from "@/repository/comment-repository";
-import { Comment } from "@/types/comment-type";
 import { Post } from "@/types/post-type";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { MessageCircle } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent } from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { Textarea } from "./ui/textarea";
 
@@ -24,27 +21,9 @@ const CommentUI = ({
   post: Post;
   onCreatedComment?: () => void;
 }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const { user, setLoginFormOpen } = useContext(UserContext);
-  const navigate = useNavigate();
-  const fetchComments = async () => {
-    try {
-      const response = await listCommentsByPostId(postId);
-      if (response && response.data && Array.isArray(response.data)) {
-        setComments(response.data);
-      } else {
-        setComments([]);
-      }
-    } catch (err) {
-      console.error(err);
-      setComments([]);
-    }
-  };
-  useEffect(() => {
-    fetchComments();
-  }, []);
-
+  const [isOpen, setIsOpen] = useState(false);
   const handleCreateComment = () => {
     if (!newComment.trim()) return;
     createComment(postId, newComment)
@@ -56,7 +35,7 @@ const CommentUI = ({
         }
         setNewComment("");
         onCreatedComment?.();
-        fetchComments();
+        setIsOpen(false);
       })
       .catch((err) => {
         console.error(err);
@@ -64,12 +43,10 @@ const CommentUI = ({
   };
   return (
     <div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="ghost">
-            <MessageCircle className="h-4 w-4" />
-          </Button>
-        </DialogTrigger>
+      <Button variant="ghost" onClick={() => setIsOpen(true)}>
+        <MessageCircle className="h-4 w-4" />
+      </Button>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-lg">
           <div className="flex px-6 py-4 flex-row gap-4 items-center">
             <Avatar className="w-8 h-8">
