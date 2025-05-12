@@ -260,7 +260,7 @@ export function NotificationList({
       case "LIKE_COMMENT":
       case "NEW_REPLY_COMMENT":
         if (Notification.post && Notification.comment) {
-          navigate(`/post/detail/${Notification.post}#comment`, {
+          navigate(`/post/detail/${Notification.post}`, {
             state: { commentId: Notification.comment },
           });
         } else {

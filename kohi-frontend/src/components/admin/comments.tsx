@@ -5,7 +5,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import {
   Table,
@@ -15,6 +20,14 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 export default function AdminComments() {
   const [searchParams] = useSearchParams();
@@ -101,7 +114,9 @@ export default function AdminComments() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">{comment.content}</TableCell>
+                  <TableCell className="text-right">
+                    {comment.content}
+                  </TableCell>
                   <TableCell className="text-right">
                     {new Date(comment.timeStamp || "").toLocaleString("vi-VN")}
                   </TableCell>
@@ -139,25 +154,57 @@ export default function AdminComments() {
 }
 export function DropdownComment({ comment }: { comment: Comment }) {
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
   const navigate = useNavigate();
   return (
-    <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="w-8 h-8 p-0">
-          <EllipsisVertical className="h-5 w-5" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => {
-            // navigate(`/admin/users/detail/${user?._id}`);
-            setOpenDropdown(false);
-          }}
-        >
-          View
-        </DropdownMenuItem>
-        <DropdownMenuItem>Hide</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="icon" className="w-8 h-8 p-0">
+            <EllipsisVertical className="h-5 w-5" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => {
+              // navigate(`/admin/users/detail/${user?._id}`);
+              setOpenDropdown(false);
+            }}
+          >
+            View
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setOpenConfirm(true);
+              setOpenDropdown(false);
+            }}
+          >
+            Hide
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will hide the post. You can undo this later in
+              settings.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setOpenConfirm(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive">Confirm</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

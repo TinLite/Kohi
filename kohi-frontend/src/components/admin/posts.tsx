@@ -20,6 +20,15 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 export default function AdminPosts() {
   const [searchParams] = useSearchParams();
@@ -141,36 +150,56 @@ export default function AdminPosts() {
 }
 export function DropdownPost({ post }: { post?: Post }) {
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
   const navigate = useNavigate();
-  return (
-    <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="w-8 h-8 p-0">
-          <EllipsisVertical className="h-5 w-5" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => {
-            // navigate(`/admin/users/detail/${user?._id}`);
-            setOpenDropdown(false);
-          }}
-        >
-          View
-        </DropdownMenuItem>
-        <DropdownMenuItem>Hide</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-export function HidePost({post}: { post?: Post }) {
-  const [openForm, setOpenForm] = useState(false);
-  const navigate = useNavigate();
-  return (
-  <div>
-    {/* <Dialog>
+  const handleHidePost = () => {
+    console.log("Post hidden:", post?._id);
+    // Add logic to hide the post here
+  };
 
-    </Dialog> */}
-  </div>
+  return (
+    <>
+      <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="icon" className="w-8 h-8 p-0">
+            <EllipsisVertical className="h-5 w-5" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => {
+              setOpenDropdown(false);
+            }}
+          >
+            View
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpenConfirm(true)}>
+            Hide Post
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will hide the post. You can undo this later in
+              settings.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setOpenConfirm(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive">Confirm</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
