@@ -18,6 +18,7 @@ import { PostsModule } from './posts/posts.module';
 import { ReportsModule } from './reports/reports.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
+import { BanModule } from './ban/ban.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { UtilsModule } from './utils/utils.module';
     CloudinaryModule,
     ReportsModule,
     CallsModule,
+    BanModule,
   ],
   controllers: [AppController],
   providers: [

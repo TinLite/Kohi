@@ -228,23 +228,6 @@ export async function deletePost(postId: string) {
   );
   return response.json();
 }
-
-export async function reportPost(postId: string, reason: string) {
-  const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
-    }/reports/post/${postId}`,
-    {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ reason }),
-    }
-  );
-  return response.json();
-}
 export async function getPostsByAuthor(authorId: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${

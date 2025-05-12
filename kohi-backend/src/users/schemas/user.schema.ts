@@ -59,6 +59,20 @@ export class User {
   googleId: string;
   @Prop()
   discordId: string;
+  // @Prop({ default: false, select: false })
+  // isBanned: boolean;
+  // @Prop({
+  //   default: [],
+  //   enum: ['post', 'comment', 'account'],
+  //   type: [String],
+  //   select: false,
+  // })
+  // banActions: string[];
+  // @Prop({ type: Date, select: false })
+  // banExpiresAt?: Date;
+  // @Prop({ type: Date })
+  // postBanExpiresAt?: Date;
+  // @Prop({ type: Date })
+  // commentBanExpiresAt?: Date;
 }
-
 export const UserSchema = SchemaFactory.createForClass(User);

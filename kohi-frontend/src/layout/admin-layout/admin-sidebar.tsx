@@ -18,6 +18,7 @@ import {
 import {
   ArrowLeft,
   BookText,
+  Flag,
   MessageCircle,
   MonitorSmartphone,
   Moon,
@@ -64,6 +65,14 @@ export default function AdminSidebar() {
               <NavLink to="/admin/comments">
                 <MessageCircle className="w-5 h-5" />
                 <span className="font-semibold text-sm">Comments</span>
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <NavLink to="/admin/reports">
+              <Flag className="w-5 h-5" />
+                <span className="font-semibold text-sm">Reports</span>
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>

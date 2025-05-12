@@ -13,18 +13,24 @@ export class ReportsService {
   async create(
     createReportDto: CreateReportDto,
     userId: string,
-    postId?: string,
-    commentId?: string,
+    type: string,
+    targetId: string,
   ) {
     const { reason } = createReportDto;
     return this.reportModel.create({
-      userId: userId,
-      postId: postId,
-      commentId: commentId,
+      userId,
+      type,
+      targetId,
       reason,
     });
   }
-
+  async findOneReportByUserAndTargetId(
+    userId: string,
+    type: string,
+    targetId: string,
+  ) {
+    return this.reportModel.findOne({ userId, type, targetId });
+  }
   findAll() {
     return `This action returns all reports`;
   }
@@ -44,5 +50,11 @@ export class ReportsService {
 
   remove(id: number) {
     return `This action removes a #${id} report`;
+  }
+  async findAllReportsByPostId(postId: string) {
+    return this.reportModel.find({ postId });
+  }
+  async findAllReportsByCommentId(commentId: string) {
+    return this.reportModel.find({ commentId });
   }
 }

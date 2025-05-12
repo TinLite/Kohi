@@ -51,7 +51,7 @@ export function DropdownSetting({ children }: { children: React.ReactNode }) {
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={() => navigate("/admin")}>
               <Shield className="mr-2 h-4 w-4" />
-              <span>Admin</span>
+              <span>Trang Admin</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         )}

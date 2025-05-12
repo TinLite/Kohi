@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { Comment } from 'src/comments/schemas/comment.schema';
-import { Post } from 'src/posts/schemas/post.schema';
 import { User } from 'src/users/schemas/user.schema';
 export enum ReportFlags {
   HIDDEN = 'hidden',
@@ -10,10 +8,10 @@ export enum ReportFlags {
 export class Report {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   userId: User;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Post' })
-  postId: Post;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' })
-  commentId: Comment;
+  @Prop({ enum: ['post', 'comment'], required: true })
+  type: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, refPath: 'type' })
+  targetId: mongoose.Schema.Types.ObjectId;
   @Prop()
   reason: string;
   @Prop({ default: Date.now })

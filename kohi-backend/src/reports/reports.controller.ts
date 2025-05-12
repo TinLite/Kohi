@@ -9,6 +9,7 @@ import {
   NotFoundException,
   BadGatewayException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
@@ -28,58 +29,46 @@ export class ReportsController {
     private readonly commentsService: CommentsService,
   ) {}
 
-  @Post('/post/:id')
-  async create(
+  @Post('/:type/:id')
+  async createReport(
     @Body() createReportDto: CreateReportDto,
-    @User() User,
-    @Param('id') postId: string,
+    @User() user,
+    @Param('type') type: 'post' | 'comment',
+    @Param('id') targetId: string,
   ) {
-    const userId = User._id;
+    const userId = user._id;
+
     if (!userId) {
       throw new NotFoundException('User not found');
     }
-    const isExitPost = await this.postsService.findOneNoPopulate(postId);
-    if (!isExitPost) {
-      throw new NotFoundException('Post not found');
+
+    // Kiểm tra đối tượng tồn tại
+    if (type === 'post') {
+      const isExistPost = await this.postsService.findOneNoPopulate(targetId);
+      if (!isExistPost) {
+        throw new NotFoundException('Post not found');
+      }
+    } else if (type === 'comment') {
+      const isExistComment = await this.commentsService.getOneComment(targetId);
+      if (!isExistComment) {
+        throw new NotFoundException('Comment not found');
+      }
+    } else {
+      throw new BadRequestException('Invalid report type');
     }
-    const isReported = await this.reportsService.findOneReportByUserAndPostId(
+
+    // Kiểm tra xem đã report chưa
+    const isReported = await this.reportsService.findOneReportByUserAndTargetId(
       userId,
-      postId,
+      type,
+      targetId,
     );
     if (isReported) {
-      throw new ConflictException('You already reported this post');
+      throw new ConflictException(`You already reported this ${type}`);
     }
-    return this.reportsService.create(createReportDto, userId, postId);
-  }
-  @Post('/comment/:id')
-  async createCommentReport(
-    @Body() createReportDto: CreateReportDto,
-    @User() User,
-    @Param('id') commentId: string,
-  ) {
-    const userId = User._id;
-    if (!userId) {
-      throw new NotFoundException('User not found');
-    }
-    const isExitComment = await this.commentsService.getOneComment(commentId);
-    // console.log(isExitComment);
-    if (!isExitComment) {
-      throw new NotFoundException('Comment not found');
-    }
-    const isReported =
-      await this.reportsService.findOneReportByUserAndCommentId(
-        userId,
-        commentId,
-      );
-    if (isReported) {
-      throw new ConflictException('You already reported this comment');
-    }
-    return this.reportsService.create(
-      createReportDto,
-      userId,
-      undefined,
-      commentId,
-    );
+
+    // Tạo report
+    return this.reportsService.create(createReportDto, userId, type, targetId);
   }
   @Roles('admin')
   @Post('/hide/post/:id')
@@ -98,7 +87,7 @@ export class ReportsController {
   @Post('/hide/comment/:id')
   async hideComment(@Param('id') commentId: string, @User() user) {
     const userId = user._id;
-   
+
     const isExitComment = await this.commentsService.getOneComment(commentId);
     if (!isExitComment) {
       throw new NotFoundException('Comment not found');

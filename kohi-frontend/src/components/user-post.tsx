@@ -29,7 +29,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import CommentUI from "./comment";
-import { ReportPostDialog } from "./reportDialog";
+import { ReportDialog } from "./reportDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -429,7 +429,7 @@ export default function UserPost({
             onEditPost={handleEditPost}
           />
         )}
-        {!showEditPost && <ReportPostDialog postId={post._id} />}
+        {!showEditPost && <ReportDialog targetId={post._id} type="post" />}
       </div>
       <Link to={`/post/detail/${post._id}`} className="block px-6 py-4">
         <p className="hyphens-auto" style={{

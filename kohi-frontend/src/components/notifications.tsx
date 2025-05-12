@@ -1,5 +1,6 @@
 import { UserContext } from "@/context/user-context";
 import {
+  deleteAllNotifications,
   deleteNotification,
   getAllNotifications,
   readAllNotifications,
@@ -15,15 +16,10 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 const UserNotification = ({
   open,
@@ -169,6 +165,9 @@ const UserNotification = ({
   const handleReadAllNotification = async () => {
     return readAllNotifications().then(fetchNotifications);
   };
+  const handleDeleteAllNotification = async () => {
+    return deleteAllNotifications().then(fetchNotifications);
+  }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side={side} className="w-[350px] flex flex-col">
@@ -183,14 +182,16 @@ const UserNotification = ({
                 <EllipsisVertical className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="z-50" >
               <DropdownMenuItem
                 onClick={() => handleReadAllNotification()}
+               className="hover:bg-accent"
               >
                 Đánh dấu tất cả đã đọc
               </DropdownMenuItem>
               <DropdownMenuItem
-                // onClick={() => handleDeleteNotification(Notification._id)}
+                onClick={() => handleDeleteAllNotification()}
+                className="hover:bg-accent"
               >
                 Xóa tất cả
               </DropdownMenuItem>
@@ -331,11 +332,13 @@ export function NotificationList({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => handleReadNotification(Notification._id)}
+              className="hover:bg-accent" 
             >
               Đánh dấu đã đọc
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleDeleteNotification(Notification._id)}
+              className="hover:bg-accent"
             >
               Xóa
             </DropdownMenuItem>

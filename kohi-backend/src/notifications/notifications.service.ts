@@ -48,7 +48,7 @@ export class NotificationsService {
     });
     delete notificationPost.__v;
     this.eventsService.announceToUser(
-      notification.userId,
+      notification.userId._id,
       'notification:post:newpost',
       notificationPost,
     );
@@ -102,7 +102,7 @@ export class NotificationsService {
 
     delete notificationComment.__v;
     this.eventsService.announceToUser(
-      notification.userId,
+      notification.userId._id,
       'notification:comment:newcomment',
       notificationComment,
     );
@@ -272,6 +272,13 @@ export class NotificationsService {
         },
         { $set: { isRead: true } },
       )
+      .exec();
+  }
+  async deleteAllNotificationByUserId(userId: string) {
+    return await this.notificationModel
+      .deleteMany({
+        userId: userId,
+      })
       .exec();
   }
 }

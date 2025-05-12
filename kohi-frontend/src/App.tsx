@@ -29,6 +29,7 @@ import AdminUsers from "./components/admin/users";
 import AdminLayout from "./layout/admin-layout/admin-layout";
 import LayoutSystem from "./layout/system-layout";
 import DetailUser from "./components/admin/detailuser";
+import AdminReports from "./components/admin/reports";
 
 const router = createBrowserRouter([
   {
@@ -154,6 +155,10 @@ const router = createBrowserRouter([
         path: "/admin/users/detail/:id",
         element: <DetailUser />,
       },
+      {
+        path: "/admin/reports",
+        element: <AdminReports />
+      }
     ],
   },
 ]);

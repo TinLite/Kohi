@@ -163,3 +163,14 @@ export function DropdownPost({ post }: { post?: Post }) {
     </DropdownMenu>
   );
 }
+export function HidePost({post}: { post?: Post }) {
+  const [openForm, setOpenForm] = useState(false);
+  const navigate = useNavigate();
+  return (
+  <div>
+    {/* <Dialog>
+
+    </Dialog> */}
+  </div>
+  );
+}

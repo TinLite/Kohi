@@ -30,7 +30,7 @@ export async function readNotification(id: string) {
     throw new Error("Failed to read notifications");
   }
 }
-  export async function deleteNotification(id:string) {
+  export async function deleteNotification(id: string) {
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_BASE_URL}/${
         import.meta.env.VITE_API_PREFIX
@@ -56,5 +56,19 @@ export async function readAllNotifications() {
   );
   if (!response.ok) {
     throw new Error("Failed to read notifications");
+  }
+}
+export async function deleteAllNotifications() {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/notifications/delete-all`,
+    {
+      method: "DELETE",
+      credentials: 'include',
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to delete notifications");
   }
 }

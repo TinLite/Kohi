@@ -305,13 +305,88 @@ export class UsersService {
   }
   async findByIdAndUpdateWithGG(id, googleId) {
     return this.userModel
-      .findByIdAndUpdate({_id:id}, { googleId: googleId })
+      .findByIdAndUpdate({ _id: id }, { googleId: googleId })
       .exec();
   }
   async findByIdAndUpdateWithDiscord(id, discordId) {
     return this.userModel
-      .findByIdAndUpdate({_id:id}, { discordId: discordId })
+      .findByIdAndUpdate({ _id: id }, { discordId: discordId })
       .exec();
   }
-}
 
+  // async banUserActions(
+  //   userId: string,
+  //   actions: ('post' | 'comment' | 'account')[],
+  //   reason: string,
+  //   expiresAt?: Date,
+  // ) {
+  //   const updateFields: any = { banReason: reason };
+
+  //   if (actions.includes('account')) {
+  //     updateFields.banExpiresAt = expiresAt || null;
+  //   }
+  //   if (actions.includes('post')) {
+  //     updateFields.postBanExpiresAt = expiresAt || null;
+  //   }
+  //   if (actions.includes('comment')) {
+  //     updateFields.commentBanExpiresAt = expiresAt || null;
+  //   }
+
+  //   return this.userModel.findByIdAndUpdate(
+  //     userId,
+  //     {
+  //       $addToSet: { banActions: { $each: actions } }, // Thêm các hành động bị cấm
+  //       ...updateFields,
+  //     },
+  //     { new: true },
+  //   );
+  // }
+  // async unbanUserActions(
+  //   userId: string,
+  //   actions: ('post' | 'comment' | 'account')[],
+  // ) {
+  //   const updateFields: any = {};
+
+  //   if (actions.includes('account')) {
+  //     updateFields.banExpiresAt = null;
+  //   }
+  //   if (actions.includes('post')) {
+  //     updateFields.postBanExpiresAt = null;
+  //   }
+  //   if (actions.includes('comment')) {
+  //     updateFields.commentBanExpiresAt = null;
+  //   }
+
+  //   return this.userModel.findByIdAndUpdate(
+  //     userId,
+  //     {
+  //       $pull: { banActions: { $in: actions } }, // Gỡ bỏ các hành động bị cấm
+  //       ...updateFields,
+  //     },
+  //     { new: true },
+  //   );
+  // }
+  // async checkAndUnbanUser() {
+  //   const now = new Date();
+  //   const users = await this.userModel.find({
+  //     banExpired: { $lte: now }, // Chỉ kiểm tra người dùng có thời gian hết hạn ban
+  //     banActions: { $exists: true, $not: { $size: 0 } }, // Chỉ kiểm tra người dùng có quyền bị ban
+  //   });
+  //   for (const user of users) {
+  //     const updatedBanActions = user.banActions.filter((action) => {
+  //       // Kiểm tra nếu quyền vẫn còn hiệu lực (chưa hết hạn)
+  //       if (action === 'post' && user.postBanExpiresAt > now) return true;
+  //       if (action === 'comment' && user.commentBanExpiresAt > now) return true;
+  //       if (action === 'account' && user.banExpiresAt > now) return true;
+  //       return false; // Gỡ bỏ quyền đã hết hạn
+  //     });
+  //     await this.userModel.findByIdAndUpdate(user._id, {
+  //       banActions: updatedBanActions,
+  //       ...(updatedBanActions.length === 0 && {
+  //         banReason: null,
+  //         banExpired: null,
+  //       }), // Xóa lý do và thời gian hết hạn nếu không còn quyền bị ban
+  //     });
+  //   }
+  // }
+}

@@ -6,7 +6,7 @@ import {
   Get,
   NotFoundException,
   Param,
-  Post
+  Post,
 } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { User } from 'src/auth/user.decorator';
@@ -21,9 +21,7 @@ export class NotificationsController {
   ) {}
   @Get('all')
   async getAllNotifications(@User() req) {
-    return await this.notificationsService.findAllNotificationByUserId(
-      req._id,
-    );
+    return await this.notificationsService.findAllNotificationByUserId(req._id);
   }
 
   @Delete('delete/:id')
@@ -81,11 +79,18 @@ export class NotificationsController {
     return await this.notificationsService.deleteNotification(id);
   }
   @Post('read-all')
-  async readAllNotifications(@User() req) {
+  readAllNotifications(@User() req) {
     if (!req._id) {
       throw new NotFoundException('User not found');
     }
-    return await this.notificationsService.readAllNotificationByUserId(req._id);
+    return this.notificationsService.readAllNotificationByUserId(req._id);
   }
 
+  @Delete('delete-all')
+  deleteAllNotifications(@User() req) {
+    if (!req._id) {
+      throw new NotFoundException('User not found');
+    }
+    return this.notificationsService.deleteAllNotificationByUserId(req._id);
+  }
 }

@@ -15,46 +15,73 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Ellipsis, ShieldAlert } from "lucide-react";
-import { reportPost } from "@/repository/PostsRepository";
+import { reportTarget } from "@/repository/report-repository";
 import { toast } from "sonner";
-export function ReportPostDialog({ postId }: { postId: string }) {
+
+export function ReportDialog({
+  targetId,
+  type,
+}: {
+  targetId: string;
+  type: "post" | "comment";
+}) {
   const [reason, setReason] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const handleOpen = () => {
     setIsOpen(true);
   };
+
   const handleClose = () => {
     setIsOpen(false);
+    setIsDropdownOpen(false); // Đóng Dropdown
   };
+
   const handleSubmit = async () => {
     if (!reason.trim()) return;
-    reportPost(postId, reason)
+
+    reportTarget(type, targetId, reason) // Gọi API với type và targetId
       .then(() => {
         toast.success("Report submitted successfully");
         setReason("");
-        setIsOpen(false);
+        handleClose();
       })
       .catch((err) => {
         console.error(err);
+        toast.error("Failed to submit report");
       });
   };
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon">
-            <Ellipsis />
+            <Ellipsis className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={handleOpen}>
+          <DropdownMenuItem
+            onClick={() => {
+              setIsDropdownOpen(false);
+              handleOpen();
+            }}
+          >
             <ShieldAlert className="mr-2 h-4 w-4" />
             Report
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => {
+          setIsOpen(open);
+          if (!open) {
+            setIsDropdownOpen(false); // Đóng Dropdown khi Dialog đóng
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Report</DialogTitle>
