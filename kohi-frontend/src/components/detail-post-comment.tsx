@@ -13,7 +13,7 @@ const DetailPost = ({
   post,
   onUpdateShare,
   onEditPost,
-  onDeletePost = () => {},
+  onDeletePost = () => { },
 }: {
   post: Post;
   onUpdateShare?: () => void;
@@ -115,49 +115,49 @@ const DetailPost = ({
   const commentTree = buildCommentTree(comments);
 
   return (
-      <div className="space-y-4 my-12 max-w-2xl mx-auto">
-        <UserPost
-          post={newPost}
-          showEditPost={user?._id === post.author._id}
-          onEditPost={onEditPost}
-          onUpdateShare={onUpdateShare}
-          onUpdateLike={fetchPost}
-          onCommentCreate={fetchComments}
-        />
-        <Separator />
-        {
-          comments.length === 0 && (
-              <div className="text-center text-muted-foreground text-sm font-semibold">
-                No comments yet. Be the first to comment!
-              </div>
-          )
-        }
-        {commentTree.map((comment) => (
-          <div
-            id={`comment-${comment._id}`}
-            key={comment._id}
-            className="border bg-card rounded-lg"
-          >
-            <CommentItem
-              comment={comment}
-              allComments={comments}
-              onReply={handleReplyComment}
-              onDeleteComment={handleDeleteComment}
-              onUpdateComment={handleUpdateComment}
-              showReplies={expandedComments.includes(comment._id)} // Truyền trạng thái mở rộng
-              onToggleReplies={() =>
-                setExpandedComments(
-                  (prev) =>
-                    prev.includes(comment._id)
-                      ? prev.filter((id) => id !== comment._id) // Thu gọn nếu đã mở
-                      : [...prev, comment._id] // Mở rộng nếu chưa mở
-                )
-              }
-              focusedCommentId={commentId ?? ""}
-            />
+    <div className="space-y-4 my-12 max-w-2xl mx-auto">
+      <UserPost
+        post={newPost}
+        showEditPost={user?._id === post.author._id}
+        onEditPost={onEditPost}
+        onUpdateShare={onUpdateShare}
+        onUpdateLike={fetchPost}
+        onCommentCreate={fetchComments}
+      />
+      <Separator />
+      {
+        comments.length === 0 && (
+          <div className="text-center text-muted-foreground text-sm font-semibold">
+            No comments yet. Be the first to comment!
           </div>
-        ))}
-      </div>
+        )
+      }
+      {commentTree.map((comment) => (
+        <div
+          id={`comment-${comment._id}`}
+          key={comment._id}
+          className="border bg-card rounded-lg"
+        >
+          <CommentItem
+            comment={comment}
+            allComments={comments}
+            onReply={handleReplyComment}
+            onDeleteComment={handleDeleteComment}
+            onUpdateComment={handleUpdateComment}
+            showReplies={expandedComments.includes(comment._id)} // Truyền trạng thái mở rộng
+            onToggleReplies={() =>
+              setExpandedComments(
+                (prev) =>
+                  prev.includes(comment._id)
+                    ? prev.filter((id) => id !== comment._id) // Thu gọn nếu đã mở
+                    : [...prev, comment._id] // Mở rộng nếu chưa mở
+              )
+            }
+            focusedCommentId={commentId ?? ""}
+          />
+        </div>
+      ))}
+    </div>
   );
 };
 

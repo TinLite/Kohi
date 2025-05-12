@@ -18,7 +18,6 @@ export function ButtonScrollToTop() {
         const clickHandler = () => {
             scrollable.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        console.log(scrollable, scrollable.addEventListener('scroll', scrollHandler))
         btnElement.addEventListener('click', clickHandler);
         scrollHandler(); // Initial check
         return () => {

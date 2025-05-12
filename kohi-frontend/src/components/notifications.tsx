@@ -9,9 +9,8 @@ import {
 import socket from "@/services/socket";
 import { Notification } from "@/types/notification-types";
 import { SocketEvent } from "@/types/socket-types";
-import { EllipsisVertical } from "lucide-react";
 import { DateTime } from "luxon";
-import { useContext, useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -19,7 +18,6 @@ import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 const UserNotification = ({
   open,
@@ -176,27 +174,13 @@ const UserNotification = ({
         </SheetHeader>
         <div className="flex justify-between items-center px-4 py-2">
           <h2 className="text-sm font-bold">Mới nhất</h2>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="p-1">
-                <EllipsisVertical className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="z-50" >
-              <DropdownMenuItem
-                onClick={() => handleReadAllNotification()}
-               className="hover:bg-accent"
-              >
-                Đánh dấu tất cả đã đọc
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleDeleteAllNotification()}
-                className="hover:bg-accent"
-              >
-                Xóa tất cả
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            variant="ghost"
+            className="p-1"
+            onClick={() => handleReadAllNotification()}
+          >
+            Đánh dấu tất cả đã đọc
+          </Button>
         </div>
         <ScrollArea className="overflow-y-auto h-[500px] pr-2">
           {user && notificationList.length > 0 ? (
@@ -231,7 +215,6 @@ export function NotificationList({
   onClose?: () => void;
 }) {
   const navigate = useNavigate();
-  const [focusedCommentId, setFocusedCommentId] = useState<string | null>(null);
   const handleReadNotification = async (id: string) => {
     try {
       await readNotification(id);
@@ -254,13 +237,12 @@ export function NotificationList({
   };
   const handleFocus = () => {
     handleReadNotification(Notification._id);
-    setFocusedCommentId(Notification.comment?._id ?? null);
     switch (Notification.type) {
       case "NEW_COMMENT":
       case "LIKE_COMMENT":
       case "NEW_REPLY_COMMENT":
         if (Notification.post && Notification.comment) {
-          navigate(`/post/detail/${Notification.post}#comment`, {
+          navigate(`/post/detail/${Notification.post}?focusCommentId=${Notification.comment}`, {
             state: { commentId: Notification.comment },
           });
         } else {
@@ -284,7 +266,7 @@ export function NotificationList({
   return (
     <div
       className={`flex items-center px-4 py-3 mb-2 rounded-md ${
-        Notification.isRead ? "bg-gray-100 text-muted-foreground" : ""
+        Notification.isRead ? "text-muted-foreground" : ""
       }`}
     >
       <div className="flex items-center">
@@ -297,8 +279,8 @@ export function NotificationList({
           />
           <AvatarFallback>?</AvatarFallback>
         </Avatar>
-        <div className="ml-2">
-          <p className="text-sm font-medium" onClick={handleFocus}>
+        <div className="ml-2" onClick={handleFocus}>
+          <p className="text-sm font-medium">
             {!Notification.isRead && (
               <span className="text-primary font-bold mr-2">Mới</span>
             )}
@@ -322,7 +304,7 @@ export function NotificationList({
           </p>
         </div>
       </div>
-      <div className="flex items-center ml-auto">
+      {/* <div className="flex items-center ml-auto">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="p-1">
@@ -344,7 +326,7 @@ export function NotificationList({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </div> */}
     </div>
   );
 }

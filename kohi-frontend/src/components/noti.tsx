@@ -10,6 +10,7 @@ import { SocketEvent } from "@/types/socket-types";
 import { MoreHorizontal } from "lucide-react";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useReducer } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
@@ -24,7 +25,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { useNavigate } from "react-router-dom";
 
 const UserNoti = ({
   open,

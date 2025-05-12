@@ -28,8 +28,8 @@ socket.on("disconnect", (reason) => {
 
 socket.onAny((event, ...args) => {
   console.log("Hi chat");
+  console.log("[DEBUG] Socket", event, args);
   if (import.meta.env.DEV) {
-    console.log("[DEBUG] Socket", event, args);
   }
 });
 

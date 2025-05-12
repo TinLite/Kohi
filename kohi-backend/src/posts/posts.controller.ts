@@ -17,6 +17,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
 import { Public } from 'src/auth/authmeta';
+import { Roles } from 'src/auth/role.decorator';
 import { User } from 'src/auth/user.decorator';
 import { EventsService } from 'src/events/events.service';
 import { LikePostNotificationDto } from 'src/notifications/dto/new-likepost-notification.dto';
@@ -27,7 +28,6 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
-import { Roles } from 'src/auth/role.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -46,7 +46,6 @@ export class PostsController {
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     const requestUserId = request._id;
-    console.log(requestUserId);
     if (!createPostDto.author) {
       createPostDto.author = requestUserId;
     } else if (createPostDto.author !== requestUserId) {
