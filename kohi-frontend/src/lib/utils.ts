@@ -15,3 +15,11 @@ export function parseURL(url: string) {
       port: a.port,
   };
 }
+
+export function convertMediaUrl(media: string) {
+  if (!media.startsWith("https://res.cloudinary.com")) {
+    return `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+      }/uploads/${media}`;
+  }
+  return media;
+}

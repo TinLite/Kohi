@@ -60,6 +60,7 @@ export class ChatMessage {
     createdAt: Date;
     timeStamp: Date;
     isRecalled: boolean = false;
+    files?: string[];
     constructor(
         _id: string,
         senderID: {
@@ -72,7 +73,9 @@ export class ChatMessage {
         channelID: string,
         content: string,
         createdAt: Date,
-        timeStamp: Date
+        timeStamp: Date,
+        isRecalled: boolean = false,
+        files?: string[]
     ) {
         this._id = _id;
         this.senderID = senderID;
@@ -81,5 +84,7 @@ export class ChatMessage {
         this.content = content;
         this.createdAt = createdAt;
         this.timeStamp = timeStamp;
+        this.isRecalled = isRecalled;
+        this.files = files;
     }
 }

@@ -79,7 +79,7 @@ export class ChatService {
   }
 
   async recallMessage(messageId: string) {
-    return this.chatMessageModel.findByIdAndUpdate(messageId, { isRecalled: true, content: "" }, { new: true }).populate("senderID");
+    return this.chatMessageModel.findByIdAndUpdate(messageId, { isRecalled: true, content: "", files: [] }, { new: true }).populate("senderID");
   }
 
   async getLatestMessage(channelId: string) {

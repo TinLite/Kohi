@@ -1,3 +1,4 @@
+import { convertMediaUrl } from "@/lib/utils";
 import { ChatChannel, ChatMessage } from "@/types/chat-types";
 
 export async function getChannelList(participants: string[] = []) {
@@ -70,31 +71,36 @@ export async function updateChannel(channelId: string, data: {
 }
 
 export async function getChannelMessages(channelId: string) {
-    const data = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages`, {
+    const request = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages`, {
         credentials: 'include',
     });
-    if (!data.ok) {
+    if (!request.ok) {
         throw new Error("Failed to fetch chat messages");
     }
-    return await data.json() as ChatMessage[];
+    const data = await request.json() as ChatMessage[];
+    return data.map((message) => ({
+        ...message,
+        files: message.files?.map(convertMediaUrl),
+    }));
+
 }
 
-export async function sendMessage(channelId: string, data: {
-    content: string;
-    replyTo?: string;
-}) {
+export async function sendMessage(channelId: string, data: FormData) {
+    console.debug("Sending message", data);
     const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX}/chat/channels/${channelId}/messages/create`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
         credentials: 'include',
-        body: JSON.stringify(data),
+        body: data,
     });
     if (!response.ok) {
+        console.error("Failed to send message", response);
         throw new Error("Failed to send message");
     }
-    return await response.json() as ChatMessage;
+    const responseData = await response.json() as ChatMessage;
+    if (responseData.files) {
+        responseData.files = responseData.files.map(convertMediaUrl);
+    }
+    return responseData;
 }
 
 export async function recallMesssage(channelId: string, messageId: string) {

@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -42,19 +44,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChatContext } from "@/context/chat-context";
 import { ImageViewerContext } from "@/context/image-viewer-context";
 import { UserContext } from "@/context/user-context";
-import { cn } from "@/lib/utils";
+import { cn, convertMediaUrl } from "@/lib/utils";
 import { getChannelMessages, recallMesssage, sendMessage, updateChannel } from "@/repository/chat-repository";
 import socket from "@/services/socket";
 import { ChatChannelType, ChatMessage } from "@/types/chat-types";
 import { SocketEvent } from "@/types/socket-types";
 import { User } from "@/types/user-type";
-import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, PenLine, Phone, ReplyIcon, SendHorizonal, Trash, UserPlus } from "lucide-react";
+import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, LoaderCircle, PenLine, Phone, ReplyIcon, SendHorizonal, Trash, UserPlus } from "lucide-react";
 import { DateTime } from "luxon";
-import { useContext, useEffect, useReducer, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, message, onReply, isReplyingTo = false, replyTarget, isRecalled, onRecall = () => { } }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, noPaddingTop?: boolean, message?: string, onReply?: () => void, isReplyingTo?: boolean, replyTarget?: ChatMessage, isRecalled?: boolean, onRecall?: () => void }) {
+function UserMessage({ className, isMe, name, avatar, image, images, noPaddingTop, message, onReply, isReplyingTo = false, replyTarget, isRecalled, onRecall = () => { } }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, images?: string[], noPaddingTop?: boolean, message?: string, onReply?: () => void, isReplyingTo?: boolean, replyTarget?: ChatMessage, isRecalled?: boolean, onRecall?: () => void }) {
+  const { openImage } = useContext(ImageViewerContext);
   return (
     <div
       className={cn([
@@ -103,7 +106,8 @@ function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, messa
               }>
               <div className={cn(
                 "rounded-md shadow",
-                (isMe ? "bg-primary/10 border border-primary/20" : "bg-background")
+                (isMe ? "bg-primary/10 border border-primary/20" : "bg-background"),
+                (message ? "" : "bg-inherit border-0")
               )}>
                 <div className="px-4 py-2">
                   {
@@ -130,6 +134,30 @@ function UserMessage({ className, isMe, name, avatar, image, noPaddingTop, messa
                 }
               </div>
             </div>
+            {
+              images &&
+              <Carousel className="w-fit">
+                <CarouselContent className="justify-end w-fit">
+                  {
+                    images.map((img, index) => (
+                      <CarouselItem key={index} className="basis-1/2 md:basis-1/3 w-fit">
+                        <div className="p-1">
+                          <Card className="w-fit">
+                            <CardContent className="aspect-square p-0" onClick={() => openImage(img)}>
+                              <img
+                                src={img}
+                                alt=""
+                                className="object-cover w-full h-full rounded-lg"
+                              />
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </CarouselItem>
+                    ))
+                  }
+                </CarouselContent>
+              </Carousel>
+            }
           </ContextMenuTrigger>
           <ContextMenuContent >
             <ContextMenuItem disabled={isRecalled} onClick={() => onReply && onReply()}>Reply</ContextMenuItem>
@@ -340,7 +368,6 @@ function MessageView({ className }: { className?: string }) {
   const { user } = useContext(UserContext);
   const { openImage } = useContext(ImageViewerContext)
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
-  const navigate = useNavigate();
 
   const [replyTarget, setReplyTarget] = useState<ChatMessage | null>(null);
 
@@ -380,11 +407,13 @@ function MessageView({ className }: { className?: string }) {
     }
     socket.on(SocketEvent.CHAT_MESSAGE_NEW, (newMessage: ChatMessage) => {
       if (newMessage.channelID === channel?._id) {
+        newMessage.files = newMessage.files?.map(convertMediaUrl);
         setReducedMessage({ type: 'append', payload: [newMessage] });
       }
     });
     socket.on(SocketEvent.CHAT_MESSAGE_UPDATE, (newMessage: ChatMessage) => {
       if (newMessage.channelID === channel?._id) {
+        newMessage.files = newMessage.files?.map(convertMediaUrl);
         setReducedMessage({ type: 'replace_one', payload: [newMessage] });
       }
     });
@@ -401,28 +430,26 @@ function MessageView({ className }: { className?: string }) {
     scrollToBottom();
   }, [reducedMessage]);
 
-  const onSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSendMessage = async (message: string) => {
     if (!channel)
       return;
-    const form = e.currentTarget as HTMLFormElement;
-    // https://stackoverflow.com/a/36249012
-    const input = Array.from(form.querySelectorAll('input')).find(i => i.name === 'content') as HTMLInputElement;
-    const message = input.value.trim();
-    if (!message)
-      return;
-    input.value = '';
-    setReplyTarget(null);
-    const data: {
-      content: string;
-      replyTo?: string;
-    } = {
-      content: message,
+    message = message.trim();
+    if (!message && selectedImages.length === 0)
+      throw new Error("Message is empty");
+    const formData = new FormData()
+    formData.append("content", message);
+    if (selectedImages.length > 0) {
+      selectedImages.forEach((file) => {
+        formData.append("files", file);
+      });
     }
     if (replyTarget) {
-      data["replyTo"] = replyTarget._id;
+      formData.append("replyTo", replyTarget._id);
     }
-    sendMessage(channel._id, data);
+    return sendMessage(channel._id, formData).then(() => {
+      setSelectedImages([]);
+      setReplyTarget(null);
+    })
   }
 
   const onMessageScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -506,6 +533,7 @@ function MessageView({ className }: { className?: string }) {
                 message={message.content}
                 isRecalled={message.isRecalled}
                 onRecall={() => recallHandler(message)}
+                images={message.files}
               />
             )
           })
@@ -574,23 +602,43 @@ function MessageView({ className }: { className?: string }) {
           }}>
             <ImagePlus />
           </Button>
-          <MessageInputForm onSendMessage={onSendMessage} handleFileChange={handleFileChange} />
+          <MessageInputForm onSendMessage={onSendMessage} handleFileChange={handleFileChange} hasFiles={selectedImages.length > 0} />
         </div>
       </div>
     </div >
   )
 }
 
-function MessageInputForm({ onSendMessage, handleFileChange }: { onSendMessage: (e: React.FormEvent<HTMLFormElement>) => void, handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
+function MessageInputForm({ onSendMessage, handleFileChange, hasFiles = false }: { onSendMessage: (message: string) => Promise<void>, handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void, hasFiles?: boolean }) {
   const [message, setMessage] = useState<string>("");
-  return <form onSubmit={onSendMessage} className="flex-grow flex gap-2">
-    <input type="file" name="images" className="hidden" id="form-inp-upload-file" onChange={handleFileChange} accept="image/*" multiple />
-    <Input placeholder="Nhập tin nhắn..." className="flex-grow" name="content" 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() =>
+      onSendMessage?.(message)
+        .then(() => setMessage(""))
+        .finally(() => setIsSubmitting(false)),
+      2000
+    )
+  }
+
+  const isValid = useMemo(() => message.trim().length > 0 || hasFiles, [message, hasFiles]);
+
+  return <form onSubmit={onSubmit} className="flex-grow flex gap-2">
+    <input type="file" name="files" className="hidden" id="form-inp-upload-file" onChange={handleFileChange} accept="image/*" multiple />
+    <Input placeholder="Nhập tin nhắn..." className="flex-grow" name="content"
       onChange={(e) => setMessage(e.currentTarget.value)}
       value={message}
     />
-    <Button disabled={message.trim().length === 0} type="submit" className="transition-all">
-      <SendHorizonal />
+    <Button disabled={isSubmitting || !isValid} type="submit" className="transition-all">
+      {
+        isSubmitting ?
+          <LoaderCircle className="w-4 h-4 animate-spin" />
+          :
+          <SendHorizonal />
+      }
     </Button>
   </form>;
 }
@@ -616,7 +664,6 @@ export function PageMessageChannel() {
           <div className="flex-grow grid gap-2">
             <Skeleton className="rounded-full h-4" />
           </div>
-
         </div>
         <Separator />
         <div className="flex-grow"></div>

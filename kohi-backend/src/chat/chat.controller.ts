@@ -1,5 +1,5 @@
-import { BadRequestException, Body, Controller, Delete, Get, Logger, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { BadRequestException, Body, Controller, Delete, Get, Logger, Param, Patch, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { User } from 'src/auth/user.decorator';
 import { CallsService } from 'src/calls/calls.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
@@ -92,13 +92,22 @@ export class ChatController {
     }
 
     @Post('/channels/:channelId/messages/create')
-    async createMessage(@Param('channelId') channelId: string, @Body() messageDto: CreateChatMessageDto, @User() req) {
+    @UseInterceptors(FilesInterceptor('files', 15))
+    async createMessage(@Param('channelId') channelId: string, @Body() messageDto: CreateChatMessageDto, @User() req, @UploadedFiles() files: Express.Multer.File[]) {
+        if ((!files || files.length === 0) && !messageDto.content) {
+            throw new BadRequestException('Message must have content or files');
+        }
+        if (files && files.length > 0) {
+            const urls = await this.cloudinaryService.uploadFiles(files);
+            messageDto.files = urls;
+        }
         const message = await this.chatService.createMessage(channelId, req._id, messageDto);
         this.chatService.getChannelById(channelId).then(channel => {
             channel.participants.map(participant => {
                 this.eventsService.announceToUser(participant.user.toString(), 'chat:message:new', message);
             })
         });
+        // if 
         return message;
     }
 
@@ -128,7 +137,7 @@ export class ChatController {
         }
         this.logger.debug(`User ${user._id} joined call session ${channelId}`);
         this.logger.debug(`Body: ${JSON.stringify(body)}`);
-        return {status: "OK"};
+        return { status: "OK" };
         // const sessionId = await this.callsService.getCallSessionByChannelId(channelId);
         // if (!sessionId) {
         //     const newSessionId = await this.callsService.createCallSession(channelId);

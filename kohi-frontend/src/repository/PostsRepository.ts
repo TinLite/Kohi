@@ -1,12 +1,5 @@
+import { convertMediaUrl } from "@/lib/utils";
 import { Post } from "@/types/post-type";
-
-function convertMediaUrl(media: string) {
-  if (!media.startsWith("https://res.cloudinary.com")) {
-    return `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
-      }/uploads/${media}`;
-  }
-  return media;
-}
 
 export async function getGlobalLatestPosts() {
   const response = await fetch(

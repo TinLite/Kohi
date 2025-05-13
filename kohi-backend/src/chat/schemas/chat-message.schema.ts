@@ -36,6 +36,9 @@ export class ChatMessage {
     @Prop()
     isRecalled: boolean;
 
+    @Prop()
+    files: string[];
+
     @Prop({
 
     })
