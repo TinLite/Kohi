@@ -9,7 +9,7 @@ import { getFollowerList } from "@/repository/user-repository";
 import { User } from "@/types/user-type";
 import { ChevronLeft, Minus, Plus } from "lucide-react";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 function AddedRecipent({ name, avatarImage, onRemove }: { name: string, avatarImage?: string, onRemove?: () => void }) {
@@ -71,6 +71,8 @@ export default function MessageViewNewChat() {
     function InputAddRecipent({ onAdded }: { onAdded?: (user: User) => void }) {
         const [recipentQueryResult, setRecipentQueryResult] = useState<User[]>([]);
         const [recipentQuery, setRecipentQuery] = useState<string>("");
+        const location = useLocation();
+        const recipentId = location.state?.recipentId;
 
         function handleAddRecipent(recipent: User) {
             setRecipentQueryResult([]);
@@ -78,11 +80,21 @@ export default function MessageViewNewChat() {
             if (onAdded) onAdded(recipent);
         }
 
-        function onAddRecipentTypeIn(event: React.FormEvent<HTMLInputElement>) {
-            setRecipentQuery(event.currentTarget.value);
+        useEffect(() => {
+            if (recipentId) {
+                const recipent = followerList.find((user) => user._id == recipentId);
+                if (recipent) {
+                    setRecipents([...recipents, recipent]);
+                    setRecipentQueryResult([]);
+                    setRecipentQuery("");
+                }
+            }
+        }, [recipentId, followerList]);
+
+        function queryUser() {
             if (addRecipentInputTimer) clearTimeout(addRecipentInputTimer);
             addRecipentInputTimer = setTimeout(() => {
-                const currentQuery = (event.target as HTMLInputElement).value.toLowerCase();
+                const currentQuery = recipentQuery.toLocaleLowerCase();
                 if (currentQuery.trim() == "") {
                     setRecipentQueryResult([]);
                     return;
@@ -91,9 +103,14 @@ export default function MessageViewNewChat() {
                 console.log(currentQuery, queryResult)
                 if (queryResult) {
                     setRecipentQueryResult(queryResult);
-                    (event.target as HTMLInputElement).value = "";
+                    setRecipentQuery("");
                 }
             }, 500);
+        }
+
+        function onAddRecipentTypeIn(event: React.FormEvent<HTMLInputElement>) {
+            setRecipentQuery(event.currentTarget.value);
+            queryUser();
         }
 
         return (
@@ -126,12 +143,6 @@ export default function MessageViewNewChat() {
             toast.error("Please add at least one recipent");
             return;
         }
-
-        // if (!channelNameInputRef.current?.value) {
-        //     toast.error("Channel name cannot be empty");
-        //     channelNameInputRef.current?.focus();
-        //     return;
-        // }
 
         var recipentIds = recipents.map((recipent) => recipent._id);
 

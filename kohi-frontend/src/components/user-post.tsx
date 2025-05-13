@@ -141,6 +141,12 @@ function UserHoverCard({
       if (channels.length > 0) {
         navigate(`/message/${channels[0]._id}`);
       } else {
+        navigate(`/message/new/`, {
+          state: {
+            recipentId: user._id,
+          }
+        }
+        );
       }
     });
   }
