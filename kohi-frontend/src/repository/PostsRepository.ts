@@ -2,17 +2,15 @@ import { Post } from "@/types/post-type";
 
 function convertMediaUrl(media: string) {
   if (!media.startsWith("https://res.cloudinary.com")) {
-    return `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
-    }/uploads/${media}`;
+    return `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
+      }/uploads/${media}`;
   }
   return media;
 }
 
 export async function getGlobalLatestPosts() {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/list`,
     {
       credentials: "include",
@@ -30,8 +28,7 @@ export async function getGlobalLatestPosts() {
 
 export async function createPosts(formData: FormData) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/create`,
     {
       method: "POST",
@@ -47,8 +44,7 @@ export async function createPosts(formData: FormData) {
 export async function updatePostsShare(postId: string, content: string) {
   console.log("Hi", postId, content);
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}/updateshare`,
     {
       method: "PATCH",
@@ -66,8 +62,7 @@ export async function updatePostsShare(postId: string, content: string) {
 }
 export async function updatePost(postId: string, content: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}/update`,
     {
       method: "PATCH",
@@ -85,8 +80,7 @@ export async function updatePost(postId: string, content: string) {
 }
 export async function createSharePostQuote(postId: string, content: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}/share`,
     {
       method: "POST",
@@ -105,8 +99,7 @@ export async function createSharePostQuote(postId: string, content: string) {
 
 export async function searchPosts(query: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/search?q=${query}`,
     {
       credentials: "include",
@@ -115,12 +108,15 @@ export async function searchPosts(query: string) {
   if (!response.ok) {
     throw new Error("Failed to fetch posts");
   }
-  return (await response.json()) as Post[];
+  const data = (await response.json()) as Post[];
+  return data.map((post) => ({
+    ...post,
+    media: post.media.map(convertMediaUrl),
+  })) as Post[];
 }
 export async function likePost(postId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}/like`,
     {
       method: "POST",
@@ -131,8 +127,7 @@ export async function likePost(postId: string) {
 }
 export async function unLikePost(postId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}/unlike`,
     {
       method: "DELETE",
@@ -143,8 +138,7 @@ export async function unLikePost(postId: string) {
 }
 export async function countLikePost(postId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/${postId}/likes`,
     {
       credentials: "include",
@@ -154,8 +148,7 @@ export async function countLikePost(postId: string) {
 }
 export async function getPostsById(postId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}`,
     {
       credentials: "include",
@@ -172,20 +165,22 @@ export async function getPostsById(postId: string) {
 }
 export async function getPostsByUserId(id = "") {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/profile/list/${id}`,
     {
       credentials: "include",
     }
   );
-  return (await response.json()) as Post[];
+  const data = (await response.json()) as Post[];
+  return data.map((post) => ({
+    ...post,
+    media: post.media.map(convertMediaUrl),
+  })) as Post[];
 }
 
 export async function getMediaByUserId(id = "") {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/profile/media/${id}`,
     {
       credentials: "include",
@@ -195,19 +190,21 @@ export async function getMediaByUserId(id = "") {
 }
 export async function getListPostShare(id = "") {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/profile/share/${id}`,
     {
       credentials: "include",
     }
   );
-  return (await response.json()) as Post[];
+  const data = (await response.json()) as Post[];
+  return data.map((post) => ({
+    ...post,
+    media: post.media.map(convertMediaUrl),
+  })) as Post[];
 }
 export async function createSharePost(postId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}/share`,
     {
       method: "POST",
@@ -218,8 +215,7 @@ export async function createSharePost(postId: string) {
 }
 export async function deletePost(postId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/detail/${postId}/delete`,
     {
       method: "DELETE",
@@ -230,8 +226,7 @@ export async function deletePost(postId: string) {
 }
 export async function getPostsByAuthor(authorId: string) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/list/author/${authorId}`,
     {
       credentials: "include",
@@ -255,14 +250,25 @@ export async function getAllPostsAdmin(
   query?: string
 ) {
   const response = await fetch(
-    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
-      import.meta.env.VITE_API_PREFIX
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${import.meta.env.VITE_API_PREFIX
     }/posts/list/admin?page=${currentPage}&limit=${limit}&query=${query || ""}`,
     {
       credentials: "include",
     }
   );
-  const data = await response.json();
+  const data = (await response.json()) as {
+    data: Post[];
+    pagination: {
+      currentPage: number;
+      totalPage: number;
+      totalElement: number;
+      limit: number;
+    };
+  };
+  data.data = data.data.map((post) => ({
+    ...post,
+    media: post.media.map(convertMediaUrl),
+  })) as Post[];
   return data as {
     data: Post[];
     pagination: {

@@ -305,7 +305,7 @@ export function NotificationList({
         </div>
       </div>
       {/* <div className="flex items-center ml-auto">
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="p-1">
               <EllipsisVertical className="w-5 h-5" />
