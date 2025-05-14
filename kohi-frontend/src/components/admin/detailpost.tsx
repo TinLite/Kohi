@@ -19,11 +19,32 @@ import {
 } from "@/repository/PostsRepository";
 import { ImageViewerContext } from "@/context/image-viewer-context";
 import { DateTime } from "luxon";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 export default function DetailPost() {
   const { id: postId } = useParams();
   const { openImage } = useContext(ImageViewerContext);
   const [post, setPost] = useState<Post | null>(null);
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [actionType, setActionType] = useState<"hide" | "unhide" | null>(null);
+
+  const handleConfirm = () => {
+    if (!post) return;
+    if (actionType === "hide") handleHidePost(post._id);
+    if (actionType === "unhide") handleUnhidePost(post._id);
+    setOpenConfirm(false);
+    setActionType(null);
+  };
+
   const fetchPost = async () => {
     if (!postId) return;
     getOnePostByAdmin(postId)
@@ -58,8 +79,8 @@ export default function DetailPost() {
     fetchPost();
   }, [postId]);
   return (
-    <div className="space-y-2 max-w-4xl">
-      <Card className="border">
+    <div className="w-full min-h-screen flex justify-center items-start p-6">
+      <Card className="w-full max-w-3xl shadow-xl rounded-2xl overflow-hidden">
         <CardContent className="p-4">
           <div className="flex items-center gap-4 mb-4">
             <Avatar
@@ -73,7 +94,9 @@ export default function DetailPost() {
               <AvatarFallback>{post?.author.username.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-bold">{post?.author.displayName || post?.author.username}</p>
+              <p className="font-bold">
+                {post?.author.displayName || post?.author.username}
+              </p>
               <p className="text-sm text-muted-foreground">
                 @{post?.author.username} -{" "}
                 {post?.createdAt
@@ -132,7 +155,10 @@ export default function DetailPost() {
               <Button
                 variant="default"
                 size="sm"
-                onClick={() => post && handleUnhidePost(post._id)}
+                onClick={() => {
+                  setActionType("unhide");
+                  setOpenConfirm(true);
+                }}
               >
                 Unhide
               </Button>
@@ -140,7 +166,10 @@ export default function DetailPost() {
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => post && handleHidePost(post._id)}
+                onClick={() => {
+                  setActionType("hide");
+                  setOpenConfirm(true);
+                }}
               >
                 Hide
               </Button>
@@ -148,6 +177,28 @@ export default function DetailPost() {
           </div>
         </CardContent>
       </Card>
+      <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {actionType === "hide"
+                ? "Are you sure you want to hide this post?"
+                : "Are you sure you want to unhide this post?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You can undo this action later in the admin panel.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setOpenConfirm(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirm}>
+              {actionType === "hide" ? "Confirm hide" : "Confirm unhide"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

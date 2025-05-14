@@ -4,7 +4,7 @@ import {
   unHideComment,
 } from "@/repository/comment-repository";
 import { Comment, CommentFlags } from "@/types/comment-type";
-import { EllipsisVertical, Filter } from "lucide-react";
+import {Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
