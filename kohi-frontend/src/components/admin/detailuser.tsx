@@ -85,6 +85,14 @@ export default function DetailUser() {
       toast.error("Please fill in all fields.");
       return;
     }
+    const today = new Date();
+    const selectedDate = new Date(expiresAt);
+    // today.setHours(0, 0, 0, 0);
+    // selectedDate.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      toast.error("Expiration date must be in the future.");
+      return;
+    }
     if (!authorId) {
       toast.error("User ID is missing.");
       return;
@@ -601,7 +609,7 @@ export default function DetailUser() {
                 <label className="flex flex-col">
                   <span className="font-semibold">Reason</span>
                   <textarea
-                    value={reason}
+                    // value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     className="border rounded-md p-2"
                     placeholder="Enter the reason for banning"
@@ -663,7 +671,7 @@ export default function DetailUser() {
                 <label className="flex flex-col">
                   <span className="font-semibold">Reason Unban</span>
                   <textarea
-                    value={reason}
+                    // value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     className="border rounded-md p-2"
                     placeholder="Enter the reason for unbanning"
