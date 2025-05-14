@@ -36,7 +36,7 @@ export class ChatController {
                 ...channel.toJSON(),
                 latestMessage
             }
-        });
+        }).sort((a, b) => a.latestMessage.timeStamp < b.latestMessage.timeStamp ? 1 : -1);
     }
 
     @Post('/channels/create')
@@ -67,7 +67,14 @@ export class ChatController {
         }
         const channel = await this.chatService.createChannel(createChatDto);
         const latestMessage = await this.chatService.createMessage(channel._id, currentUser, { content: createChatDto.firstMessage });
-        console.log(latestMessage);
+        channel.participants.filter(
+            participant => participant.user.toString() !== currentUser.toString() && participant.role === ChatParticipantRole.PARTICIPANT
+        ).map(participant => {
+            this.eventsService.announceToUser(participant.user.toString(), 'chat:channel:new', {
+                ...channel,
+                latestMessage
+            });
+        });
         return {
             channel: channel,
             latestMessage
@@ -138,12 +145,6 @@ export class ChatController {
         this.logger.debug(`User ${user._id} joined call session ${channelId}`);
         this.logger.debug(`Body: ${JSON.stringify(body)}`);
         return { status: "OK" };
-        // const sessionId = await this.callsService.getCallSessionByChannelId(channelId);
-        // if (!sessionId) {
-        //     const newSessionId = await this.callsService.createCallSession(channelId);
-        //     this.eventsService.announceToUser(user._id, 'call:session:new', newSessionId);
-        //     return newSessionId;
-        // }
     }
 
 

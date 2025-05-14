@@ -1,6 +1,8 @@
 export enum SocketEvent {
   CHAT_MESSAGE_NEW = "chat:message:new",
   CHAT_MESSAGE_UPDATE = "chat:message:update",
+  CHAT_CHANNEL_NEW = "chat:channel:new",
+  CHAT_CHANNEL_UPDATE = "chat:channel:update",
   NOTIFICATION = "notification",
   NOTIFICATION_COMMENT = "notification:comment",
   NOTIFICATION_COMMENT_NEWCOMMENT = "notification:comment:newcomment",

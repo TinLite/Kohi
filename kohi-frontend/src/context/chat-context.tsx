@@ -76,11 +76,20 @@ export function ChatProvider({ children, channelData, channelId }: { children: R
             }
         }
 
+        function handleNewChannel(newChannel: ChatChannel) {
+            setChatChannelList([
+                newChannel,
+                ...chatChannelList
+            ])
+        }
+
         socket.on(SocketEvent.CHAT_MESSAGE_NEW, handleNewMessage);
         socket.on(SocketEvent.CHAT_MESSAGE_UPDATE, handleUpdateMessage)
+        socket.on(SocketEvent.CHAT_CHANNEL_NEW, handleNewChannel);
         return () => {
             socket.off(SocketEvent.CHAT_MESSAGE_NEW, handleNewMessage);
             socket.off(SocketEvent.CHAT_MESSAGE_UPDATE, handleUpdateMessage);
+            socket.off(SocketEvent.CHAT_CHANNEL_NEW, handleNewChannel);
         }
     }, [user?._id, chatChannelList])
     

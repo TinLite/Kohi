@@ -28,20 +28,38 @@ function MessageSelectionItem({
 }) {
   const { user } = useContext(UserContext);
   let avatar = "https://i.pravatar.cc/300";
-  let channelName = chatChannel.name ?? chatChannel._id;
-  if (chatChannel.type === ChatChannelType.PRIVATE) {
-    const targetUser = chatChannel.participants.find(
-      (p) => p.user._id !== user?._id
-    )?.user;
-    if (targetUser) {
-      avatar = targetUser.avatar ?? avatar;
-      channelName =
-      chatChannel.name ?? targetUser.displayName ?? `@${targetUser.username}`;
+  let channelName = useMemo(() => {
+    if (chatChannel.name) {
+      return chatChannel.name;
     }
-  }
+    let result = ""
+    if (chatChannel.type === ChatChannelType.PRIVATE) {
+      if (chatChannel.participants.length > 2) {
+        result = chatChannel.participants
+          .filter((p) => p.user._id !== user?._id)
+          .slice(0, 2)
+          .map((p) => '@' + p.user.username)
+          .join(", ");
+        if (chatChannel.participants.length > 3) {
+          result += ` and ${chatChannel.participants.length - 3} other(s)`;
+        }
+        return result;
+      }
+
+      const targetUser = chatChannel.participants.find(
+        (p) => p.user._id !== user?._id
+      )?.user;
+
+      if (targetUser) {
+        avatar = targetUser.avatar ?? avatar;
+        result = chatChannel.name ?? targetUser.displayName ?? `@${targetUser.username}`;
+      }
+      return result;
+    }
+  }, [chatChannel, user?._id]);
 
   const latestMessage = chatChannel.latestMessage;
-  
+
   const text = useMemo(() => {
     var result = latestMessage?.content;
     if (!result) {
@@ -85,7 +103,7 @@ function MessageSelectionItem({
               ? text.length > 30
                 ? text.substring(0, 30) + "..."
                 : text
-              : "Chưa có tin nhắn nào"            
+              : "Chưa có tin nhắn nào"
           }
         </div>
       </div>

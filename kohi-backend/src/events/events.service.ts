@@ -24,6 +24,10 @@ export class EventsService {
   }
 
   announceToUser(userId: string, event: string, data: any) {
+    if (!this.socket.server.sockets[`user:${userId}`]) {
+      this.logger.debug(`User ${userId} is not connected. Safely ignoring.`);
+      return;
+    }
     this.socket.server.to(`user:${userId}`).emit(event, data, (err, res) => {
       if (err) {
         this.logger.error(`Error sending event to user ${userId}: ${err}`);
