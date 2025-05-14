@@ -107,13 +107,25 @@ export default function DetailPost() {
           </div>
           {post && (
             <div className="block px-6 py-4">
-              <p className="hyphens-auto break-all">
-                {post?.content?.split("\n").map((v, i, arr) => (
-                  <span key={i}>
-                    {v}
-                    {i < arr.length - 1 && <br />}
-                  </span>
-                ))}
+              <p
+                className="hyphens-auto"
+                style={{
+                  // "lineClamp": lineClampNumber,
+                  display: "-webkit-box",
+                  overflow: "hidden",
+                  // "WebkitLineClamp": lineClampNumber,
+                  WebkitBoxOrient: "vertical",
+                  overflowWrap: "anywhere",
+                }}
+              >
+                {post?.content?.split("\n").map((v, i, arr) => {
+                  return (
+                    <span key={i}>
+                      {v}
+                      {i < arr.length - 1 && <br />}
+                    </span>
+                  );
+                })}
               </p>
             </div>
           )}

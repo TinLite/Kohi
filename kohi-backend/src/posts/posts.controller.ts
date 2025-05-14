@@ -29,6 +29,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
 import { Roles } from 'src/auth/role.decorator';
 import { CheckBan } from 'src/auth/check-ban.decorator';
+import { HidePostNotificationDto } from 'src/notifications/dto/hide-post-notification.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -326,7 +327,14 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
-    return this.postsService.hidePost(id);
+    await this.postsService.hidePost(id);
+    return await this.notificationsService.createNotificationHidePost(
+      new HidePostNotificationDto({
+        //@ts-expect-error
+        userId: post.author._id,
+        post: id,
+      }),
+    );
   }
   @Roles('admin')
   @Post('unhide/:id')
@@ -335,12 +343,21 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException('Post not found');
     }
+    const notification =
+      await this.notificationsService.findOneHidePostNotification(
+        //@ts-expect-error
+        post.author._id,
+        id,
+      );
+    if (notification) {
+      await this.notificationsService.deleteNotification(notification._id);
+    }
     return this.postsService.unhidePost(id);
   }
   @Roles('admin')
   @Get('/admin/detail/:id')
   async findOneByAdmin(@Param('id') id: string) {
-    if(!id){
+    if (!id) {
       throw new NotFoundException('Post not found');
     }
     return this.postsService.getOnePostByAdmin(id);

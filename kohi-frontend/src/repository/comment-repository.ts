@@ -152,7 +152,7 @@ export async function reportComment(commentId: string, reason: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/reports/comment/${commentId}`,
+    }/reports/create/comment/${commentId}`,
     {
       method: "POST",
       headers: {

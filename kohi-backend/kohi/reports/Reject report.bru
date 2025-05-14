@@ -1,0 +1,17 @@
+meta {
+  name: Reject report
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/v1/api/reports/reject/6803198968179ca01ced10f2
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "handleReason":"tao thay report rat xam"
+  }
+}

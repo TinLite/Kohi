@@ -10,6 +10,9 @@ import { NewCommentNotificationDto } from './dto/new-comment-notification.dto';
 import { LIKECommentNotificationDto } from './dto/new-likecomment-notification.dto';
 import { NewReplyCommentNotificationDto } from './dto/new-reply-comment-notification.dto';
 import path from 'path';
+import { HideCommentNotificationDto } from './dto/hide-comment-notification.dto';
+import { HidePostNotificationDto } from './dto/hide-post-notification.dto';
+import { RejectPostNotificationDto } from './dto/reject-report-notification.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -278,6 +281,84 @@ export class NotificationsService {
     return await this.notificationModel
       .deleteMany({
         userId: userId,
+      })
+      .exec();
+  }
+
+  // tạo thông báo hide comment đến chủ comment
+  async createNotificationHideComment(
+    notification: HideCommentNotificationDto,
+  ) {
+    const notificationHideComment =
+      await this.notificationModel.create(notification);
+    await await (
+      await notificationHideComment.populate(
+        'userId',
+        'username avatar displayName',
+      )
+    ).populate('otherUser', 'username avatar displayName');
+    delete notificationHideComment.__v;
+    this.eventsService.announceToUser(
+      notification.userId,
+      'notification:comment:hidecomment',
+      notificationHideComment,
+    );
+    console.log('Notification sent to user ' + notification.userId);
+    return notificationHideComment;
+  }
+  // tạo thông báo hide post đến chủ post
+  async createNotificationHidePost(notification: HidePostNotificationDto) {
+    const notificationHidePost =
+      await this.notificationModel.create(notification);
+    await await (
+      await notificationHidePost.populate(
+        'userId',
+        'username avatar displayName',
+      )
+    ).populate('otherUser', 'username avatar displayName');
+    delete notificationHidePost.__v;
+    this.eventsService.announceToUser(
+      notification.userId,
+      'notification:post:hidepost',
+      notificationHidePost,
+    );
+    console.log('Notification sent to user ' + notification.userId);
+    return notificationHidePost;
+  }
+  // tạo thông báo reject report đến chủ report
+  async createNotificationRejectReport(
+    notification: RejectPostNotificationDto,
+  ) {
+    const notificationRejectReport =
+      await this.notificationModel.create(notification);
+    await await (
+      await notificationRejectReport.populate(
+        'userId',
+        'username avatar displayName',
+      )
+    ).populate('otherUser', 'username avatar displayName');
+    delete notificationRejectReport.__v;
+    this.eventsService.announceToUser(
+      notification.userId,
+      'notification:report:rejectreport',
+      notificationRejectReport,
+    );
+    console.log('Notification sent to user ' + notification.userId);
+    return notificationRejectReport;
+  }
+  async findOneHideCommentNotification(userId: string, commentId: string) {
+    return this.notificationModel
+      .findOne({
+        userId,
+        comment: commentId,
+      })
+      .exec();
+  }
+  async findOneHidePostNotification(userId: string, postId: string) {
+    return this.notificationModel
+      .findOne({
+        userId,
+        post: postId,
       })
       .exec();
   }

@@ -19,7 +19,12 @@ import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const UserNotification = ({
   open,
@@ -152,6 +157,27 @@ const UserNotification = ({
         );
       }
     );
+    socket.on(
+      SocketEvent.NOTIFICATION_REJECT_REPORT,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        toast.info("Your report has been rejected");
+      }
+    );
+    socket.on(
+      SocketEvent.NOTIFICATION_HIDE_POST,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        toast.info("Your post has been hidden by admin");
+      }
+    );
+    socket.on(
+      SocketEvent.NOTIFICATION_HIDE_COMMENT,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        toast.info("Your comment has been hidden by admin");
+      }
+    );
     console.log("socket on notification");
     return () => {
       socket.off(SocketEvent.NOTIFICATION_COMMENT_NEWCOMMENT);
@@ -160,6 +186,9 @@ const UserNotification = ({
       socket.off(SocketEvent.NOTIFICATION_POST_NEWPOST);
       socket.off(SocketEvent.NOTIFICATION_POST_LIKEPOST);
       socket.off(SocketEvent.NOTIFICATION_FOLLOW_NEWFOLLOW);
+      socket.off(SocketEvent.NOTIFICATION_REJECT_REPORT);
+      socket.off(SocketEvent.NOTIFICATION_HIDE_POST);
+      socket.off(SocketEvent.NOTIFICATION_HIDE_COMMENT);
     };
   }, []);
   const handleReadAllNotification = async () => {
@@ -167,7 +196,7 @@ const UserNotification = ({
   };
   const handleDeleteAllNotification = async () => {
     return deleteAllNotifications().then(fetchNotifications);
-  }
+  };
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side={side} className="w-[350px] flex flex-col">
@@ -182,10 +211,10 @@ const UserNotification = ({
                 <EllipsisVertical className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="z-50" >
+            <DropdownMenuContent align="end" className="z-50">
               <DropdownMenuItem
                 onClick={() => handleReadAllNotification()}
-               className="hover:bg-accent"
+                className="hover:bg-accent"
               >
                 Đánh dấu tất cả đã đọc
               </DropdownMenuItem>
@@ -314,6 +343,12 @@ export function NotificationList({
               ? `${Notification.otherUser?.displayName} liked your comment`
               : Notification.type === "NEW_REPLY_COMMENT"
               ? `${Notification.otherUser?.displayName} replied to your comment`
+              : Notification.type === "REJECT_REPORT"
+              ? "Your report has been rejected"
+              : Notification.type === "HIDE_POST"
+              ? "Your post has been hidden by admin"
+              : Notification.type === "HIDE_COMMENT"
+              ? "Your comment has been hidden by admin"
               : "Other notification"}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -332,7 +367,7 @@ export function NotificationList({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => handleReadNotification(Notification._id)}
-              className="hover:bg-accent" 
+              className="hover:bg-accent"
             >
               Đánh dấu đã đọc
             </DropdownMenuItem>

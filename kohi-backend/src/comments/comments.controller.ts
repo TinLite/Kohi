@@ -27,6 +27,7 @@ import { User } from 'src/auth/user.decorator';
 import mongoose from 'mongoose';
 import { CheckBan } from 'src/auth/check-ban.decorator';
 import { CommentFlags } from './schemas/comment.schema';
+import { HideCommentNotificationDto } from 'src/notifications/dto/hide-comment-notification.dto';
 
 @Controller('comments')
 export class CommentsController {
@@ -167,7 +168,7 @@ export class CommentsController {
         commentId,
       );
     if (notification) {
-      await this.notificationsService.remove(notification._id.toString());
+      await this.notificationsService.deleteNotification(notification._id.toString());
     }
     return this.commentsService.removeLike(commentId, author);
   }
@@ -195,7 +196,7 @@ export class CommentsController {
       await this.notificationsService.findOneCommentNotification(commentId);
     // console.log(notification);
     if (notification) {
-      this.notificationsService.remove(notification._id.toString());
+      this.notificationsService.deleteNotification(notification._id.toString());
     }
     const result = await this.commentsService.deleteComment(commentId, author);
     // console.log('Delete result', result);
@@ -321,7 +322,14 @@ async findAllByAdmin(
   if (comment.flags && comment.flags.includes((CommentFlags.HIDDEN))) {
     throw new BadRequestException('Comment is already hidden');
   } 
-    return this.commentsService.hideComment(commentId);
+    await this.commentsService.hideComment(commentId);
+    return await this.notificationsService.createNotificationHideComment(
+    new HideCommentNotificationDto({
+      userId: comment.author,
+      comment: commentId,
+    }),
+  );
+
   }
   @Roles(Role.ADMIN)
   @Post('unhide/:id')
@@ -335,6 +343,15 @@ async findAllByAdmin(
     if (comment.flags && !comment.flags.includes((CommentFlags.HIDDEN))) {
       throw new BadRequestException('Comment is already unhidden');
     } 
+const notification = await this.notificationsService.findOneHideCommentNotification(
+   //@ts-expect-error
+  comment.author._id.toString(),
+  commentId,
+);;
+  if (notification) {
+    await this.notificationsService.deleteNotification(notification._id.toString());
+  }
     return this.commentsService.unhideComment(commentId);
+
   }
 }
