@@ -1,16 +1,10 @@
 import { AdminGetAllUsers } from "@/repository/user-repository";
 import { User } from "@/types/user-type";
-import { EllipsisVertical } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom"; // Import useSearchParams
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import {
   Table,
@@ -22,7 +16,7 @@ import {
 } from "../ui/table";
 
 export default function AdminUsers() {
-  const [searchParams, setSearchParams] = useSearchParams(); // Hook để quản lý query params
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(
@@ -31,7 +25,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [totalPages, setTotalPages] = useState<number>(1);
   const itemsPerPage = 10;
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -109,7 +103,16 @@ export default function AdminUsers() {
                     <TableCell>{user.displayName || user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell className="text-right">
-                      <DropdownUser user={user} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="w-8 h-8 p-0"
+                        onClick={() => {
+                          navigate(`/admin/users/detail/${user?._id}`);
+                        }}
+                      >
+                        <Eye className="h-5 w-5" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -139,29 +142,5 @@ export default function AdminUsers() {
         )}
       </div>
     </div>
-  );
-}
-export function DropdownUser({ user }: { user?: User }) {
-  const [openDropdown, setOpenDropdown] = useState(false);
-  const navigate = useNavigate();
-  return (
-    <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="w-8 h-8 p-0">
-          <EllipsisVertical className="h-5 w-5" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" >
-        <DropdownMenuItem
-          onClick={() => {
-            navigate(`/admin/users/detail/${user?._id}`);
-            setOpenDropdown(false);
-          }}
-        >
-          View
-        </DropdownMenuItem>
-        <DropdownMenuItem>Delete</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }

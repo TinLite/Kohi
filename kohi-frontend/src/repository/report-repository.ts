@@ -1,15 +1,24 @@
 import { Report } from "@/types/report-types";
 
-export default async function getAllReportsAdmin() {
+export default async function getAllReportsAdmin(page = 1, limit = 5, query = "") {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/reports/admin`,
+    }/reports/list?page=${page}&limit=${limit}&query=${query}`,
     {
       credentials: "include",
     }
   );
-  return (await response.json()) as Report[];
+  const data = await response.json();
+  return data as {
+    data: Report[];
+    pagination: {
+      currentPage: number;
+      totalPage: number;
+      totalElement: number;
+      limit: number;
+    };
+  };
 }
 export async function reportTarget(
   type: "post" | "comment",

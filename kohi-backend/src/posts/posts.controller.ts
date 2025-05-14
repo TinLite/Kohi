@@ -17,9 +17,11 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
 import { Public } from 'src/auth/authmeta';
+import { CheckBan } from 'src/auth/check-ban.decorator';
 import { Roles } from 'src/auth/role.decorator';
 import { User } from 'src/auth/user.decorator';
 import { EventsService } from 'src/events/events.service';
+import { HidePostNotificationDto } from 'src/notifications/dto/hide-post-notification.dto';
 import { LikePostNotificationDto } from 'src/notifications/dto/new-likepost-notification.dto';
 import { NewPostNotificationDto } from 'src/notifications/dto/new-post-notification.dto';
 import { NotificationsService } from 'src/notifications/notifications.service';
@@ -37,7 +39,7 @@ export class PostsController {
     private readonly eventsService: EventsService,
     private readonly notificationsService: NotificationsService,
   ) {}
-
+  @CheckBan('post')
   @Post('/create')
   @UseInterceptors(FilesInterceptor('files', 15))
   async create(
@@ -122,7 +124,7 @@ export class PostsController {
     }
     return this.postsService.findOne(id);
   }
-
+  @CheckBan('post')
   @Patch('detail/:id/update')
   async update(
     @Param('id') id: string,
@@ -316,5 +318,47 @@ export class PostsController {
       throw new NotFoundException('User not found');
     }
     return this.postsService.getProfileShares(requestUserId);
+  }
+  @Roles('admin')
+  @Post('hide/:id')
+  async hidePost(@Param('id') id: string) {
+    const post = await this.postsService.findOne(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    await this.postsService.hidePost(id);
+    return await this.notificationsService.createNotificationHidePost(
+      new HidePostNotificationDto({
+        //@ts-expect-error
+        userId: post.author._id,
+        post: id,
+      }),
+    );
+  }
+  @Roles('admin')
+  @Post('unhide/:id')
+  async unhidePost(@Param('id') id: string) {
+    const post = await this.postsService.findOneToUnhide(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    const notification =
+      await this.notificationsService.findOneHidePostNotification(
+        //@ts-expect-error
+        post.author._id,
+        id,
+      );
+    if (notification) {
+      await this.notificationsService.deleteNotification(notification._id);
+    }
+    return this.postsService.unhidePost(id);
+  }
+  @Roles('admin')
+  @Get('/admin/detail/:id')
+  async findOneByAdmin(@Param('id') id: string) {
+    if (!id) {
+      throw new NotFoundException('Post not found');
+    }
+    return this.postsService.getOnePostByAdmin(id);
   }
 }

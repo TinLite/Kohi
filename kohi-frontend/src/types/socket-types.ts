@@ -9,4 +9,7 @@ export enum SocketEvent {
   NOTIFICATION_POST_NEWPOST = "notification:post:newpost",
   NOTIFICATION_POST_LIKEPOST = "notification:post:likepost",
   NOTIFICATION_FOLLOW_NEWFOLLOW = "notification:follow:newfollow",
+  NOTIFICATION_REJECT_REPORT = "notification:reject:report",
+  NOTIFICATION_HIDE_POST = "notification:hide:post",
+  NOTIFICATION_HIDE_COMMENT = "notification:hide:comment",
 }

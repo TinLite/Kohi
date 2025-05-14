@@ -24,6 +24,7 @@ import { PageSettingUser } from "@/routes/settings/SettingUser";
 import { useContext } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AdminComments from "./components/admin/comments";
+import DetailPost from "./components/admin/detailpost";
 import DetailUser from "./components/admin/detailuser";
 import AdminPosts from "./components/admin/posts";
 import AdminReports from "./components/admin/reports";
@@ -159,6 +160,9 @@ const router = createBrowserRouter([
       {
         path: "/admin/reports",
         element: <AdminReports />
+      },{
+        path: "/admin/posts/detail/:id",
+        element: <DetailPost/>
       }
     ],
   },

@@ -148,6 +148,44 @@ export class PostsService {
       },
     );
   }
+  async findOneToUnhide(id: string) {
+    return this.postModel
+      .findOne({
+        _id: id,
+        flags: { $in: [PostFlags.HIDDEN] },
+      })
+      .exec();
+  }
+  unhidePost(id: string) {
+    return this.postModel.findOneAndUpdate(
+      {
+        _id: id,
+        flags: { $in: [PostFlags.HIDDEN] },
+      },
+      {
+        $pull: {
+          flags: PostFlags.HIDDEN,
+        },
+      },
+    );
+  }
+  getOnePostByAdmin(id: string) {
+    return this.postModel
+      .findOne({
+        _id: id,
+      })
+      .populate({
+        path: 'author',
+        select: 'username displayname avatar',
+      })
+      .populate({
+        path: 'postShare',
+        populate: {
+          path: 'author',
+          select: 'username displayname avatar',
+        },
+      });
+  }
   async deletePost(id: string) {
     return this.postModel.findOneAndDelete({
       _id: id,

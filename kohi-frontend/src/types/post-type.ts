@@ -1,4 +1,7 @@
 import { User } from "./user-type";
+export enum PostFlags {
+  HIDDEN = 'hidden',
+}
 
 export class Post {
   _id: string;
@@ -10,6 +13,7 @@ export class Post {
   media: string[];
   likes?: String[];
   postShare?: Post;
+  flags?: PostFlags[];
   constructor(
     _id: string,
     title: string,
@@ -19,7 +23,8 @@ export class Post {
     updatedAt: Date,
     media: string[],
     likes?: String[],
-    postShare?: Post
+    postShare?: Post,
+    flags?: PostFlags[]
   ) {
     this._id = _id;
     this.title = title;
@@ -30,5 +35,6 @@ export class Post {
     this.media = media;
     this.likes = likes;
     this.postShare = postShare;
+    this.flags = flags;
   }
 }

@@ -16,6 +16,14 @@ export class Report {
   reason: string;
   @Prop({ default: Date.now })
   timeStamp: Date;
+  @Prop({ enum: ['approved', 'rejected'], required: false })
+  handleResult?: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  handledBy?: User;
+  @Prop()
+  handleReason?: string;
+  @Prop({ default: false })
+  handled: boolean;
   @Prop()
   flags: ReportFlags[];
 }

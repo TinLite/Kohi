@@ -25,6 +25,9 @@ import { LIKECommentNotificationDto } from 'src/notifications/dto/new-likecommen
 import { NewReplyCommentNotificationDto } from 'src/notifications/dto/new-reply-comment-notification.dto';
 import { User } from 'src/auth/user.decorator';
 import mongoose from 'mongoose';
+import { CheckBan } from 'src/auth/check-ban.decorator';
+import { CommentFlags } from './schemas/comment.schema';
+import { HideCommentNotificationDto } from 'src/notifications/dto/hide-comment-notification.dto';
 
 @Controller('comments')
 export class CommentsController {
@@ -34,6 +37,7 @@ export class CommentsController {
     private readonly notificationsService: NotificationsService,
   ) {}
 
+    @CheckBan('comment') 
   @Post('create/:id')
   async createComment(
     @Param('id') postId: string,
@@ -87,6 +91,7 @@ export class CommentsController {
     );
   }
   //reply bình luận
+  @CheckBan('comment')
   @Post('reply/:id')
   async replyComment(
     @Param('id') commentId: string,
@@ -163,7 +168,7 @@ export class CommentsController {
         commentId,
       );
     if (notification) {
-      await this.notificationsService.remove(notification._id.toString());
+      await this.notificationsService.deleteNotification(notification._id.toString());
     }
     return this.commentsService.removeLike(commentId, author);
   }
@@ -191,7 +196,7 @@ export class CommentsController {
       await this.notificationsService.findOneCommentNotification(commentId);
     // console.log(notification);
     if (notification) {
-      this.notificationsService.remove(notification._id.toString());
+      this.notificationsService.deleteNotification(notification._id.toString());
     }
     const result = await this.commentsService.deleteComment(commentId, author);
     // console.log('Delete result', result);
@@ -304,6 +309,49 @@ async findAllByAdmin(
   }
 
   return this.commentsService.getAllComment(currentPage, currentLimit,query);
-
 }
+  @Roles(Role.ADMIN)
+  @Post('hide/:id')
+  async hideComment(
+    @Param('id') commentId: string,
+  ) {
+    const comment = await this.commentsService.getOneComment(commentId);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+  if (comment.flags && comment.flags.includes((CommentFlags.HIDDEN))) {
+    throw new BadRequestException('Comment is already hidden');
+  } 
+    await this.commentsService.hideComment(commentId);
+    return await this.notificationsService.createNotificationHideComment(
+    new HideCommentNotificationDto({
+      userId: comment.author,
+      comment: commentId,
+    }),
+  );
+
+  }
+  @Roles(Role.ADMIN)
+  @Post('unhide/:id')
+  async unhideComment(
+    @Param('id') commentId: string,
+  ) {
+    const comment = await this.commentsService.getOneComment(commentId);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    if (comment.flags && !comment.flags.includes((CommentFlags.HIDDEN))) {
+      throw new BadRequestException('Comment is already unhidden');
+    } 
+const notification = await this.notificationsService.findOneHideCommentNotification(
+   //@ts-expect-error
+  comment.author._id.toString(),
+  commentId,
+);;
+  if (notification) {
+    await this.notificationsService.deleteNotification(notification._id.toString());
+  }
+    return this.commentsService.unhideComment(commentId);
+
+  }
 }

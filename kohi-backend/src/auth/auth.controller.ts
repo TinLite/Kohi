@@ -23,6 +23,7 @@ import { Public } from './authmeta';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { User } from './user.decorator';
+import { CheckBan } from './check-ban.decorator';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -32,8 +33,8 @@ export class AuthController {
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
   ) {}
-
   @UseGuards(LocalAuthGuard)
+  @CheckBan('account')
   @Public()
   @Post('login')
   async login(@Request() req) {

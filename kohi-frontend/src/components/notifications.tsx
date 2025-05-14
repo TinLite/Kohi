@@ -150,6 +150,27 @@ const UserNotification = ({
         );
       }
     );
+    socket.on(
+      SocketEvent.NOTIFICATION_REJECT_REPORT,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        toast.info("Your report has been rejected");
+      }
+    );
+    socket.on(
+      SocketEvent.NOTIFICATION_HIDE_POST,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        toast.info("Your post has been hidden by admin");
+      }
+    );
+    socket.on(
+      SocketEvent.NOTIFICATION_HIDE_COMMENT,
+      (notification: Notification) => {
+        setNotificationList({ type: "prepend", payload: [notification] });
+        toast.info("Your comment has been hidden by admin");
+      }
+    );
     console.log("socket on notification");
     return () => {
       socket.off(SocketEvent.NOTIFICATION_COMMENT_NEWCOMMENT);
@@ -158,6 +179,9 @@ const UserNotification = ({
       socket.off(SocketEvent.NOTIFICATION_POST_NEWPOST);
       socket.off(SocketEvent.NOTIFICATION_POST_LIKEPOST);
       socket.off(SocketEvent.NOTIFICATION_FOLLOW_NEWFOLLOW);
+      socket.off(SocketEvent.NOTIFICATION_REJECT_REPORT);
+      socket.off(SocketEvent.NOTIFICATION_HIDE_POST);
+      socket.off(SocketEvent.NOTIFICATION_HIDE_COMMENT);
     };
   }, []);
   const handleReadAllNotification = async () => {
@@ -165,7 +189,7 @@ const UserNotification = ({
   };
   const handleDeleteAllNotification = async () => {
     return deleteAllNotifications().then(fetchNotifications);
-  }
+  };
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side={side} className="w-[350px] flex flex-col">
@@ -242,7 +266,7 @@ export function NotificationList({
       case "LIKE_COMMENT":
       case "NEW_REPLY_COMMENT":
         if (Notification.post && Notification.comment) {
-          navigate(`/post/detail/${Notification.post}?focusCommentId=${Notification.comment}`, {
+          navigate(`/post/detail/${Notification.post}`, {
             state: { commentId: Notification.comment },
           });
         } else {
@@ -296,6 +320,12 @@ export function NotificationList({
               ? `${Notification.otherUser?.displayName} liked your comment`
               : Notification.type === "NEW_REPLY_COMMENT"
               ? `${Notification.otherUser?.displayName} replied to your comment`
+              : Notification.type === "REJECT_REPORT"
+              ? "Your report has been rejected"
+              : Notification.type === "HIDE_POST"
+              ? "Your post has been hidden by admin"
+              : Notification.type === "HIDE_COMMENT"
+              ? "Your comment has been hidden by admin"
               : "Other notification"}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -314,7 +344,7 @@ export function NotificationList({
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => handleReadNotification(Notification._id)}
-              className="hover:bg-accent" 
+              className="hover:bg-accent"
             >
               Đánh dấu đã đọc
             </DropdownMenuItem>

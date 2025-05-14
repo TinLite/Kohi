@@ -1,12 +1,16 @@
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { getCommentByAuthor } from "@/repository/comment-repository";
-import { getPostsByAuthor } from "@/repository/PostsRepository";
+import {
+  getCommentByAuthor,
+  hideComment,
+  unHideComment,
+} from "@/repository/comment-repository";
+import { getPostsByAuthor, hidePost, unHidePost } from "@/repository/PostsRepository";
 import { getProfileUser } from "@/repository/user-repository";
-import { Post } from "@/types/post-type";
+import { Post, PostFlags } from "@/types/post-type";
 import { User } from "@/types/user-type";
 import { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Comment } from "../../types/comment-type";
+import { Comment, CommentFlags } from "../../types/comment-type";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
@@ -29,6 +33,25 @@ import { Separator } from "../ui/separator";
 import { DateTime } from "luxon";
 import { Input } from "../ui/input";
 import { ImageViewerContext } from "@/context/image-viewer-context";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { banUser, getBanByUser, unbanUser } from "@/repository/ban-repository";
+import { toast } from "sonner";
+import { Ban } from "../../types/ban-types";
+import { Label } from "../ui/label";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 export default function DetailUser() {
   const [target, setTarget] = useState<User | undefined>(undefined);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -38,6 +61,69 @@ export default function DetailUser() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [debouncedQuery, setDebouncedQuery] = useState<string>(""); // State cho debounce
   const { openImage } = useContext(ImageViewerContext);
+  const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [types, setTypes] = useState("");
+  const [typeUnban, setTypeUnban] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
+  const [bans, setBans] = useState<Ban[]>([]);
+  const [openConfirmUnban, setOpenConfirmUnban] = useState(false);
+  const fetchBans = async () => {
+    if (!authorId) {
+      return;
+    }
+    getBanByUser(authorId)
+      .then((res) => {
+        setBans(res);
+      })
+      .catch((error) => {
+        console.error("Error fetching bans", error);
+      });
+  };
+  const handleBanUser = async (type: string) => {
+    if (!reason || !expiresAt) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    const today = new Date();
+    const selectedDate = new Date(expiresAt);
+    // today.setHours(0, 0, 0, 0);
+    // selectedDate.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      toast.error("Expiration date must be in the future.");
+      return;
+    }
+    if (!authorId) {
+      toast.error("User ID is missing.");
+      return;
+    }
+    banUser(authorId, type, reason, new Date(expiresAt))
+      .then(() => {
+        toast.success(`${type} banned successfully.`);
+        fetchBans();
+        setIsBanDialogOpen(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error(`Failed to ban ${type}.`);
+      });
+  };
+  const handleUnbanUser = async (type: string) => {
+    if (!authorId) {
+      toast.error("User ID is missing.");
+      return;
+    }
+    unbanUser(authorId, type, reason)
+      .then(() => {
+        toast.success(`${type} unbanned successfully.`);
+        fetchBans();
+        setOpenConfirmUnban(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error(`Failed to unban ${type}.`);
+      });
+  };
   const getUserProfile = async () => {
     if (!authorId) {
       return;
@@ -50,25 +136,74 @@ export default function DetailUser() {
         console.error("Error", error);
       });
   };
-  const fetchComments = async () => {
+  const fetchComments = () => {
     if (!authorId) return;
-    try {
-      const response = await getCommentByAuthor(authorId);
-      setComments(response.data || []);
-    } catch (error) {
-      console.error("Failed to fetch comments", error);
-    }
+    getCommentByAuthor(authorId)
+      .then((response) => {
+        setComments(response.data || []);
+        // console.log("Comments", response.data);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch comments", error);
+      });
   };
-  const fetchPosts = async () => {
-    try {
-      if (!authorId) {
-        return;
-      }
-      const response = await getPostsByAuthor(authorId);
-      setPosts(response.data || []);
-    } catch (error) {
-      console.error("Failed to fetch posts", error);
+  const handleHideComment = (commentId: string) => {
+    hideComment(commentId)
+      .then(() => {
+        toast.success("Comment hidden successfully.");
+        fetchComments();
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Failed to hide comment.");
+      });
+  };
+  const handleUnhideComment = (commentId: string) => {
+    unHideComment(commentId)
+      .then(() => {
+        toast.success("Comment unhidden successfully.");
+        fetchComments();
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Failed to unhide comment.");
+      });
+  };
+  const fetchPosts = () => {
+    if (!authorId) {
+      return;
     }
+    getPostsByAuthor(authorId)
+      .then((response) => {
+        setPosts(response.data || []);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch posts", error);
+      });
+  };
+
+  const handleHidePost = (postId: string) => {
+    hidePost(postId)
+      .then(() => {
+        toast.success("Post hidden successfully.");
+        fetchPosts();
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Failed to hide post.");
+      });
+  };
+
+  const handleUnhidePost = (postId: string) => {
+    unHidePost(postId)
+      .then(() => {
+        toast.success("Post unhidden successfully.");
+        fetchPosts();
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Failed to unhide post.");
+      });
   };
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.toLowerCase();
@@ -77,16 +212,21 @@ export default function DetailUser() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery); // Cập nhật giá trị debounce sau 300ms
-    },700);
-
+    }, 700);
     return () => {
       clearTimeout(handler); // Xóa timeout nếu người dùng tiếp tục nhập
     };
   }, [searchQuery]);
+  const openBanDialog = (defaultType: string) => {
+    setTypes(defaultType); // Đặt giá trị mặc định cho types
+    setIsBanDialogOpen(true); // Mở form ban
+  };
+
   useEffect(() => {
     getUserProfile();
     fetchPosts();
     fetchComments();
+    fetchBans();
   }, [authorId]);
   const filteredPosts = posts.filter((post) =>
     post.content.toLowerCase().includes(debouncedQuery)
@@ -135,27 +275,66 @@ export default function DetailUser() {
         )}
         {isMobile && (
           <div className="flex flex-col gap-2 mt-4">
-            <Button
-              variant="destructive"
-              className="w-full py-1 text-sm font-semibold bg-red-500 hover:bg-red-600 text-white rounded-md shadow-md"
-              //   onClick={handleBanUser}
-            >
-              Ban User
-            </Button>
-            <Button
-              variant="default"
-              className="w-full py-1 text-sm font-semibold bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-md"
-              //   onClick={handleUnbanUser}
-            >
-              Unban User
-            </Button>
-            <Button
-              variant="destructive"
-              className="w-full py-1 text-sm font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-md shadow-md"
-              //   onClick={() => handleBanComment("commentId")}
-            >
-              Ban Comment
-            </Button>
+            {bans && bans.some((ban) => ban.types === "account") ? (
+              <Button
+                variant="default"
+                className="w-full py-1 text-sm font-semibold bg-green-500 hover:bg-green-600 text-white rounded-md shadow-md"
+                onClick={() => {
+                  setTypeUnban("account");
+                  setOpenConfirmUnban(true);
+                }}
+              >
+                Unban Account
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                className="w-full py-1 text-sm font-semibold bg-red-500 hover:bg-red-600 text-white rounded-md shadow-md"
+                onClick={() => openBanDialog("account")}
+              >
+                Ban Account
+              </Button>
+            )}
+            {bans && bans.some((ban) => ban.types === "post") ? (
+              <Button
+                variant="default"
+                className="w-full py-1 text-sm font-semibold bg-green-500 hover:bg-green-600 text-white rounded-md shadow-md"
+                onClick={() => {
+                  setTypeUnban("post");
+                  setOpenConfirmUnban(true);
+                }}
+              >
+                Unban Create Post
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                className="w-full py-1 text-sm font-semibold bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-md"
+                onClick={() => openBanDialog("post")}
+              >
+                Ban Create Post
+              </Button>
+            )}
+            {bans && bans.some((ban) => ban.types === "comment") ? (
+              <Button
+                variant="default"
+                className="w-full py-1 text-sm font-semibold bg-green-500 hover:bg-green-600 text-white rounded-md shadow-md"
+                onClick={() => {
+                  setTypeUnban("comment");
+                  setOpenConfirmUnban(true);
+                }}
+              >
+                Unban Create Comment
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                className="w-full py-1 text-sm font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-md shadow-md"
+                onClick={() => openBanDialog("comment")}
+              >
+                Ban Create Comment
+              </Button>
+            )}
           </div>
         )}
         <Tabs defaultValue="posts" className="w-full mt-4 ">
@@ -245,9 +424,23 @@ export default function DetailUser() {
                     )}
                     <Separator />
                     <div className="flex justify-end gap-2 mt-2">
-                      <Button variant="default" size="sm">
-                        Hide
-                      </Button>
+                      {post.flags?.includes(PostFlags.HIDDEN) ? (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleUnhidePost(post._id)}
+                        >
+                          Unhide
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleHidePost(post._id)}
+                        >
+                          Hide
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -276,20 +469,30 @@ export default function DetailUser() {
                         </TableCell>
                         <TableCell>{comment.content}</TableCell>
                         <TableCell>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            // onClick={() => handleDeleteComment(comment._id)}
-                          >
-                            Delete
-                          </Button>
+                          {comment.flags?.includes(CommentFlags.HIDDEN) ? (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleUnhideComment(comment._id)}
+                            >
+                              Unhide
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleHideComment(comment._id)}
+                            >
+                              Hide
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
                       <TableCell colSpan={3} className="text-center">
-                        Không có comment nào.
+                        No comments available.
                       </TableCell>
                     </TableRow>
                   )}
@@ -336,28 +539,161 @@ export default function DetailUser() {
             </div>
           </div>
           <div className="flex flex-col gap-2 mt-2">
-            <Button
-              variant="destructive"
-              className="w-full py-1 text-sm font-semibold bg-red-500 hover:bg-red-600 text-white rounded-md shadow-md"
-              //   onClick={handleBanUser}
-            >
-              Ban User
-            </Button>
-            <Button
-              variant="default"
-              className="w-full py-1 text-sm font-semibold bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-md"
-              //   onClick={handleUnbanUser}
-            >
-              Ban Create Post
-            </Button>
-            <Button
-              variant="destructive"
-              className="w-full py-1 text-sm font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-md shadow-md"
-              //   onClick={() => handleBanComment("commentId")}
-            >
-              Ban Create Comment
-            </Button>
+            {bans && bans.some((ban) => ban.types === "account") ? (
+              <Button
+                variant="default"
+                className="w-full py-1 text-sm font-semibold bg-green-500 hover:bg-green-600 text-white rounded-md shadow-md"
+                onClick={() => {
+                  setTypeUnban("account");
+                  setOpenConfirmUnban(true);
+                }}
+              >
+                Unban Account
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                className="w-full py-1 text-sm font-semibold bg-red-500 hover:bg-red-600 text-white rounded-md shadow-md"
+                onClick={() => openBanDialog("account")}
+              >
+                Ban Account
+              </Button>
+            )}
+            {bans && bans.some((ban) => ban.types === "post") ? (
+              <Button
+                variant="default"
+                className="w-full py-1 text-sm font-semibold bg-green-500 hover:bg-green-600 text-white rounded-md shadow-md"
+                onClick={() => {
+                  setTypeUnban("post");
+                  setOpenConfirmUnban(true);
+                }}
+              >
+                Unban Create Post
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                className="w-full py-1 text-sm font-semibold bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-md"
+                onClick={() => openBanDialog("post")}
+              >
+                Ban Create Post
+              </Button>
+            )}
+            {bans && bans.some((ban) => ban.types === "comment") ? (
+              <Button
+                variant="default"
+                className="w-full py-1 text-sm font-semibold bg-green-500 hover:bg-green-600 text-white rounded-md shadow-md"
+                onClick={() => {
+                  setTypeUnban("comment");
+                  setOpenConfirmUnban(true);
+                }}
+              >
+                Unban Create Comment
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                className="w-full py-1 text-sm font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-md shadow-md"
+                onClick={() => openBanDialog("comment")}
+              >
+                Ban Create Comment
+              </Button>
+            )}
           </div>
+          <Dialog open={isBanDialogOpen} onOpenChange={setIsBanDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Ban User</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-4">
+                <label className="flex flex-col">
+                  <span className="font-semibold">Reason</span>
+                  <textarea
+                    // value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className="border rounded-md p-2"
+                    placeholder="Enter the reason for banning"
+                  />
+                </label>
+                <label className="flex flex-col">
+                  <span className="font-semibold">Type</span>
+                  <select
+                    value={types}
+                    onChange={(e) => setTypes(e.target.value)}
+                    className="border rounded-md p-2"
+                  >
+                    <option value="account">Ban account</option>
+                    <option value="post">Ban create post</option>
+                    <option value="comment">Ban create comment</option>
+                  </select>
+                </label>
+                <Label className="flex flex-col">
+                  <span className="font-semibold mb-2">Expires At</span>
+                  <input
+                    type="date"
+                    value={expiresAt}
+                    onChange={(e) => setExpiresAt(e.target.value)}
+                    className="border rounded-md p-2"
+                  />
+                </Label>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsBanDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleBanUser(types)}
+                >
+                  Ban
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <AlertDialog
+            open={openConfirmUnban}
+            onOpenChange={setOpenConfirmUnban}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Are you sure you want to unban this user?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action will unban {typeUnban} the user. You can undo this
+                  later.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="flex flex-col gap-4">
+                <label className="flex flex-col">
+                  <span className="font-semibold">Reason Unban</span>
+                  <textarea
+                    // value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className="border rounded-md p-2"
+                    placeholder="Enter the reason for unbanning"
+                  />
+                </label>
+              </div>
+              <AlertDialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setOpenConfirmUnban(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleUnbanUser(typeUnban)}
+                >
+                  Confirm
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
     </div>

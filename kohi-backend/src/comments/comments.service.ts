@@ -107,6 +107,7 @@ export class CommentsService {
     const comment = await this.commentModel
       .find({
         postId: postId,
+        flags: { $nin: ['hidden'] },
         // replyTo: null,
       })
       .populate('author', 'username avatar displayName')
@@ -176,6 +177,18 @@ export class CommentsService {
       },
       {
         $push: { flags: 'hidden' },
+      },
+    );
+  }
+  //unhide comment
+  unhideComment(commentId: string) {
+    return this.commentModel.findByIdAndUpdate(
+      {
+        _id: commentId,
+        flags: { $in: ['hidden'] },
+      },
+      {
+        $pull: { flags: 'hidden' },
       },
     );
   }
