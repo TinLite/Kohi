@@ -52,6 +52,7 @@ export default function MessageViewNewChat() {
     const [recipents, setRecipents] = useState<User[]>([]);
     const channelNameInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const InputChannelName = forwardRef(function InputChannelName(_, ref: any) {
         const [newChannelName, setNewChannelName] = useState<string>("");
@@ -66,30 +67,30 @@ export default function MessageViewNewChat() {
         )
     })
 
+    useEffect(() => {
+        if (followerList.length == 0) return;
+        const recipentId = location.state?.recipentId;
+        if (recipentId) {
+            const recipent = followerList.find((user) => user._id == recipentId);
+            console.debug("Recipent", recipent, recipents);
+            if (recipent && recipents.length == 0) {
+                setRecipents([recipent]);
+            }
+        }
+        console.debug("RecipentId", recipentId);
+    }, [followerList]);
+
     var addRecipentInputTimer: NodeJS.Timeout;
 
     function InputAddRecipent({ onAdded }: { onAdded?: (user: User) => void }) {
         const [recipentQueryResult, setRecipentQueryResult] = useState<User[]>([]);
         const [recipentQuery, setRecipentQuery] = useState<string>("");
-        const location = useLocation();
-        const recipentId = location.state?.recipentId;
 
         function handleAddRecipent(recipent: User) {
             setRecipentQueryResult([]);
             setRecipentQuery("");
             if (onAdded) onAdded(recipent);
         }
-
-        useEffect(() => {
-            if (recipentId) {
-                const recipent = followerList.find((user) => user._id == recipentId);
-                if (recipent) {
-                    setRecipents([...recipents, recipent]);
-                    setRecipentQueryResult([]);
-                    setRecipentQuery("");
-                }
-            }
-        }, [recipentId, followerList]);
 
         function queryUser() {
             if (addRecipentInputTimer) clearTimeout(addRecipentInputTimer);

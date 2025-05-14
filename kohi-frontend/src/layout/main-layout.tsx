@@ -3,11 +3,15 @@ import SideNav from "@/components/side-nav";
 import { UserContext } from "@/context/user-context";
 import socket from "@/services/socket";
 import { useContext, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export default function MainLayout({disableNavOnPhone = false}: {disableNavOnPhone?: boolean}) {
   const { user, loginFormOpen, setLoginFormOpen } = useContext(UserContext);
+  const navigate = useNavigate();
   useEffect(() => {
+    // if (!user) {
+    //   navigate("/login");
+    // }
     if (user) {
       socket.connect();
     } else if (socket.active) {

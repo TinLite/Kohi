@@ -135,28 +135,33 @@ function UserMessage({ className, isMe, name, avatar, image, images, noPaddingTo
               </div>
             </div>
             {
-              images &&
-              <Carousel className="w-fit">
-                <CarouselContent className="justify-end w-fit">
-                  {
-                    images.map((img, index) => (
-                      <CarouselItem key={index} className="basis-1/2 md:basis-1/3 w-fit">
-                        <div className="p-1">
-                          <Card className="w-fit">
-                            <CardContent className="aspect-square p-0" onClick={() => openImage(img)}>
-                              <img
-                                src={img}
-                                alt=""
-                                className="object-cover w-full h-full rounded-lg"
-                              />
-                            </CardContent>
-                          </Card>
-                        </div>
-                      </CarouselItem>
-                    ))
-                  }
-                </CarouselContent>
-              </Carousel>
+              (images && images.length > 0) &&
+              <>
+                <div className={`${isMe && "text-right "}text-muted-foreground text-sm px-2 text-right`}>
+                  <span className="italic">Sent {images.length} images</span>
+                </div>
+                <Carousel className="w-fit">
+                  <CarouselContent className={`${(isMe && images.length < 3) && "w-fit justify-end"}`}>
+                    {
+                      images.map((img, index) => (
+                        <CarouselItem key={index} className={`basis-1/2 md:basis-1/3`}>
+                          <div className="p-1">
+                            <Card className="w-fit">
+                              <CardContent className="aspect-square p-0 cursor-pointer" onClick={() => openImage(img)}>
+                                <img
+                                  src={img}
+                                  alt=""
+                                  className="object-cover w-full h-full rounded-lg"
+                                />
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </CarouselItem>
+                      ))
+                    }
+                  </CarouselContent>
+                </Carousel>
+              </>
             }
           </ContextMenuTrigger>
           <ContextMenuContent >
@@ -405,21 +410,25 @@ function MessageView({ className }: { className?: string }) {
     if (!user) {
       return;
     }
-    socket.on(SocketEvent.CHAT_MESSAGE_NEW, (newMessage: ChatMessage) => {
+    function handleSocketNewMessage(newMessage: ChatMessage) {
       if (newMessage.channelID === channel?._id) {
         newMessage.files = newMessage.files?.map(convertMediaUrl);
         setReducedMessage({ type: 'append', payload: [newMessage] });
       }
-    });
-    socket.on(SocketEvent.CHAT_MESSAGE_UPDATE, (newMessage: ChatMessage) => {
+    }
+
+    function handleSocketUpdateMessage(newMessage: ChatMessage) {
       if (newMessage.channelID === channel?._id) {
         newMessage.files = newMessage.files?.map(convertMediaUrl);
         setReducedMessage({ type: 'replace_one', payload: [newMessage] });
       }
-    });
+    }
+
+    socket.on(SocketEvent.CHAT_MESSAGE_NEW, handleSocketNewMessage);
+    socket.on(SocketEvent.CHAT_MESSAGE_UPDATE, handleSocketUpdateMessage);
     return () => {
-      socket.off(SocketEvent.CHAT_MESSAGE_NEW);
-      socket.off(SocketEvent.CHAT_MESSAGE_UPDATE);
+      socket.off(SocketEvent.CHAT_MESSAGE_NEW, handleSocketNewMessage);
+      socket.off(SocketEvent.CHAT_MESSAGE_UPDATE, handleSocketUpdateMessage);
     }
   }, [channel?._id, user?._id])
 

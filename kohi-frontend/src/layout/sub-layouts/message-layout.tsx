@@ -2,14 +2,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ChatProvider } from "@/context/chat-context";
+import { ChatContext } from "@/context/chat-context";
 import { UserContext } from "@/context/user-context";
 import { cn } from "@/lib/utils";
-import { getChannelList } from "@/repository/chat-repository";
 import { ChatChannel, ChatChannelType } from "@/types/chat-types";
 import { PenLine } from "lucide-react";
 import { DateTime } from "luxon";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useMemo } from "react";
 import {
   Link,
   Outlet,
@@ -40,6 +39,23 @@ function MessageSelectionItem({
       chatChannel.name ?? targetUser.displayName ?? `@${targetUser.username}`;
     }
   }
+
+  const latestMessage = chatChannel.latestMessage;
+  
+  const text = useMemo(() => {
+    var result = latestMessage?.content;
+    if (!result) {
+      if (latestMessage?.isRecalled) {
+        result = "Tin nhắn đã bị thu hồi";
+        return
+      }
+      if (latestMessage?.files?.length) {
+        result = `Đã gửi ${latestMessage.files.length} tệp tin`;
+      }
+    }
+    return result;
+  }, [latestMessage]);
+
   return (
     <button
       className={cn([
@@ -64,7 +80,13 @@ function MessageSelectionItem({
           </span>
         </div>
         <div className="text-muted-foreground">
-          {chatChannel.latestMessage?.content}
+          {
+            text
+              ? text.length > 30
+                ? text.substring(0, 30) + "..."
+                : text
+              : "Chưa có tin nhắn nào"            
+          }
         </div>
       </div>
     </button>
@@ -73,22 +95,11 @@ function MessageSelectionItem({
 
 export default function MessageLayout() {
   const { channelID } = useParams();
-  const { user } = useContext(UserContext);
 
-  const [channels, setChannels] = useState<ChatChannel[]>([]);
+  const { chatChannelList: channels } = useContext(ChatContext);
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    if (!user) {
-      if (channels.length > 0) setChannels([]);
-      return;
-    }
-    getChannelList().then(setChannels);
-  }, [user?._id]);
-  useEffect(() => {
-    if (!user?._id) navigate(`/login?redirect=${location.pathname}`);
-  }, []);
   return (
     <div className="flex flex-grow h-screen">
       <div
@@ -123,9 +134,7 @@ export default function MessageLayout() {
         </ScrollArea>
       </div>
       <Separator orientation="vertical" className="max-md:hidden" />
-      <ChatProvider channelId={channelID}>
-        <Outlet />
-      </ChatProvider>
+      <Outlet />
     </div>
   );
 }

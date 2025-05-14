@@ -24,12 +24,13 @@ import { PageSettingUser } from "@/routes/settings/SettingUser";
 import { useContext } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import AdminComments from "./components/admin/comments";
+import DetailUser from "./components/admin/detailuser";
 import AdminPosts from "./components/admin/posts";
+import AdminReports from "./components/admin/reports";
 import AdminUsers from "./components/admin/users";
+import { ChatProvider } from "./context/chat-context";
 import AdminLayout from "./layout/admin-layout/admin-layout";
 import LayoutSystem from "./layout/system-layout";
-import DetailUser from "./components/admin/detailuser";
-import AdminReports from "./components/admin/reports";
 
 const router = createBrowserRouter([
   {
@@ -67,7 +68,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/message/",
-        element: <MessageLayout />,
+        element: (<ChatProvider><MessageLayout /></ChatProvider>),
         children: [
           {
             index: true,
@@ -95,7 +96,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/message/",
-        element: <MessageLayout />,
+        element: (<ChatProvider><MessageLayout /></ChatProvider>),
         children: [
           {
             path: "new",
