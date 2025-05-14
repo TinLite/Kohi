@@ -1,9 +1,17 @@
-import { Optional } from '@nestjs/common';
+import { Type } from 'class-transformer';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsString
+} from 'class-validator';
+
 export class CreateBanDto {
-  @Optional()
+  @IsNotEmpty()
+  @IsString()
   reason: string;
-  @Optional()
+  @IsNotEmpty()
+  types: string;
+  @IsDate()
+  @Type(() => Date)
   expiresAt: Date;
-  @Optional()
-  unbanReason: string;
 }

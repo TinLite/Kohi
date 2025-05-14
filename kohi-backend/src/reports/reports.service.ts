@@ -4,11 +4,14 @@ import { UpdateReportDto } from './dto/update-report.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Report } from '../reports/schema/report.schema';
+import { PostsService } from 'src/posts/posts.service';
+import { console } from 'inspector';
 
 @Injectable()
 export class ReportsService {
   constructor(
     @InjectModel(Report.name) private readonly reportModel: Model<Report>,
+    private readonly postsService: PostsService,
   ) {}
   async create(
     createReportDto: CreateReportDto,
@@ -40,21 +43,34 @@ export class ReportsService {
   findOneReportByUserAndCommentId(userId, commentId) {
     return this.reportModel.findOne({ userId, commentId });
   }
-  findOne(id: number) {
-    return `This action returns a #${id} report`;
-  }
-
-  update(id: number, updateReportDto: UpdateReportDto) {
-    return `This action updates a #${id} report`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} report`;
-  }
   async findAllReportsByPostId(postId: string) {
     return this.reportModel.find({ postId });
   }
   async findAllReportsByCommentId(commentId: string) {
     return this.reportModel.find({ commentId });
+  }
+  async getReportedPosts(): Promise<any[]> {
+    return this.reportModel.aggregate([
+      { $match: { type: 'post' } },
+      {
+        $group: {
+          _id: '$targetId',
+          reportCount: { $sum: 1 },
+          reports: { $push: '$$ROOT' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'posts',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'postInfo',
+        },
+      },
+      {
+        $unwind: '$postInfo',
+      },
+      { $sort: { reportCount: -1 } },
+    ]);
   }
 }

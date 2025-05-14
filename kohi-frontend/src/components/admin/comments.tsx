@@ -1,8 +1,20 @@
-import { getAllCommentsAdmin } from "@/repository/comment-repository";
-import { Comment } from "@/types/comment-type";
-import { EllipsisVertical } from "lucide-react";
+import {
+  getAllCommentsAdmin,
+  hideComment,
+  unHideComment,
+} from "@/repository/comment-repository";
+import { Comment, CommentFlags } from "@/types/comment-type";
+import { EllipsisVertical, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import {
@@ -20,14 +32,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
 
 export default function AdminComments() {
   const [searchParams] = useSearchParams();
@@ -38,30 +42,64 @@ export default function AdminComments() {
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [totalPages, setTotalPages] = useState<number>(1);
   const navigate = useNavigate();
-
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [commentTarget, setCommentTarget] = useState<Comment | null>(null);
+  const [actionType, setActionType] = useState<"hide" | "unhide">("hide");
+  const [filterStatus, setFilterStatus] = useState<"all" | "hidden" | "active">(
+    "all"
+  );
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(encodeURIComponent(searchQuery));
       if (searchQuery) {
-        setCurrentPage(1); // Chỉ quay về trang 1 khi từ khóa tìm kiếm thay đổi
+        setCurrentPage(1);
       }
     }, 700);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  useEffect(() => {
-    async function fetchComments() {
-      try {
-        const res = await getAllCommentsAdmin(currentPage, 10, debouncedQuery);
+  const fetchComments = async () => {
+    getAllCommentsAdmin(currentPage, 10, debouncedQuery)
+      .then((res) => {
         setComments(res.data || []);
         setTotalPages(res.pagination.totalPage || 1);
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error("Failed to fetch comments:", err);
-      }
-    }
+      });
+  };
+  useEffect(() => {
     fetchComments();
   }, [currentPage, debouncedQuery]);
 
+  const handleHideComment = async (commentId: string) => {
+    if (!commentId) return;
+    hideComment(commentId)
+      .then(() => {
+        fetchComments();
+      })
+      .catch((err) => {
+        console.error("Failed to hide comment:", err);
+      });
+  };
+  const handleUnhideComment = async (commentId: string) => {
+    if (!commentId) return;
+    unHideComment(commentId)
+      .then(() => {
+        fetchComments();
+      })
+      .catch((err) => {
+        console.error("Failed to unhide comment:", err);
+      });
+  };
+  const filteredComments = comments.filter((comment) => {
+    if (filterStatus === "all") return true;
+    if (filterStatus === "hidden")
+      return comment.flags?.includes(CommentFlags.HIDDEN);
+    if (filterStatus === "active")
+      return !comment.flags?.includes(CommentFlags.HIDDEN);
+    return true;
+  });
   useEffect(() => {
     navigate(`?page=${currentPage}`, { replace: true });
   }, [currentPage, navigate]);
@@ -81,20 +119,49 @@ export default function AdminComments() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full sm:w-1/3"
         />
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground flex items-center gap-1">
+            <Filter className="w-4 h-4" />
+            Filter:
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="">
+                {filterStatus === "all"
+                  ? "All"
+                  : filterStatus === "hidden"
+                  ? "Hidden"
+                  : "Active"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setFilterStatus("all")}>
+                All
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterStatus("active")}>
+                Active
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterStatus("hidden")}>
+                Hidden
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="overflow-x-auto min-h-[300px]">
         <Table className="w-full text-base">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[150px] text-left">Author</TableHead>
-              <TableHead className="text-right">Content</TableHead>
-              <TableHead className="text-right">Timestamp</TableHead>
+              <TableHead className="">Content</TableHead>
+              <TableHead className="text-right">Create At</TableHead>
+              <TableHead className="text-right">Status</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {comments.length > 0 ? (
-              comments.map((comment) => (
+            {filteredComments.length > 0 ? (
+              filteredComments.map((comment) => (
                 <TableRow key={comment._id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -114,25 +181,130 @@ export default function AdminComments() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">
-                    {comment.content}
-                  </TableCell>
+                  <TableCell className="">{comment.content}</TableCell>
                   <TableCell className="text-right">
                     {new Date(comment.timeStamp || "").toLocaleString("vi-VN")}
                   </TableCell>
+                  <TableCell>
+                    {comment.flags?.includes(CommentFlags.HIDDEN) ? (
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                        <span className="text-red-500">Hidden</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                        <span className="text-green-500">Active</span>
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right">
-                    <DropdownComment comment={comment} />
+                    {comment.flags?.includes(CommentFlags.HIDDEN) ? (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => {
+                          setCommentTarget(comment);
+                          setActionType("unhide");
+                          setOpenConfirm(true);
+                        }}
+                      >
+                        Unhide
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setCommentTarget(comment);
+                          setOpenConfirm(true);
+                        }}
+                      >
+                        Hide
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-4">
+                <TableCell colSpan={5} className="text-center py-4">
                   No comments found.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
+          <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {actionType === "hide"
+                    ? "Are you sure you want to hide this comment?"
+                    : "Are you sure you want to unhide this comment?"}
+                </AlertDialogTitle>
+                <div className="flex items-center gap-4 mt-2 mb-2">
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage
+                      src={
+                        commentTarget?.author.avatar ||
+                        "https://github.com/QuangTeoo.png"
+                      }
+                      alt={
+                        commentTarget?.author.displayName ||
+                        commentTarget?.author.username
+                      }
+                    />
+                    <AvatarFallback>
+                      {commentTarget?.author.username?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-bold text-base">
+                      {commentTarget?.author.displayName}
+                    </div>
+                    <div className="text-muted-foreground text-sm">
+                      @{commentTarget?.author.username}
+                    </div>
+                  </div>
+                </div>
+                <AlertDialogDescription>
+                  <span className="font-semibold">Comment content:</span>
+                  <div className="border rounded p-2 mt-1 bg-muted text-base">
+                    {commentTarget?.content}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    You can undo this action later in the admin panel.
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setOpenConfirm(false);
+                    setCommentTarget(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    if (!commentTarget) return;
+                    if (actionType === "hide") {
+                      handleHideComment(commentTarget._id);
+                    } else {
+                      handleUnhideComment(commentTarget._id);
+                    }
+                    setOpenConfirm(false);
+                    setCommentTarget(null);
+                  }}
+                >
+                  {actionType === "hide" ? "Confirm hide" : "Confirm unhide"}
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </Table>
       </div>
       {totalPages > 1 && (
@@ -150,61 +322,5 @@ export default function AdminComments() {
         </div>
       )}
     </div>
-  );
-}
-export function DropdownComment({ comment }: { comment: Comment }) {
-  const [openDropdown, setOpenDropdown] = useState(false);
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const navigate = useNavigate();
-  return (
-    <>
-      <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className="w-8 h-8 p-0">
-            <EllipsisVertical className="h-5 w-5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => {
-              // navigate(`/admin/users/detail/${user?._id}`);
-              setOpenDropdown(false);
-            }}
-          >
-            View
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              setOpenConfirm(true);
-              setOpenDropdown(false);
-            }}
-          >
-            Hide
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action will hide the post. You can undo this later in
-              settings.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setOpenConfirm(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive">Confirm</Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
   );
 }

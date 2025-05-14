@@ -17,5 +17,6 @@ import { UsersModule } from 'src/users/users.module';
   ],
   controllers: [BanController],
   providers: [BanService],
+  exports: [BanService],
 })
 export class BanModule {}

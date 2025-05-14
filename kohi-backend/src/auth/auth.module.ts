@@ -9,16 +9,24 @@ import { SessionGuard } from './passport/session.guard';
 import { RedisModule } from 'src/redis/redis.module';
 import { GoogleStrategy } from './passport/google.strategy';
 import { DiscordStrategy } from './passport/discord.strategy';
+import { BanModule } from 'src/ban/ban.module';
 @Global()
 @Module({
   imports: [
     UsersModule,
     UtilsModule,
     RedisModule,
+    BanModule,
     PassportModule.register({ defaultStrategy: 'local', session: true }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy,SessionGuard,GoogleStrategy,DiscordStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    SessionGuard,
+    GoogleStrategy,
+    DiscordStrategy,
+  ],
   exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -25,6 +25,8 @@ import { LIKECommentNotificationDto } from 'src/notifications/dto/new-likecommen
 import { NewReplyCommentNotificationDto } from 'src/notifications/dto/new-reply-comment-notification.dto';
 import { User } from 'src/auth/user.decorator';
 import mongoose from 'mongoose';
+import { CheckBan } from 'src/auth/check-ban.decorator';
+import { CommentFlags } from './schemas/comment.schema';
 
 @Controller('comments')
 export class CommentsController {
@@ -34,6 +36,7 @@ export class CommentsController {
     private readonly notificationsService: NotificationsService,
   ) {}
 
+    @CheckBan('comment') 
   @Post('create/:id')
   async createComment(
     @Param('id') postId: string,
@@ -87,6 +90,7 @@ export class CommentsController {
     );
   }
   //reply bình luận
+  @CheckBan('comment')
   @Post('reply/:id')
   async replyComment(
     @Param('id') commentId: string,
@@ -304,6 +308,33 @@ async findAllByAdmin(
   }
 
   return this.commentsService.getAllComment(currentPage, currentLimit,query);
-
 }
+  @Roles(Role.ADMIN)
+  @Post('hide/:id')
+  async hideComment(
+    @Param('id') commentId: string,
+  ) {
+    const comment = await this.commentsService.getOneComment(commentId);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+  if (comment.flags && comment.flags.includes((CommentFlags.HIDDEN))) {
+    throw new BadRequestException('Comment is already hidden');
+  } 
+    return this.commentsService.hideComment(commentId);
+  }
+  @Roles(Role.ADMIN)
+  @Post('unhide/:id')
+  async unhideComment(
+    @Param('id') commentId: string,
+  ) {
+    const comment = await this.commentsService.getOneComment(commentId);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    if (comment.flags && !comment.flags.includes((CommentFlags.HIDDEN))) {
+      throw new BadRequestException('Comment is already unhidden');
+    } 
+    return this.commentsService.unhideComment(commentId);
+  }
 }

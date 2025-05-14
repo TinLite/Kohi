@@ -5,8 +5,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CheckBanGuard } from './auth/passport/ban.guard';
 import { RolesGuard } from './auth/passport/role.guard';
 import { SessionGuard } from './auth/passport/session.guard';
+import { BanModule } from './ban/ban.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { CallsModule } from './calls/calls.module';
 import { ChatModule } from './chat/chat.module';
@@ -18,7 +20,6 @@ import { PostsModule } from './posts/posts.module';
 import { ReportsModule } from './reports/reports.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
-import { BanModule } from './ban/ban.module';
 
 @Module({
   imports: [
@@ -76,6 +77,10 @@ import { BanModule } from './ban/ban.module';
     {
       provide: 'APP_GUARD',
       useClass: RolesGuard,
+    },
+    {
+      provide: 'APP_GUARD',
+      useClass: CheckBanGuard,
     },
   ],
 })

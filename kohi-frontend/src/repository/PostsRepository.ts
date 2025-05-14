@@ -273,3 +273,65 @@ export async function getAllPostsAdmin(
     };
   };
 }
+export async function hidePost(postId: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/hide/${postId}`,
+    {
+      method: "POST",
+      credentials: "include",
+    }
+  );
+  return response.json();
+}
+export async function unHidePost(postId: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/unhide/${postId}`,
+    {
+      method: "POST",
+      credentials: "include",
+    }
+  );
+  return response.json();
+}
+export async function getOnePostByAdmin(postId: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/posts/admin/detail/${postId}`,
+    {
+      credentials: "include",
+    }
+  );
+  const data = await response.json();
+  return data as Post;
+}
+export async function getAllPostsByAdmin() {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/reports/posts/`,
+    {
+      credentials: "include",
+    }
+  );
+  const data = await response.json();
+  type ReportedPost = {
+    _id: string;
+    reportCount: number;
+    reports: Report[];
+    postInfo: Post;
+  };
+  return data as ReportedPost[];
+  // return data as [
+  //   {
+  //     _id: string;
+  //     reportCount: number;
+  //     reports: Report[];
+  //     postInfo: Post;
+  //   }
+  // ];
+}

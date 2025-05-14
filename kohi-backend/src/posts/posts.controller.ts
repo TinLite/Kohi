@@ -28,6 +28,7 @@ import { SharePostDto } from './dto/share-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
 import { Roles } from 'src/auth/role.decorator';
+import { CheckBan } from 'src/auth/check-ban.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -37,7 +38,7 @@ export class PostsController {
     private readonly eventsService: EventsService,
     private readonly notificationsService: NotificationsService,
   ) {}
-
+  @CheckBan('post')
   @Post('/create')
   @UseInterceptors(FilesInterceptor('files', 15))
   async create(
@@ -123,7 +124,7 @@ export class PostsController {
     }
     return this.postsService.findOne(id);
   }
-
+  @CheckBan('post')
   @Patch('detail/:id/update')
   async update(
     @Param('id') id: string,
@@ -317,5 +318,31 @@ export class PostsController {
       throw new NotFoundException('User not found');
     }
     return this.postsService.getProfileShares(requestUserId);
+  }
+  @Roles('admin')
+  @Post('hide/:id')
+  async hidePost(@Param('id') id: string) {
+    const post = await this.postsService.findOne(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    return this.postsService.hidePost(id);
+  }
+  @Roles('admin')
+  @Post('unhide/:id')
+  async unhidePost(@Param('id') id: string) {
+    const post = await this.postsService.findOneToUnhide(id);
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+    return this.postsService.unhidePost(id);
+  }
+  @Roles('admin')
+  @Get('/admin/detail/:id')
+  async findOneByAdmin(@Param('id') id: string) {
+    if(!id){
+      throw new NotFoundException('Post not found');
+    }
+    return this.postsService.getOnePostByAdmin(id);
   }
 }

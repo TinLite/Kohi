@@ -1,5 +1,8 @@
 import { Post } from './post-type';
 import { User } from "./user-type";
+export enum CommentFlags {
+  HIDDEN = 'hidden',
+}
 
 export class Comment {
   _id: string;
@@ -9,6 +12,7 @@ export class Comment {
   replyTo?: string;
   timeStamp?: Date;
   likes?: string[];
+  flags?: CommentFlags[];
   constructor(
     _id: string,
     author: User,
@@ -16,7 +20,8 @@ export class Comment {
     postId: Post,
     replyTo?: string,
     timeStamp?: Date,
-    likes?: string[]
+    likes?: string[],
+    flags?: CommentFlags[]
   ) {
     this._id = _id;
     this.author = author;
@@ -25,5 +30,6 @@ export class Comment {
     this.replyTo = replyTo;
     this.timeStamp = timeStamp;
     this.likes = likes;
+    this.flags = flags;
   }
 }

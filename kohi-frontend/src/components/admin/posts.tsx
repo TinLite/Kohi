@@ -1,6 +1,6 @@
 import { getAllPostsAdmin } from "@/repository/PostsRepository";
-import { Post } from "@/types/post-type";
-import { EllipsisVertical } from "lucide-react";
+import { Post, PostFlags } from "@/types/post-type";
+import { EllipsisVertical, Eye, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -39,7 +39,9 @@ export default function AdminPosts() {
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [totalPages, setTotalPages] = useState<number>(1);
-
+  const [filterStatus, setFilterStatus] = useState<"all" | "hidden" | "active">(
+    "all"
+  );
   useEffect(() => {
     navigate(`?page=${currentPage}`, { replace: true });
   }, [currentPage, navigate]);
@@ -72,6 +74,14 @@ export default function AdminPosts() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+  const filteredPosts = posts.filter((post) => {
+    if (filterStatus === "all") return true;
+    if (filterStatus === "hidden")
+      return post.flags?.includes(PostFlags.HIDDEN);
+    if (filterStatus === "active")
+      return !post.flags?.includes(PostFlags.HIDDEN);
+    return true;
+  });
 
   return (
     <div className="w-full px-4 py-2">
@@ -79,11 +89,39 @@ export default function AdminPosts() {
       <div className="flex flex-col sm:flex-row gap-4 mb-2">
         <Input
           type="text"
-          placeholder="Tìm kiếm posts..."
+          placeholder="Search posts..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full sm:w-1/3"
         />
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground flex items-center gap-1">
+            <Filter className="w-4 h-4" />
+            Filter:
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="">
+                {filterStatus === "all"
+                  ? "All"
+                  : filterStatus === "hidden"
+                  ? "Hidden"
+                  : "Active"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setFilterStatus("all")}>
+                All
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterStatus("active")}>
+                Active
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterStatus("hidden")}>
+                Hidden
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="overflow-x-auto min-h-[300px]">
         <Table className="w-full text-base">
@@ -92,12 +130,13 @@ export default function AdminPosts() {
               <TableHead className="w-[150px] text-left">Author</TableHead>
               <TableHead>Content</TableHead>
               <TableHead className="text-right">Create At</TableHead>
+              <TableHead className="text-right">Status</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {posts.length > 0 ? (
-              posts.map((post) => (
+            {filteredPosts.length > 0 ? (
+              filteredPosts.map((post) => (
                 <TableRow key={post._id}>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -117,13 +156,35 @@ export default function AdminPosts() {
                     {new Date(post.createdAt).toLocaleString("vi-VN")}
                   </TableCell>
                   <TableCell className="text-right">
-                    <DropdownPost post={post} />
+                    {post.flags?.includes(PostFlags.HIDDEN) ? (
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                        <span className="text-red-500">Hidden</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="w-3 h-3 rounded-full bg-green-500"></span>
+                        <span className="text-green-500">Active</span>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-8 h-8 p-0"
+                      onClick={() => {
+                        navigate(`/admin/posts/detail/${post._id}`);
+                      }}
+                    >
+                      <Eye className="h-5 w-5" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-4">
+                <TableCell colSpan={5} className="text-center py-4">
                   Không tìm thấy bài viết.
                 </TableCell>
               </TableRow>
@@ -148,58 +209,4 @@ export default function AdminPosts() {
     </div>
   );
 }
-export function DropdownPost({ post }: { post?: Post }) {
-  const [openDropdown, setOpenDropdown] = useState(false);
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const navigate = useNavigate();
-  const handleHidePost = () => {
-    console.log("Post hidden:", post?._id);
-    // Add logic to hide the post here
-  };
 
-  return (
-    <>
-      <DropdownMenu open={openDropdown} onOpenChange={setOpenDropdown}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className="w-8 h-8 p-0">
-            <EllipsisVertical className="h-5 w-5" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => {
-              setOpenDropdown(false);
-            }}
-          >
-            View
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpenConfirm(true)}>
-            Hide Post
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action will hide the post. You can undo this later in
-              settings.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setOpenConfirm(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive">Confirm</Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
-}

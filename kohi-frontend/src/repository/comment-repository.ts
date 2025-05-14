@@ -9,7 +9,7 @@ export async function createComment(postId: string, content: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify({
         content: content,
       }),
@@ -30,7 +30,7 @@ export async function updateComment(commentId: string, content: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify({
         content: content,
       }),
@@ -51,7 +51,7 @@ export async function replyToComment(replyTo: string, content: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify({
         content: content,
       }),
@@ -66,8 +66,9 @@ export async function listCommentsByPostId(postId: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/comments/list/${postId}`, {
-      credentials: 'include',
+    }/comments/list/${postId}`,
+    {
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -91,7 +92,7 @@ export async function likeComment(commentId: string) {
     }/comments/like/${commentId}`,
     {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -105,7 +106,7 @@ export async function unLikeComment(commentId: string) {
     }/comments/unlike/${commentId}`,
     {
       method: "DELETE",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -116,7 +117,8 @@ export async function listCommentByReplyTo(replyTo: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/comments/list/reply/${replyTo}`, {}
+    }/comments/list/reply/${replyTo}`,
+    {}
   );
   if (!response.ok) {
     throw new Error("Failed to fetch comments");
@@ -139,7 +141,7 @@ export async function deleteComment(commentId: string) {
     }/comments/delete/${commentId}`,
     {
       method: "DELETE",
-      credentials: 'include',
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -156,7 +158,7 @@ export async function reportComment(commentId: string, reason: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify({
         reason: reason,
       }),
@@ -170,8 +172,9 @@ export async function getCommentByAuthor(authorId: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/comments/list/author/${authorId}`, {
-      credentials: 'include',
+    }/comments/list/author/${authorId}`,
+    {
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -196,8 +199,9 @@ export async function getAllCommentsAdmin(
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
       import.meta.env.VITE_API_PREFIX
-    }/comments/admin/list?page=${page}&limit=${limit}&query=${query}`, {
-      credentials: 'include',
+    }/comments/admin/list?page=${page}&limit=${limit}&query=${query}`,
+    {
+      credentials: "include",
     }
   );
   if (!response.ok) {
@@ -213,4 +217,32 @@ export async function getAllCommentsAdmin(
       limit: number;
     };
   };
+}
+export async function hideComment(commentId: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/comments/hide/${commentId}`,
+    {
+      method: "POST",
+      credentials: "include",
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to hide comment");
+  }
+}
+export async function unHideComment(commentId: string) {
+  const response = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/comments/unhide/${commentId}`,
+    {
+      method: "POST",
+      credentials: "include",
+    }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to unhide comment");
+  }
 }

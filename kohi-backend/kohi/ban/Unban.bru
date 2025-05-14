@@ -1,0 +1,18 @@
+meta {
+  name: Unban
+  type: http
+  seq: 2
+}
+
+delete {
+  url: http://localhost:3000/v1/api/ban/unban/user/681c454d074545131fbbf5c6
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "types": "account"
+  }
+  
+}

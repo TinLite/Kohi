@@ -1,0 +1,19 @@
+meta {
+  name: BanCreatePost
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/v1/api/ban/user/681c454d074545131fbbf5c6
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "types": "account",
+    "reason": "Vi phạm nội quy",
+    "expiresAt":"2025-05-14"
+  }
+}
