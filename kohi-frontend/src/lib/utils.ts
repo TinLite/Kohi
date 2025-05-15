@@ -23,3 +23,9 @@ export function convertMediaUrl(media: string) {
   }
   return media;
 }
+
+export async function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}

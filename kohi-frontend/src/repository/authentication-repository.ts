@@ -1,3 +1,5 @@
+import { delay } from "@/lib/utils";
+
 export async function login(email: string, password: string) {
   const response = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${
@@ -12,6 +14,7 @@ export async function login(email: string, password: string) {
       credentials: "include",
     }
   );
+  await delay(1000);
   if (!response.ok) {
     if (response.status === 401) {
       throw new Error("Email hoặc mật khẩu không chính xác");

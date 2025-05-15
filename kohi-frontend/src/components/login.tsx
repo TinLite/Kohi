@@ -8,6 +8,7 @@ import {
 } from "@/repository/authentication-repository";
 import { getProfile } from "@/repository/user-repository";
 import { TabsContent } from "@radix-ui/react-tabs";
+import { LoaderCircle } from "lucide-react";
 import { useContext, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -156,7 +157,8 @@ const LoginSheet = ({
                     <Input
                       ref={accountRef}
                       type="text"
-                      placeholder="m@example.com"
+                      placeholder="hello@example.com"
+                      disabled={submitting}
                     />
                   </Label>
                 </div>
@@ -166,6 +168,7 @@ const LoginSheet = ({
                     <Input
                       ref={passwordRef}
                       type="password"
+                      disabled={submitting}
                       placeholder="Type your password"
                     />
                   </Label>
@@ -184,7 +187,13 @@ const LoginSheet = ({
                   onClick={loginSubmitHandler}
                   disabled={submitting}
                 >
-                  Login
+                  {
+                    submitting ? (
+                      <LoaderCircle className="animate-spin"/>
+                    ) : (
+                      "Login"
+                    )
+                  }
                 </Button>
               </SheetFooter>
               <Separator className="my-4" />
