@@ -49,11 +49,10 @@ import { getChannelMessages, recallMesssage, sendMessage, updateChannel } from "
 import socket from "@/services/socket";
 import { ChatChannelType, ChatMessage } from "@/types/chat-types";
 import { SocketEvent } from "@/types/socket-types";
-import { User } from "@/types/user-type";
 import { ChevronLeft, CircleX, DoorOpen, Ellipsis, ImagePlus, ImageUp, LoaderCircle, PenLine, Phone, ReplyIcon, SendHorizonal, Trash, UserPlus } from "lucide-react";
 import { DateTime } from "luxon";
 import { useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 function UserMessage({ className, isMe, name, avatar, image, images, noPaddingTop, message, onReply, isReplyingTo = false, replyTarget, isRecalled, onRecall = () => { } }: { className?: string, isMe?: boolean, name?: string, avatar?: string, image?: string, images?: string[], noPaddingTop?: boolean, message?: string, onReply?: () => void, isReplyingTo?: boolean, replyTarget?: ChatMessage, isRecalled?: boolean, onRecall?: () => void }) {
@@ -339,6 +338,8 @@ function MessageView({ className }: { className?: string }) {
 
   const { chatChannel: channel } = useContext(ChatContext);
 
+  const navigate = useNavigate();
+
   const [reducedMessage, setReducedMessage] = useReducer((state: ChatMessage[], action: {
     type: 'append' | 'prepend' | 'replace' | 'replace_one',
     payload: ChatMessage[]
@@ -368,7 +369,6 @@ function MessageView({ className }: { className?: string }) {
   const [channelSettingStatus, setChannelSettingStatus] = useState(false);
 
   const [channelName, setChannelName] = useState<string | undefined>(channel?.name ?? "Chat channel");
-  const [targetUser, setTargetUser] = useState<User | undefined>(undefined);
   const [avatar, setAvatar] = useState<string | undefined>(undefined);
   const { user } = useContext(UserContext);
   const { openImage } = useContext(ImageViewerContext)
@@ -394,17 +394,53 @@ function MessageView({ className }: { className?: string }) {
 
   // Update channel name
   useEffect(() => {
-    if (channel?.type === ChatChannelType.PRIVATE) {
-      const targetUser = channel.participants.find(p => p.user._id !== user?._id)?.user;
-      if (targetUser) {
-        setChannelName(targetUser.displayName ?? `@${targetUser.username}`);
-        setAvatar(targetUser.avatar);
-      }
-      setTargetUser(targetUser);
-    } else {
-      setChannelName(channel?.participants.map(p => p.user.displayName ?? `@${p.user.username}`).join(', ') ?? channel?._id);
+    if (!channel) {
+      navigate("/message");
+      return;
     }
-  }, [])
+    if (channel.name) {
+      setChannelName(channel.name);
+      return;
+    }
+    if (channel.type === ChatChannelType.PRIVATE) {
+      if (channel.participants.length > 2) {
+        let result = ""
+        result = channel.participants
+          .filter((p) => p.user._id !== user?._id)
+          .slice(0, 2)
+          .map((p) => '@' + p.user.username)
+          .join(", ");
+        if (channel.participants.length > 3) {
+          result += ` and ${channel.participants.length - 3} other(s)`;
+        }
+        setChannelName(result);
+      }
+
+      const targetUser = channel.participants.find(
+        (p) => p.user._id !== user?._id
+      )?.user;
+
+      if (targetUser) {
+        setAvatar(targetUser.avatar ?? avatar);
+        setChannelName(targetUser.displayName ?? `@${targetUser.username}`);
+      }
+    }
+  }, [channel, user])
+
+  const usernames = useMemo(() => {
+    if (channel?.type === ChatChannelType.PRIVATE) {
+      let result = channel.participants
+        .filter((p) => p.user._id !== user?._id)
+        .slice(0, 2)
+        .map((p) => '@' + p.user.username)
+        .join(", ");
+      if (channel.participants.length > 3) {
+        result += ` and ${channel.participants.length - 3} other(s)`;
+      }
+      return result;
+    }
+    return "";
+  }, [channel, user?._id]);
 
   useEffect(() => {
     if (!user) {
@@ -510,7 +546,7 @@ function MessageView({ className }: { className?: string }) {
           <AvatarFallback>{channelName?.charAt(0) ?? '-'}</AvatarFallback>
         </Avatar>
         <div className="flex-grow">
-          <h1 className="font-bold">{channelName ?? ""} <span className="font-normal text-muted-foreground">@{targetUser?.username}</span></h1>
+          <h1 className="font-bold">{channelName ?? ""} <span className="font-normal text-muted-foreground">{usernames}</span></h1>
           <h4 className="text-xs">Online</h4>
         </div>
         <Button variant="ghost" size="icon" disabled>

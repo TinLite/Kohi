@@ -32,9 +32,9 @@ function MessageSelectionItem({
     if (chatChannel.name) {
       return chatChannel.name;
     }
-    let result = ""
     if (chatChannel.type === ChatChannelType.PRIVATE) {
       if (chatChannel.participants.length > 2) {
+        let result = ""
         result = chatChannel.participants
           .filter((p) => p.user._id !== user?._id)
           .slice(0, 2)
@@ -52,11 +52,10 @@ function MessageSelectionItem({
 
       if (targetUser) {
         avatar = targetUser.avatar ?? avatar;
-        result = chatChannel.name ?? targetUser.displayName ?? `@${targetUser.username}`;
+        return targetUser.displayName ?? `@${targetUser.username}`;
       }
-      return result;
     }
-  }, [chatChannel, user?._id]);
+  }, [chatChannel, chatChannel._id, user?._id]);
 
   const latestMessage = chatChannel.latestMessage;
 
