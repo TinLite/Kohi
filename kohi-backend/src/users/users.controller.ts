@@ -15,12 +15,12 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
+import { Public } from 'src/auth/authmeta';
+import { Roles } from 'src/auth/role.decorator';
 import { User } from 'src/auth/user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { Public } from 'src/auth/authmeta';
-import { Roles } from 'src/auth/role.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -50,6 +50,11 @@ export class UsersController {
       throw new NotFoundException('Page or limit not found');
     }
     return this.usersService.findAllUser(currentPage, currentLimit,query);
+  }
+
+  @Get('friends')
+  async findFriends(@User() user) {
+    return this.usersService.getFriends(user._id);
   }
 
   @Get('profile/:id/detail')

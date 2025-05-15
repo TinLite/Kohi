@@ -1,5 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { BadRequestException, Injectable, Query } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import crypto from 'crypto';
 import { Model } from 'mongoose';
@@ -7,11 +7,10 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { RedisService } from '../redis/redis.service';
 import { UtilsService } from '../utils/utils.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserWithDiscordDto } from './dto/create-userwithdiscord';
+import { CreateUserWithGGDto } from './dto/create-userwithgg';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
-import { CreateUserWithGGDto } from './dto/create-userwithgg';
-import { CreateUserWithDiscordDto } from './dto/create-userwithdiscord';
-import e from 'express';
 @Injectable()
 export class UsersService {
   constructor(
@@ -217,6 +216,23 @@ export class UsersService {
       data = data.limit(limit);
     }
     return data.exec();
+  }
+
+  async getFriends(userId: string, skip = 0, limit = -1) {
+    let data = this.userModel
+      .find({ following: userId })
+      .populate('following', 'username displayName following')
+      .select('following')
+      .skip(skip);
+
+    if (limit !== -1) {
+      data = data.limit(limit);
+    }
+    
+    return (await data.exec()).filter((doc) => {
+      const following = doc.following;
+      return following.includes(userId);
+    });
   }
 
   /**

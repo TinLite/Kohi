@@ -16,6 +16,21 @@ export async function getProfile(userId: string = "me") {
   return (await data.json()) as User;
 }
 
+export async function getFriends() {
+  const data = await fetch(
+    `${import.meta.env.VITE_BACKEND_BASE_URL}/${
+      import.meta.env.VITE_API_PREFIX
+    }/users/friends`,
+    {
+      credentials: "include",
+    }
+  );
+  if (!data.ok) {
+    throw new Error("Failed to fetch user profile");
+  }
+  return (await data.json()) as User[];
+}
+
 export async function updateUser(userId: string, formData: any) {
   const data = await fetch(
     `${import.meta.env.VITE_BACKEND_BASE_URL}/${

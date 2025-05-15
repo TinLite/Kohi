@@ -1,4 +1,5 @@
 import { ButtonScrollToTop } from "@/components/button-scroll-to-top";
+import FriendSide from "@/components/friend-side";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -98,7 +99,7 @@ function PostCreate({ onSubmit }: { onSubmit: () => void }) {
 }
 
 export default function PostList() {
-  const { user } = useContext(UserContext);
+  const { user, setLoginFormOpen } = useContext(UserContext);
   function refreshPost() {
     getGlobalLatestPosts().then(setPosts);
   }
@@ -110,7 +111,7 @@ export default function PostList() {
   }, [user]);
   return (
     <>
-      <div className="sticky flex md:hidden top-0 w-full bg-background border-b border-muted px-4 pt-2 pb-8">
+      <div className="sticky flex lg:hidden top-0 w-full bg-background border-b border-muted px-4 pt-2 pb-8">
         <Link to="/" className="font-bold text-sm">
           コー
           <br />
@@ -118,29 +119,43 @@ export default function PostList() {
         </Link>
       </div>
       <div className="flex">
-        <div className="min-h-dvh flex-grow">
-          <div className="w-full flex justify-center gap-4">
-              <div className="space-y-6 py-6 mx-auto md:mb-0 mb-12 xl:pr-4 max-w-2xl w-dvw">
-                {user && <PostCreate onSubmit={refreshPost} />}
-                {posts.map((post) => (
-                  <UserPost
-                    post={post}
-                    key={post._id}
-                    showEditPost={user?._id === post.author._id}
-                    onDelete={refreshPost}
-                    onRepost={refreshPost}
-                    onUpdateShare={refreshPost}
-                    onShareQuote={refreshPost}
-                    onUpdateLike={refreshPost}
-                    lineClampNumber={3}
-                  />
-                ))}
-              </div>
-            {/* <div className="hidden xl:block">
-              <FriendSide />
-            </div> */}
-          </div>
+        <div className="flex-grow">
+          {
+            user ? (
+              <>
+                <div className="w-full flex justify-center gap-4">
+                  <div className="space-y-6 py-6 mx-auto lg:mb-0 mb-12 xl:pr-4 max-w-2xl w-dvw">
+                    <PostCreate onSubmit={refreshPost} />
+                    {posts.map((post) => (
+                      <UserPost
+                        post={post}
+                        key={post._id}
+                        showEditPost={user?._id === post.author._id}
+                        onDelete={refreshPost}
+                        onRepost={refreshPost}
+                        onUpdateShare={refreshPost}
+                        onShareQuote={refreshPost}
+                        onUpdateLike={refreshPost}
+                        lineClampNumber={3}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </>
+            )
+              : (
+                <div className="flex flex-col items-center justify-center lg:h-dvh h-[calc(100vh-9.5rem)]">
+                  <h1 className="text-2xl font-bold mb-4">Welcome to コーヒー</h1>
+                  <p className="text-lg mb-4">Unwind yourself, let's have fun together!</p>
+                  <Button onClick={() => setLoginFormOpen(true)}>Login</Button>
+                </div>
+              )
+          }
         </div>
+        {
+          user &&
+          <FriendSide />
+        }
         <ButtonScrollToTop />
       </div>
     </>
