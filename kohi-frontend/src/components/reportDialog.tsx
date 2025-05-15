@@ -41,38 +41,49 @@ export function ReportDialog({
   const handleSubmit = async () => {
     if (!reason.trim()) return;
 
-    reportTarget(type, targetId, reason) // Gọi API với type và targetId
+    reportTarget(type, targetId, reason)
       .then(() => {
         toast.success("Report submitted successfully");
         setReason("");
         handleClose();
       })
       .catch((err) => {
-        console.error(err);
-        toast.error("Failed to submit report");
+        if (
+          err?.statusCode === 409 ||
+          err?.message?.includes("already reported")
+        ) {
+          toast.info("You have already reported this post");
+          setReason("");
+          handleClose();
+        } else {
+          toast.error("Failed to submit report");
+          console.error(err);
+        }
       });
   };
 
   return (
     <>
-      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Ellipsis className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem
-            onClick={() => {
-              setIsDropdownOpen(false);
-              handleOpen();
-            }}
-          >
-            <ShieldAlert className="mr-2 h-4 w-4" />
-            Report
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {type === "post" && (
+        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Ellipsis className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              onClick={() => {
+                setIsDropdownOpen(false);
+                handleOpen();
+              }}
+            >
+              <ShieldAlert className="mr-2 h-4 w-4" />
+              Report
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
       <Dialog
         open={isOpen}
         onOpenChange={(open) => {

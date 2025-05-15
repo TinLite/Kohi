@@ -46,9 +46,12 @@ export class ReportsService {
     return this.reportModel.find({ commentId });
   }
   // Lấy danh sach report
-  async findReported(page: number = 1, limit: number = 5) {
+  async findReported(page: number = 1, limit: number = 5,handled?: boolean) {
     const skip = (page - 1) * limit;
     const filter: any = {};
+    if (handled !== undefined) {
+      filter.handled = handled;
+    }
     const [data, total] = await Promise.all([
       this.reportModel
         .find(filter)

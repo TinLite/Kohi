@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { UsersService } from 'src/users/users.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { SharePostDto } from './dto/share-post.dto';
@@ -410,6 +410,9 @@ export class PostsService {
         { content: { $regex: query, $options: 'i' } }, // Tìm kiếm theo nội dung bài viết
         { author: { $in: authorIds } }, // Tìm kiếm theo tác giả
       ];
+      if (mongoose.Types.ObjectId.isValid(query)) {
+        filter.$or.push({ _id: query });
+      }
     }
 
     // Lấy dữ liệu bài viết

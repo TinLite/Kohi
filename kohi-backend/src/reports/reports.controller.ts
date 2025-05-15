@@ -95,26 +95,33 @@ export class ReportsController {
     }
     return this.commentsService.hideComment(commentId);
   }
-@Roles('admin')
-@Get('/list/')
-async findReported(
-  @Query('page') page?: string,
-  @Query('limit') limit?: string,
-) {
-  const currentPage = page ? Number(page) : 1;
-  const currentLimit = limit ? Number(limit) : 5;
-
-  if (
-    !Number.isInteger(currentPage) ||
-    !Number.isInteger(currentLimit) ||
-    currentPage <= 0 ||
-    currentLimit <= 0
+  @Roles('admin')
+  @Get('/list/')
+  async findReported(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('handled') handled?: string,
   ) {
-    throw new BadRequestException('Malfunctioned page or limit');
-  }
+    const currentPage = page ? Number(page) : 1;
+    const currentLimit = limit ? Number(limit) : 5;
 
-  return this.reportsService.findReported(currentPage, currentLimit);
-}
+    if (
+      !Number.isInteger(currentPage) ||
+      !Number.isInteger(currentLimit) ||
+      currentPage <= 0 ||
+      currentLimit <= 0
+    ) {
+      throw new BadRequestException('Malfunctioned page or limit');
+    }
+    let handledValue: boolean | undefined = undefined;
+    if (handled === 'true') handledValue = true;
+    if (handled === 'false') handledValue = false;
+    return this.reportsService.findReported(
+      currentPage,
+      currentLimit,
+      handledValue,
+    );
+  }
   @Roles('admin')
   @Post('/reject/:id')
   async rejectReport(
@@ -133,7 +140,7 @@ async findReported(
     if (isExitReport.handled === true) {
       throw new ConflictException('Report already handled');
     }
-      if (isExitReport && isExitReport.userId) {
+    if (isExitReport && isExitReport.userId) {
       await this.notificationsService.createNotificationRejectReport(
         new RejectPostNotificationDto({
           userId: isExitReport.userId,
@@ -141,7 +148,6 @@ async findReported(
         }),
       );
     }
-
     return this.reportsService.rejectReport(reportId, userId, rejectReportDto);
   }
   @Roles('admin')
