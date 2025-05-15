@@ -67,9 +67,7 @@ export class ChatController {
         }
         const channel = await this.chatService.createChannel(createChatDto);
         const latestMessage = await this.chatService.createMessage(channel._id, currentUser, { content: createChatDto.firstMessage });
-        channel.participants.filter(
-            participant => participant.user.toString() !== currentUser.toString() && participant.role === ChatParticipantRole.PARTICIPANT
-        ).map(participant => {
+        channel.participants.map(participant => {
             this.eventsService.announceToUser(participant.user.toString(), 'chat:channel:new', {
                 ...channel,
                 latestMessage
