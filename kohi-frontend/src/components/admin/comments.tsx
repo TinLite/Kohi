@@ -76,6 +76,7 @@ export default function AdminComments() {
     if (!commentId) return;
     hideComment(commentId)
       .then(() => {
+          if (filterStatus !== "all") setCurrentPage(1);
         fetchComments();
       })
       .catch((err) => {
@@ -86,6 +87,7 @@ export default function AdminComments() {
     if (!commentId) return;
     unHideComment(commentId)
       .then(() => {
+        if (filterStatus !== "all") setCurrentPage(1);
         fetchComments();
       })
       .catch((err) => {
@@ -295,6 +297,7 @@ export default function AdminComments() {
                       handleHideComment(commentTarget._id);
                     } else {
                       handleUnhideComment(commentTarget._id);
+                      setActionType("hide");
                     }
                     setOpenConfirm(false);
                     setCommentTarget(null);

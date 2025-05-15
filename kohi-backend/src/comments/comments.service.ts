@@ -226,6 +226,9 @@ export class CommentsService {
         { content: { $regex: query, $options: 'i' } },
         { author: { $in: authorIds } },
       ];
+      if (mongoose.Types.ObjectId.isValid(query)) {
+        filter.$or.push({ _id: query });
+      }
     }
 
     const comment = await this.commentModel

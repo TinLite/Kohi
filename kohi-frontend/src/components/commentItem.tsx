@@ -5,7 +5,7 @@ import {
   likeComment,
   reportComment,
   unLikeComment,
-  updateComment
+  updateComment,
 } from "@/repository/comment-repository";
 import {
   Edit,
@@ -26,7 +26,7 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "./ui/dialog";
 import {
   DropdownMenu,
@@ -35,6 +35,16 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Textarea } from "./ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 const CommentItem = ({
   comment,
   allComments,
@@ -73,17 +83,28 @@ const CommentItem = ({
     setReplies(commentReplies);
   }, [allComments, comment._id]);
 
-  const handleSubmitReport = async () => {
+  const handleSubmitReport = () => {
     if (!reason.trim()) return;
-    try {
-      await reportComment(comment._id, reason);
-      toast.success("Report submitted successfully");
-      setReason("");
-      setIsOpenReport(false);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+    reportComment(comment._id, reason)
+      .then(() => {
+        toast.success("Report submitted successfully");
+        setReason("");
+        setIsOpenReport(false);
+      })
+      .catch((err) => {
+        if (
+          err?.statusCode === 409 ||
+          err?.message?.includes("already reported")
+        ) {
+          toast.info("You have already reported this post");
+          setReason("");
+          setIsOpenReport(false);
+        } else {
+          toast.error("Failed to submit report");
+          console.error(err);
+        }
+      });
+  };
   const toggleLikeComment = async () => {
     if (isLiked) {
       if (!user) {
@@ -139,12 +160,12 @@ const CommentItem = ({
   };
   const isFocused = comment._id === focusedCommentId; // Kiểm tra nếu comment được focus
   return (
- <div
-  className={cn(
-    "space-y-4 border bg-card rounded-lg p-4",
-    isFocused ? "bg-primary/10 border-primary" : "" // Thêm class nếu được focus
-  )}
->
+    <div
+      className={cn(
+        "space-y-4 border bg-card rounded-lg p-4",
+        isFocused ? "bg-primary/10 border-primary" : "" // Thêm class nếu được focus
+      )}
+    >
       <div className="flex items-start gap-4 px-6 pt-4">
         <Avatar className="w-8 h-8">
           <AvatarImage
@@ -162,22 +183,21 @@ const CommentItem = ({
               <p className="font-bold">
                 {comment.author.displayName}
                 <span className="text-sm text-muted-foreground font-normal">
-                  {' '} @{comment.author.username}
-                  {` - ${DateTime.fromISO(comment.timeStamp!.toString()).toRelative()}`}
+                  {" "}
+                  @{comment.author.username}
+                  {` - ${DateTime.fromISO(
+                    comment.timeStamp!.toString()
+                  ).toRelative()}`}
                 </span>
               </p>
               <p className="">{comment.content}</p>
-              <p className="text-sm text-muted-foreground">
-              </p>
+              <p className="text-sm text-muted-foreground"></p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                {(user?._id === comment.author._id ||
-                  user?._id === comment.postId.author._id) && (
-                    <Button variant="ghost" size="icon">
-                      <EllipsisVertical />
-                    </Button>
-                  )}
+                <Button variant="ghost" size="icon">
+                  <EllipsisVertical />
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {user?._id === comment.author._id && (
@@ -188,11 +208,11 @@ const CommentItem = ({
                 )}
                 {(user?._id === comment.author._id ||
                   user?._id === comment.postId.author._id) && (
-                    <DropdownMenuItem onClick={removeComment}>
-                      <Trash className="mr-2 h-4 w-4" />
-                      Xóa
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem onClick={removeComment}>
+                    <Trash className="mr-2 h-4 w-4" />
+                    Xóa
+                  </DropdownMenuItem>
+                )}
                 {user?._id !== comment.author._id && (
                   <DropdownMenuItem onClick={() => setIsOpenReport(true)}>
                     <ShieldAlert className="mr-2 h-4 w-4" />
@@ -202,25 +222,30 @@ const CommentItem = ({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <Dialog open={isOpenReport} onOpenChange={handleCloseReport}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Report</DialogTitle>
-              </DialogHeader>
-              <Textarea
-                placeholder="Enter the reason for your report..."
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                className="mt-2"
-              />
-              <DialogFooter>
-                <Button variant="secondary" onClick={handleCloseReport}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitReport}>Submit</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <AlertDialog open={isOpenReport} onOpenChange={handleCloseReport}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Report</AlertDialogTitle>
+                <AlertDialogDescription>
+                  <Textarea
+                    placeholder="Enter the reason for your report..."
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className="mt-2"
+                  />
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleSubmitReport}
+                  disabled={!reason.trim()}
+                >
+                  Submit
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <div className="flex flex-wrap gap-2 items-center">
             <Button
               variant="ghost"

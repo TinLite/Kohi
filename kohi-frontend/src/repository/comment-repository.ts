@@ -165,8 +165,15 @@ export async function reportComment(commentId: string, reason: string) {
     }
   );
   if (!response.ok) {
-    throw new Error("Failed to report comment");
+    let errorData;
+    try {
+      errorData = await response.json();
+    } catch {
+      errorData = { message: response.statusText };
+    }
+    throw errorData;
   }
+  return response.json();
 }
 export async function getCommentByAuthor(authorId: string) {
   const response = await fetch(
